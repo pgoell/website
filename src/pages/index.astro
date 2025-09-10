@@ -3,6 +3,29 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="Home">
-  <h1 class="mb-4 text-3xl font-bold">Welcome</h1>
-  <p>This is my new Astro site.</p>
+  <main class="mx-auto max-w-3xl px-4 py-12 text-center">
+    <div class="mx-auto mb-6 h-32 w-32 rounded-full bg-gray-300"></div>
+    <h1 class="mb-2 text-4xl font-bold">Your Name</h1>
+    <p class="mb-8 text-lg text-gray-600">
+      Briefly introduce yourself here. Mention your profession and interests so visitors know what you're about.
+    </p>
+    <div class="flex flex-col items-center space-y-4 sm:flex-row sm:justify-center sm:space-x-4 sm:space-y-0">
+      <a
+        href="/cv"
+        class="rounded bg-blue-600 px-4 py-2 font-medium text-white"
+        >View CV</a
+      >
+      <a
+        href="/cv.pdf"
+        download
+        class="rounded border border-blue-600 px-4 py-2 font-medium text-blue-600"
+        >Download CV</a
+      >
+      <a
+        href="/blog"
+        class="rounded bg-green-600 px-4 py-2 font-medium text-white"
+        >Read Blog</a
+      >
+    </div>
+  </main>
 </Layout>
