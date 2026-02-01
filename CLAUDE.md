@@ -36,8 +36,9 @@ jj git fetch && jj rebase -d main      # Sync with main
 
 **Stack:** Next.js 16 (App Router) + React 19 + Tailwind 4 + Biome + bun
 
-**Typography:** @tailwindcss/typography for prose styling
-- Use `prose` class for rendered markdown/blog content
+**Typography:** Custom MDX components in `mdx-components.tsx`
+- Style MDX elements (h1, p, etc.) with Tailwind classes directly
+- No @tailwindcss/typography (incompatible with Tailwind v4)
 
 **Internationalization:** next-intl with locale-based routing
 - Locales: `en`, `de` (configured in `i18n/config.ts`)

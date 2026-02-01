@@ -13,7 +13,7 @@ export function LanguageSwitcher() {
   const newPath = pathname.replace(`/${locale}`, `/${switchTo}`);
 
   return (
-    <Button variant="ghost" onClick={() => router.push(newPath)}>
+    <Button variant="ghost" size="icon" onClick={() => router.push(newPath)}>
       {switchTo.toUpperCase()}
     </Button>
   );

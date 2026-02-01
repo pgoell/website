@@ -5,7 +5,21 @@
       "Bash(dir:*)",
       "Bash(Get-ChildItem -Path D:codewebsite -Recurse -File -Include *.ts,*.tsx)",
       "Bash(Where-Object { $_FullName -notmatch 'node_modules|\\\\.next' })",
-      "Bash(Select-Object -ExpandProperty FullName)"
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(cd:*)",
+      "Bash(bun add:*)",
+      "WebFetch(domain:ui.shadcn.com)",
+      "WebFetch(domain:rauchg.com)",
+      "Bash(ls -la \"D:\\\\code\\\\website\\\\lib\"\" 2>/dev/null || echo \"lib directory not found \")",
+      "Bash(ls -la \"D:\\\\code\\\\website\\\\components\\\\ui\"\" 2>/dev/null || echo \"UI components directory content \")",
+      "Bash(jj status:*)",
+      "Bash(jj describe:*)",
+      "Bash(jj git push:*)",
+      "Bash(make:*)",
+      "Bash(Remove-Item scripts/jj-push.sh)",
+      "Bash(jj git fetch:*)",
+      "Bash(jj rebase:*)",
+      "Bash(jj bookmark list:*)"
     ]
   }
 }

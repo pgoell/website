@@ -1,22 +1,16 @@
+import createMDX from "@next/mdx";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
+const withMDX = createMDX({});
 
 const config: NextConfig = {
   output: "standalone",
   reactStrictMode: true,
   poweredByHeader: false,
   compress: false,
-
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "i.scdn.co", // Sporitify CDN
-      },
-    ],
-  },
+  pageExtensions: ["ts", "tsx", "mdx"],
 };
 
-export default withNextIntl(config);
+export default withNextIntl(withMDX(config));

@@ -1,9 +1,22 @@
 {
   "home": {
-    "title": "Welcome",
-    "description": "Blog and games"
+    "intro": "I'm a developer and writer. I work at Deloitte as a consultant for Data Engineering and AI Engineering with a strong focus on Databricks. Previously, I was an AI Engineer at Deutsche Bundesbank.",
+    "mission": "My life's work is [your mission]. I'm passionate about [interests].",
+    "personal": "I'm a [personal details]. I last listened to [Song] by [Artist].",
+    "cta": {
+      "prefix": "You can read my",
+      "writing": "writing",
+      "or": "or",
+      "code": "code",
+      "comma": ", or",
+      "follow": "follow me online",
+      "period": ".",
+      "reachOut": "Reach out",
+      "suffix": " if interested."
+    }
   },
   "nav": {
+    "home": "Home",
     "blog": "Blog",
     "games": "Games"
   }
