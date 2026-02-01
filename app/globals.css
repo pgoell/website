@@ -3,6 +3,8 @@
 :root {
   --background: oklch(0.9914 0.0098 87.4695);
   --foreground: oklch(0.3296 0.0122 62.2125);
+  --wordle-correct: oklch(0.65 0.17 145);
+  --wordle-present: oklch(0.75 0.15 85);
   --card: oklch(0.9688 0.0119 79.7848);
   --card-foreground: oklch(0.3296 0.0122 62.2125);
   --popover: oklch(0.9914 0.0098 87.4695);
@@ -68,6 +70,8 @@
 .dark {
   --background: oklch(0.2225 0.0041 84.5879);
   --foreground: oklch(0.9428 0.0153 77.0696);
+  --wordle-correct: oklch(0.55 0.17 145);
+  --wordle-present: oklch(0.65 0.15 85);
   --card: oklch(0.2617 0.0047 67.6183);
   --card-foreground: oklch(0.9428 0.0153 77.0696);
   --popover: oklch(0.2225 0.0041 84.5879);
@@ -187,4 +191,24 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   letter-spacing: var(--tracking-normal);
+}
+
+/* Wordle animations */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-5px);
+  }
+  40%,
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
 }

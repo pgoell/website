@@ -12,12 +12,28 @@
       "follow": "follow me online",
       "period": ".",
       "reachOut": "Reach out",
-      "suffix": " if interested."
+      "suffix": " if interested.",
+      "playGames": "play some games"
     }
   },
   "nav": {
+    "menu": "Menu",
     "home": "Home",
     "blog": "Blog",
     "games": "Games"
+  },
+  "games": {
+    "title": "Games",
+    "subtitle": "Take a break and play something fun",
+    "wordle": {
+      "title": "Wordle",
+      "description": "Guess the 5-letter word in 6 tries",
+      "play": "Play",
+      "instructions": "Guess the word in 6 tries. Each guess must be a valid 5-letter word. The color of the tiles will change to show how close your guess was.",
+      "invalidWord": "Not in word list",
+      "notEnough": "Not enough letters",
+      "youWin": "You won!",
+      "youLose": "The word was {word}"
+    }
   }
 }

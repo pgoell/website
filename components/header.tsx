@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { SiteNav } from "@/components/site-nav";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 
@@ -59,6 +60,8 @@ export function Header() {
         </Link>
 
         <div className="flex items-center gap-1">
+          <SiteNav />
+
           <Button variant="ghost" size="icon" asChild>
             <a
               href="https://x.com/BearWithAI"

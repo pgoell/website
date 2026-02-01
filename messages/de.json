@@ -12,12 +12,28 @@
       "follow": "online folgen",
       "period": ".",
       "reachOut": "Melde dich",
-      "suffix": ", wenn du Interesse hast."
+      "suffix": ", wenn du Interesse hast.",
+      "playGames": "Spiele spielen"
     }
   },
   "nav": {
+    "menu": "Menü",
     "home": "Startseite",
     "blog": "Blog",
     "games": "Spiele"
+  },
+  "games": {
+    "title": "Spiele",
+    "subtitle": "Mach eine Pause und spiel etwas",
+    "wordle": {
+      "title": "Wordle",
+      "description": "Errate das 5-Buchstaben-Wort in 6 Versuchen",
+      "play": "Spielen",
+      "instructions": "Errate das Wort in 6 Versuchen. Jeder Versuch muss ein gültiges 5-Buchstaben-Wort sein. Die Farbe der Kacheln zeigt an, wie nah dein Versuch war.",
+      "invalidWord": "Nicht in der Wortliste",
+      "notEnough": "Nicht genug Buchstaben",
+      "youWin": "Gewonnen!",
+      "youLose": "Das Wort war {word}"
+    }
   }
 }
