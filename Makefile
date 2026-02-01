@@ -1,15 +1,27 @@
-.PHONY: setup help check jj-push
+.PHONY: setup help check jj-push jj-status jj-log
 
 help:
 	@echo Available targets:
-	@echo   make setup - Initial project setup
-	@echo   make check - Run biome linter and build
-	@echo   make format - Format the project with biome
-	@echo   make jj-push BOOKMARK=name - Push bookmark to remote (auto-track and set)
+	@echo   make setup      - Initial project setup
+	@echo   make check      - Run biome linter and build
+	@echo   make fixformat  - Format the project with biome
+	@echo   make jj-push BOOKMARK=name - Push bookmark to remote
+	@echo   make jj-status  - Show jj status
+	@echo   make jj-log     - Show jj log
 
 setup:
-	@echo Running setup...
-	@bash scripts/setup.sh
+	@echo "=== Personal Website Setup ==="
+	@echo ""
+	@echo "Checking bun..."
+	@bun --version || (echo "ERROR: bun is not installed" && exit 1)
+	@echo ""
+	@echo "Checking jj..."
+	-@jj --version || echo "WARNING: jj is not installed (optional)"
+	@echo ""
+	@echo "Installing dependencies..."
+	@bun install
+	@echo ""
+	@echo "Setup complete!"
 
 check:
 	@echo Running biome linter...
@@ -27,4 +39,13 @@ ifndef BOOKMARK
 	@echo "Usage: make jj-push BOOKMARK=feature/my-feature"
 	@exit 1
 endif
-	@bash scripts/jj-push.sh $(BOOKMARK)
+	@echo "Pushing bookmark: $(BOOKMARK)"
+	jj bookmark set $(BOOKMARK)
+	-jj bookmark track $(BOOKMARK) --remote=origin
+	jj git push --bookmark $(BOOKMARK) --allow-new
+
+jj-status:
+	jj status
+
+jj-log:
+	jj log

@@ -1,9 +1,22 @@
 {
   "home": {
-    "title": "Willkommen",
-    "description": "Blog und Spiele"
+    "intro": "Ich bin Entwickler und Autor. Ich arbeite bei Deloitte als Berater für Data Engineering und AI Engineering mit starkem Fokus auf Databricks. Zuvor war ich AI Engineer bei der Deutschen Bundesbank.",
+    "mission": "Meine Lebensaufgabe ist [deine Mission]. Ich interessiere mich für [Interessen].",
+    "personal": "Ich bin [persönliche Details]. Zuletzt gehört: [Song] von [Künstler].",
+    "cta": {
+      "prefix": "Du kannst meine",
+      "writing": "Artikel",
+      "or": "oder meinen",
+      "code": "Code",
+      "comma": " lesen, oder mir",
+      "follow": "online folgen",
+      "period": ".",
+      "reachOut": "Melde dich",
+      "suffix": ", wenn du Interesse hast."
+    }
   },
   "nav": {
+    "home": "Startseite",
     "blog": "Blog",
     "games": "Spiele"
   }
