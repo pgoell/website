@@ -9,9 +9,9 @@ export default function Home() {
     <div className="space-y-6">
       <p>{t("intro")}</p>
 
-      <p>{t("mission")}</p>
+      {/* <p>{t("mission")}</p> */}
 
-      <p>{t("personal")}</p>
+      {/* <p>{t("personal")}</p> */}
 
       <p>
         {t("cta.prefix")}{" "}
