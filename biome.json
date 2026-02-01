@@ -26,6 +26,22 @@
       "semicolons": "always"
     }
   },
+  "css": {
+    "parser": {
+      "cssModules": true,
+      "tailwindDirectives": true
+    },
+    "formatter": {
+      "indentWidth": 2,
+      "indentStyle": "space"
+    },
+    "linter": {
+      "enabled": true
+    },
+    "assist": {
+      "enabled": true
+    }
+  },
   "assist": {
     "enabled": true,
     "actions": {
