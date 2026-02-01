@@ -1,0 +1,10 @@
+{
+  "home": {
+    "title": "Welcome",
+    "description": "Blog and games"
+  },
+  "nav": {
+    "blog": "Blog",
+    "games": "Games"
+  }
+}
