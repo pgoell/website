@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Pascal's Website",
-    description: "Blog and games"
-}
+  title: "Pascal's Website",
+  description: "Blog and games",
+};
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-    return (
-        <html lang="en">
-            <body>{children}</body>
-        </html>
-    )
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
 }

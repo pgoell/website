@@ -101,12 +101,22 @@ jj describe -m "Add blog search functionality"
 jj new
 jj describe -m "Add search UI component"
 
-# 4. Push to GitHub for PR
-jj git push --bookmark feature/blog-search
+# 4. Push to GitHub for PR (simplified with helper)
+make jj-push BOOKMARK=feature/blog-search
+
+# Or manually:
+# jj bookmark set feature/blog-search       # Move bookmark to current commit
+# jj bookmark track feature/blog-search --remote=origin  # Track on remote
+# jj git push --bookmark feature/blog-search
 
 # 5. After PR is merged, delete local bookmark
 jj bookmark delete feature/blog-search
 ```
+
+**Note:** The `make jj-push` command automatically:
+- Moves the bookmark to your current commit
+- Tracks the bookmark on the remote (if needed)
+- Pushes to GitHub
 
 ---
 
