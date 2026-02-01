@@ -1,0 +1,16 @@
+services:
+  website-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: website-prod
+    restart: unless-stopped
+    networks:
+      - web
+    environment:
+      - NODE_ENV=production
+
+networks:
+  web:
+    external: true
+    name: web

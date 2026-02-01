@@ -1,0 +1,29 @@
+name: Deploy Dev
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch, tag, or commit to deploy'
+        required: false
+        default: 'master'
+
+jobs:
+  deploy:
+    name: Deploy to Dev
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - name: Build dev image
+        run: docker compose -f docker-compose.dev.yml build
+
+      - name: Deploy dev
+        run: docker compose -f docker-compose.dev.yml up -d
+
+      - name: Clean up old images
+        run: docker image prune -f
