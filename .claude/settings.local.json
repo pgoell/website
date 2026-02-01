@@ -28,7 +28,32 @@
       "Bash(jj split:*)",
       "Bash(jj edit:*)",
       "Bash(jj diff:*)",
-      "Bash(jj abandon:*)"
+      "Bash(jj abandon:*)",
+      "Bash(gh pr list:*)",
+      "Bash(systemctl is-active:*)",
+      "Bash(systemctl is-enabled:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker network:*)",
+      "Bash(fail2ban-client:*)",
+      "Bash(sudo fail2ban-client:*)",
+      "Bash(ufw status:*)",
+      "Bash(iptables:*)",
+      "Bash(docker inspect:*)",
+      "WebSearch",
+      "Bash(curl:*)",
+      "Bash(openssl rand:*)",
+      "Bash(chmod:*)",
+      "Bash(docker compose:*)",
+      "Bash(ln:*)",
+      "Bash(ls:*)",
+      "Bash(python3:*)",
+      "Bash(docker exec:*)",
+      "Bash(dig:*)",
+      "WebFetch(domain:caddyserver.com)",
+      "Bash(git checkout:*)",
+      "Bash(jj show:*)",
+      "Bash(jj cat:*)",
+      "Bash(git show:*)"
     ]
   }
 }

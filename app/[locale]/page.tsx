@@ -27,6 +27,10 @@ export default function Home() {
         >
           {t("cta.code")}
         </a>
+        ,{" "}
+        <Link href={`/${locale}/games`} className="underline">
+          {t("cta.playGames")}
+        </Link>
         {t("cta.comma")}{" "}
         <a
           href="https://x.com/BearWithAI"
