@@ -19,7 +19,10 @@
       "Bash(jj bookmark list:*)",
       "Bash(jj bookmark:*)",
       "Bash(gh pr create:*)",
-      "Bash(jj log:*)"
+      "Bash(jj log:*)",
+      "Bash(gh pr edit:*)",
+      "Bash(gh pr view:*)",
+      "Bash(jj new:*)"
     ]
   }
 }
