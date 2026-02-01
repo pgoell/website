@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "biome check .",
+    "format": "biome format . --write"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.13",
