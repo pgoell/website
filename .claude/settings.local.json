@@ -22,7 +22,13 @@
       "Bash(jj log:*)",
       "Bash(gh pr edit:*)",
       "Bash(gh pr view:*)",
-      "Bash(jj new:*)"
+      "Bash(jj new:*)",
+      "Bash(jj squash:*)",
+      "Bash(jj restore:*)",
+      "Bash(jj split:*)",
+      "Bash(jj edit:*)",
+      "Bash(jj diff:*)",
+      "Bash(jj abandon:*)"
     ]
   }
 }
