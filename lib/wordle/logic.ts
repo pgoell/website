@@ -133,10 +133,16 @@ export function getKeyboardState(
   return state;
 }
 
-export function pickAnswer(words: string[]) {
+export function pickAnswer(words: string[]): string {
   if (words.length === 0) {
     throw new Error("Word list is empty.");
   }
 
-  return words[Math.floor(Math.random() * words.length)];
+  const index = Math.floor(Math.random() * words.length);
+  const candidate = words[index];
+  if (!candidate) {
+    throw new Error("Failed to pick a word.");
+  }
+
+  return candidate;
 }
