@@ -134,5 +134,9 @@ export function getKeyboardState(
 }
 
 export function pickAnswer(words: string[]) {
+  if (words.length === 0) {
+    throw new Error("Word list is empty.");
+  }
+
   return words[Math.floor(Math.random() * words.length)];
 }
