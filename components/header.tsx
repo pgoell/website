@@ -56,7 +56,8 @@ export function Header() {
           href={`/${locale}`}
           className="font-medium text-foreground hover:text-foreground/80 transition-colors"
         >
-          Pascal Kraus
+          <span className="sm:hidden">PK</span>
+          <span className="hidden sm:inline">Pascal Kraus</span>
         </Link>
 
         <div className="flex items-center gap-1">
