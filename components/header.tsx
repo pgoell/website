@@ -50,7 +50,7 @@ export function Header() {
   const locale = useLocale();
 
   return (
-    <header className="sticky top-0 z-50">
+    <header className="sticky top-0 z-50 bg-background">
       <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4 sm:px-6">
         <Link
           href={`/${locale}`}

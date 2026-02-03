@@ -17,13 +17,25 @@ export default async function GamesPage({
         <p className="text-muted-foreground">{t("subtitle")}</p>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card/60 p-4 shadow-sm">
-        <div className="space-y-3">
-          <h2 className="text-xl font-semibold">{t("wordle.title")}</h2>
-          <p className="text-muted-foreground">{t("wordle.description")}</p>
-          <Button asChild>
-            <Link href={`/${locale}/games/wordle`}>{t("wordle.play")}</Link>
-          </Button>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="rounded-2xl border border-border bg-card/60 p-4 shadow-sm">
+          <div className="space-y-3">
+            <h2 className="text-xl font-semibold">{t("wordle.title")}</h2>
+            <p className="text-muted-foreground">{t("wordle.description")}</p>
+            <Button asChild>
+              <Link href={`/${locale}/games/wordle`}>{t("wordle.play")}</Link>
+            </Button>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card/60 p-4 shadow-sm">
+          <div className="space-y-3">
+            <h2 className="text-xl font-semibold">{t("kniffel.title")}</h2>
+            <p className="text-muted-foreground">{t("kniffel.description")}</p>
+            <Button asChild>
+              <Link href={`/${locale}/games/kniffel`}>{t("kniffel.play")}</Link>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

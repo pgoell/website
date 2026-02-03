@@ -63,6 +63,12 @@
           "ready": "Bereit zum Lösen"
         }
       }
+    },
+    "kniffel": {
+      "title": "Kniffel",
+      "description": "Klassisches Würfelspiel für 1-6 Spieler",
+      "play": "Spielen",
+      "instructions": "Würfle und sammle Punkte mit Kombinationen. Spiele digital oder nutze es als Tracker für echte Würfel."
     }
   }
 }

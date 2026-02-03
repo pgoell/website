@@ -54,7 +54,10 @@
       "Bash(jj show:*)",
       "Bash(jj cat:*)",
       "Bash(git show:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(tree:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh api:*)"
     ]
   }
 }

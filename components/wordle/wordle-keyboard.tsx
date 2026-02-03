@@ -18,8 +18,10 @@ const keyVariants = cva(
         absent: "bg-muted/50 text-muted-foreground hover:bg-muted/40",
       },
       size: {
-        default: "h-14 min-w-[32px] px-2 sm:min-w-[43px] sm:px-3 text-sm",
-        wide: "h-14 min-w-[50px] px-2 sm:min-w-[65px] sm:px-4 text-xs",
+        default: "h-14 min-w-[32px] px-1.5 sm:min-w-[43px] sm:px-3 text-sm",
+        compact:
+          "h-14 min-w-[26px] px-1 sm:min-w-[38px] sm:px-2 text-xs sm:text-sm",
+        wide: "h-14 min-w-[44px] px-1.5 sm:min-w-[65px] sm:px-4 text-xs",
       },
     },
     defaultVariants: {
@@ -49,6 +51,7 @@ interface WordleKeyboardProps {
   onEnter: () => void;
   onBackspace: () => void;
   locale: string;
+  disabled?: boolean;
 }
 
 export function WordleKeyboard({
@@ -57,10 +60,13 @@ export function WordleKeyboard({
   onEnter,
   onBackspace,
   locale,
+  disabled = false,
 }: WordleKeyboardProps) {
   const keyboard = locale === "de" ? KEYBOARD_DE : KEYBOARD_EN;
+  const isGerman = locale === "de";
 
   const handleClick = (key: string) => {
+    if (disabled) return;
     if (key === "ENTER") {
       onEnter();
     } else if (key === "BACKSPACE") {
@@ -82,12 +88,17 @@ export function WordleKeyboard({
     return "unused";
   };
 
+  const getKeySize = (key: string) => {
+    if (key === "ENTER" || key === "BACKSPACE") return "wide";
+    if (isGerman) return "compact";
+    return "default";
+  };
+
   return (
     <div className="flex flex-col gap-1.5 w-full max-w-lg">
       {keyboard.map((row) => (
         <div key={row.join("")} className="flex justify-center gap-1">
           {row.map((key) => {
-            const isWide = key === "ENTER" || key === "BACKSPACE";
             const state = getKeyState(key);
 
             return (
@@ -95,11 +106,13 @@ export function WordleKeyboard({
                 key={key}
                 type="button"
                 onClick={() => handleClick(key)}
+                disabled={disabled}
                 className={cn(
                   keyVariants({
                     state,
-                    size: isWide ? "wide" : "default",
+                    size: getKeySize(key),
                   }),
+                  disabled && "opacity-50 cursor-not-allowed",
                 )}
                 aria-label={
                   key === "BACKSPACE"

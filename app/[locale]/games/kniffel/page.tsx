@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { WordleGame } from "@/components/wordle";
+import { KniffelGame } from "@/components/kniffel";
 
-interface WordlePageProps {
+interface KniffelPageProps {
   params: Promise<{ locale: string }>;
 }
 
-export default async function WordlePage({ params }: WordlePageProps) {
+export default async function KniffelPage({ params }: KniffelPageProps) {
   const { locale } = await params;
   const t = await getTranslations("games");
 
@@ -20,11 +20,11 @@ export default async function WordlePage({ params }: WordlePageProps) {
           ← {locale === "de" ? "zurück" : "back"}
         </Link>
       </div>
-      <h1 className="text-2xl font-bold">{t("wordle.title")}</h1>
+      <h1 className="text-2xl font-bold">{t("kniffel.title")}</h1>
       <p className="text-muted-foreground text-center max-w-md">
-        {t("wordle.instructions")}
+        {t("kniffel.instructions")}
       </p>
-      <WordleGame locale={locale} />
+      <KniffelGame locale={locale} />
     </div>
   );
 }

@@ -1,8 +1,8 @@
 "use client";
 
-import { Bot, RotateCcw } from "lucide-react";
+import { Bot, Keyboard, RotateCcw } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { WORDS_DE, WORDS_EN } from "@/lib/wordle";
 import { SolverHintButton, useSolver } from "./solver";
@@ -15,6 +15,7 @@ interface WordleGameProps {
 }
 
 export function WordleGame({ locale }: WordleGameProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
   const {
     gameState,
     boardRows,
@@ -29,6 +30,16 @@ export function WordleGame({ locale }: WordleGameProps) {
   } = useWordle(locale);
 
   const [hintEnabled, setHintEnabled] = useState(false);
+  const [showKeyboard, setShowKeyboard] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const stored = localStorage.getItem("wordle-show-keyboard");
+    return stored !== "false";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("wordle-show-keyboard", String(showKeyboard));
+  }, [showKeyboard]);
+
   const wordList = locale === "de" ? WORDS_DE : WORDS_EN;
   const { suggestions, possibleWordsCount } = useSolver({
     wordList,
@@ -36,6 +47,34 @@ export function WordleGame({ locale }: WordleGameProps) {
     solution: gameState.solution,
     enabled: hintEnabled && gameState.gameStatus === "playing",
   });
+
+  const handleMobileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.length > 0) {
+      const lastChar = value.at(-1);
+      if (lastChar && /^[a-zA-ZäöüÄÖÜ]$/.test(lastChar)) {
+        addLetter(lastChar);
+      }
+    }
+    // Always clear the input
+    e.target.value = "";
+  };
+
+  const handleMobileKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      submitGuess();
+    } else if (e.key === "Backspace") {
+      e.preventDefault();
+      removeLetter();
+    }
+  };
+
+  const focusInput = () => {
+    if (gameState.gameStatus === "playing") {
+      inputRef.current?.focus();
+    }
+  };
 
   return (
     <div className="flex flex-col items-center gap-6 w-full">
@@ -58,13 +97,35 @@ export function WordleGame({ locale }: WordleGameProps) {
         )}
       </div>
 
-      {/* Game board */}
-      <WordleBoard
-        rows={boardRows}
-        shakeRow={shakeRow}
-        currentRowIndex={currentRowIndex}
-        currentTileIndex={currentTileIndex}
+      {/* Hidden input for mobile keyboard */}
+      <input
+        ref={inputRef}
+        type="text"
+        inputMode="text"
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck={false}
+        className="sr-only"
+        onChange={handleMobileInput}
+        onKeyDown={handleMobileKeyDown}
+        aria-label="Type your guess"
       />
+
+      {/* Game board */}
+      <button
+        type="button"
+        onClick={focusInput}
+        className="focus:outline-none"
+        aria-label="Tap to type"
+      >
+        <WordleBoard
+          rows={boardRows}
+          shakeRow={shakeRow}
+          currentRowIndex={currentRowIndex}
+          currentTileIndex={currentTileIndex}
+        />
+      </button>
 
       {/* Controls */}
       <div className="flex flex-wrap items-center justify-center gap-2">
@@ -99,16 +160,29 @@ export function WordleGame({ locale }: WordleGameProps) {
             {locale === "de" ? "Solver" : "Solver"}
           </Link>
         </Button>
+
+        <Button
+          variant={showKeyboard ? "secondary" : "ghost"}
+          size="sm"
+          onClick={() => setShowKeyboard(!showKeyboard)}
+          className="gap-2"
+          aria-label={showKeyboard ? "Hide keyboard" : "Show keyboard"}
+        >
+          <Keyboard className="size-4" />
+        </Button>
       </div>
 
       {/* Keyboard */}
-      <WordleKeyboard
-        letterStates={gameState.letterStates}
-        onKey={addLetter}
-        onEnter={submitGuess}
-        onBackspace={removeLetter}
-        locale={locale}
-      />
+      {showKeyboard && (
+        <WordleKeyboard
+          letterStates={gameState.letterStates}
+          onKey={addLetter}
+          onEnter={submitGuess}
+          onBackspace={removeLetter}
+          locale={locale}
+          disabled={gameState.gameStatus !== "playing"}
+        />
+      )}
     </div>
   );
 }
