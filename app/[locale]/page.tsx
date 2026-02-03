@@ -42,6 +42,14 @@ export default function Home() {
         </a>
         {t("cta.suffix")}
       </p>
+
+      <p>
+        {t("cta.gamesPrefix")}{" "}
+        <Link href={`/${locale}/games`} className="underline">
+          {t("cta.games")}
+        </Link>
+        {t("cta.gamesSuffix")}
+      </p>
     </div>
   );
 }

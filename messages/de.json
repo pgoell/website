@@ -12,12 +12,35 @@
       "follow": "online folgen",
       "period": ".",
       "reachOut": "Melde dich",
-      "suffix": ", wenn du Interesse hast."
+      "suffix": ", wenn du Interesse hast.",
+      "gamesPrefix": "Oder probiere die",
+      "games": "Spiele",
+      "gamesSuffix": "."
     }
   },
   "nav": {
     "home": "Startseite",
     "blog": "Blog",
-    "games": "Spiele"
+    "games": "Spiele",
+    "menu": "Menü"
+  },
+  "games": {
+    "title": "Spiele",
+    "subtitle": "Kleine Experimente und spielerische Tools.",
+    "wordle": {
+      "title": "Wordle",
+      "description": "Errate das Wort mit fünf Buchstaben in sechs Versuchen.",
+      "play": "Wordle spielen"
+    }
+  },
+  "wordle": {
+    "title": "Wordle",
+    "instructions": "Errate das Wort in 6 Versuchen. Jeder Versuch muss ein gültiges Wort mit 5 Buchstaben sein.",
+    "newGame": "Neues Spiel",
+    "invalidWord": "Nicht in der Wortliste.",
+    "tooShort": "Nicht genug Buchstaben.",
+    "win": "Geschafft! Du hast es gelöst.",
+    "lose": "Das Wort war {answer}.",
+    "guessCount": "Versuche: {current}/{total}"
   }
 }

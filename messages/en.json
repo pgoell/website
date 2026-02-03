@@ -12,12 +12,35 @@
       "follow": "follow me online",
       "period": ".",
       "reachOut": "Reach out",
-      "suffix": " if interested."
+      "suffix": " if interested.",
+      "gamesPrefix": "Or try the",
+      "games": "games",
+      "gamesSuffix": "."
     }
   },
   "nav": {
     "home": "Home",
     "blog": "Blog",
-    "games": "Games"
+    "games": "Games",
+    "menu": "Menu"
+  },
+  "games": {
+    "title": "Games",
+    "subtitle": "Small experiments and playful tools.",
+    "wordle": {
+      "title": "Wordle",
+      "description": "Guess the five-letter word in six tries.",
+      "play": "Play Wordle"
+    }
+  },
+  "wordle": {
+    "title": "Wordle",
+    "instructions": "Guess the word in 6 tries. Each guess must be a valid 5-letter word.",
+    "newGame": "New game",
+    "invalidWord": "Not in word list.",
+    "tooShort": "Not enough letters.",
+    "win": "Nice! You solved it.",
+    "lose": "The word was {answer}.",
+    "guessCount": "Guesses: {current}/{total}"
   }
 }
