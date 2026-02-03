@@ -102,7 +102,7 @@ export function WordleGame() {
   const wordSet = useMemo(() => getWordSet(locale), [locale]);
   const keyboardLayout = useMemo(() => getKeyboardLayout(locale), [locale]);
 
-  const [answer, setAnswer] = useState(() => pickAnswer(words));
+  const [answer, setAnswer] = useState<string>(() => pickAnswer(words));
   const [guesses, setGuesses] = useState<string[]>([]);
   const [evaluations, setEvaluations] = useState<LetterStatus[][]>([]);
   const [currentGuess, setCurrentGuess] = useState("");
