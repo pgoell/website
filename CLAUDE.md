@@ -5,13 +5,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-bun run dev      # Start dev server
-bun run build    # Production build
-bun run check    # Run Biome linter
-bun run fix      # Auto-fix linting issues
+bun run dev        # Start dev server
+bun run build      # Production build
+bun run check      # Run Biome linter
+bun run fix        # Auto-fix linting issues
+bun run test       # Run tests (vitest)
+bun run test:watch # Run tests in watch mode
 
-make check       # Lint + build
-make setup       # Initial setup (checks bun/jj)
+make check         # Lint + build
+make setup         # Initial setup (checks bun/jj)
 ```
 
 ## Version Control: Jujutsu (jj)
@@ -27,7 +29,7 @@ jj new                                 # Start new work
 jj describe -m "feat: message"         # Add commit message
 jj bookmark create feature/name        # Create branch
 jj git push --bookmark feature/name    # Push to GitHub
-jj git fetch && jj rebase -d main      # Sync with main
+jj git fetch && jj rebase -d master    # Sync with master
 ```
 
 ### Creating a PR Workflow
@@ -114,9 +116,13 @@ jj bookmark create feature/other
 - `app/[locale]/layout.tsx` — Locale layout (providers, html lang)
 - `i18n/request.ts` — next-intl request config
 
-## Planned Features
+## Features
 
-- Personal blog (MDX)
+**Implemented:**
+- Personal blog (MDX) at `/blog`
+- Wordle game at `/games/wordle` (EN/DE word lists)
+
+**Planned:**
 - Song bingo game (Spotify OAuth)
 - Kniffel tracker
 

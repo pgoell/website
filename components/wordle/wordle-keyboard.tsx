@@ -12,9 +12,9 @@ const keyVariants = cva(
       state: {
         unused: "bg-muted hover:bg-muted/80 text-foreground",
         correct:
-          "bg-[var(--wordle-correct)] text-white hover:bg-[var(--wordle-correct)]/90",
+          "bg-[var(--wordle-correct)] text-white dark:text-primary-foreground hover:bg-[var(--wordle-correct)]/90",
         present:
-          "bg-[var(--wordle-present)] text-white hover:bg-[var(--wordle-present)]/90",
+          "bg-[var(--wordle-present)] text-white dark:text-primary-foreground hover:bg-[var(--wordle-present)]/90",
         absent: "bg-muted/50 text-muted-foreground hover:bg-muted/40",
       },
       size: {

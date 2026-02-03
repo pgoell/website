@@ -53,7 +53,8 @@
       "Bash(git checkout:*)",
       "Bash(jj show:*)",
       "Bash(jj cat:*)",
-      "Bash(git show:*)"
+      "Bash(git show:*)",
+      "Bash(grep:*)"
     ]
   }
 }

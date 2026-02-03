@@ -33,7 +33,36 @@
       "invalidWord": "Nicht in der Wortliste",
       "notEnough": "Nicht genug Buchstaben",
       "youWin": "Gewonnen!",
-      "youLose": "Das Wort war {word}"
+      "youLose": "Das Wort war {word}",
+      "solver": {
+        "title": "Wordle Solver",
+        "description": "Hilfe beim Lösen von Wordle-Rätseln",
+        "demo": {
+          "title": "Solver Demo",
+          "description": "Sieh zu, wie der Algorithmus Wordle Schritt für Schritt löst"
+        },
+        "hint": "Hinweis",
+        "wordsRemaining": "Verbleibende Wörter",
+        "bestGuesses": "Beste Vorschläge",
+        "possible": "möglich",
+        "recommended": "Empfohlene Vorschläge",
+        "info": "Info",
+        "noMatches": "Keine passenden Wörter gefunden",
+        "enterGuess": "Gib deinen Versuch ein und markiere jeden Buchstaben",
+        "clickToMark": "Klicke auf Kacheln: absent → present → correct",
+        "controls": {
+          "play": "Start",
+          "pause": "Pause",
+          "step": "Schritt",
+          "reset": "Neustart",
+          "speed": "Tempo"
+        },
+        "status": {
+          "solved": "Gelöst in {count} Versuchen!",
+          "solving": "Löst...",
+          "ready": "Bereit zum Lösen"
+        }
+      }
     }
   }
 }
