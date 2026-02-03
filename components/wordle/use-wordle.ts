@@ -146,13 +146,19 @@ export function useWordle(locale: string) {
     const guess = gameState.currentGuess;
 
     if (guess.length < WORD_LENGTH) {
-      showMessage("Not enough letters", "error");
+      showMessage(
+        locale === "de" ? "Nicht genug Buchstaben" : "Not enough letters",
+        "error",
+      );
       setShakeRow(gameState.guesses.length);
       return;
     }
 
     if (!isValidWord(guess, validWords)) {
-      showMessage("Not in word list", "error");
+      showMessage(
+        locale === "de" ? "Nicht in der Wortliste" : "Not in word list",
+        "error",
+      );
       setShakeRow(gameState.guesses.length);
       // Clear the invalid guess so user can try again
       setGameState((prev) => ({
@@ -174,10 +180,15 @@ export function useWordle(locale: string) {
     let newStatus: GameState["gameStatus"] = "playing";
     if (isWin) {
       newStatus = "won";
-      showMessage("You won!", "success");
+      showMessage(locale === "de" ? "Gewonnen!" : "You won!", "success");
     } else if (isLastGuess) {
       newStatus = "lost";
-      showMessage(`The word was ${gameState.solution}`, "info");
+      showMessage(
+        locale === "de"
+          ? `Das Wort war ${gameState.solution}`
+          : `The word was ${gameState.solution}`,
+        "info",
+      );
     }
 
     setGameState((prev) => ({
@@ -195,6 +206,7 @@ export function useWordle(locale: string) {
     gameState.letterStates,
     validWords,
     showMessage,
+    locale,
   ]);
 
   const resetGame = useCallback(() => {

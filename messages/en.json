@@ -33,7 +33,36 @@
       "invalidWord": "Not in word list",
       "notEnough": "Not enough letters",
       "youWin": "You won!",
-      "youLose": "The word was {word}"
+      "youLose": "The word was {word}",
+      "solver": {
+        "title": "Wordle Solver",
+        "description": "Get help solving any Wordle puzzle",
+        "demo": {
+          "title": "Solver Demo",
+          "description": "Watch the algorithm solve Wordle step by step"
+        },
+        "hint": "Hint",
+        "wordsRemaining": "Words remaining",
+        "bestGuesses": "Best guesses",
+        "possible": "possible",
+        "recommended": "Recommended guesses",
+        "info": "Info",
+        "noMatches": "No matching words found",
+        "enterGuess": "Enter your guess and mark each letter",
+        "clickToMark": "Click tiles to cycle: absent → present → correct",
+        "controls": {
+          "play": "Play",
+          "pause": "Pause",
+          "step": "Step",
+          "reset": "Reset",
+          "speed": "Speed"
+        },
+        "status": {
+          "solved": "Solved in {count} guesses!",
+          "solving": "Solving...",
+          "ready": "Ready to solve"
+        }
+      }
     }
   }
 }
