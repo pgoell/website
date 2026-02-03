@@ -77,18 +77,24 @@ export function evaluateGuess(guess: string, answer: string) {
   const result: LetterStatus[] = Array.from({ length: guessLetters.length });
   const remaining: Record<string, number> = {};
 
-  guessLetters.forEach((letter, index) => {
-    if (letter === answerLetters[index]) {
+  for (let index = 0; index < guessLetters.length; index += 1) {
+    const letter = guessLetters[index];
+    const target = answerLetters[index];
+    if (letter === undefined || target === undefined) {
+      continue;
+    }
+
+    if (letter === target) {
       result[index] = "correct";
     } else {
-      const target = answerLetters[index];
       remaining[target] = (remaining[target] ?? 0) + 1;
     }
-  });
+  }
 
-  guessLetters.forEach((letter, index) => {
-    if (result[index]) {
-      return;
+  for (let index = 0; index < guessLetters.length; index += 1) {
+    const letter = guessLetters[index];
+    if (!letter || result[index]) {
+      continue;
     }
 
     const count = remaining[letter] ?? 0;
@@ -98,7 +104,7 @@ export function evaluateGuess(guess: string, answer: string) {
     } else {
       result[index] = "absent";
     }
-  });
+  }
 
   return result;
 }
