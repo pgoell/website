@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { MAX_GUESSES, WORD_LENGTH } from "@/lib/wordle/constants";
@@ -12,9 +12,9 @@ import {
   getWordSet,
   getWords,
   isAllowedLetter,
+  type LetterStatus,
   normalizeChar,
   pickAnswer,
-  type LetterStatus,
 } from "@/lib/wordle/logic";
 
 type GameStatus = "playing" | "won" | "lost";
@@ -72,8 +72,7 @@ function isValidStoredState(
 function tileClasses(status: LetterStatus | undefined, filled: boolean) {
   return cn(
     "flex h-12 w-12 items-center justify-center rounded-md border text-lg font-semibold uppercase shadow-xs transition-colors sm:h-14 sm:w-14",
-    status === "correct" &&
-      "border-primary bg-primary text-primary-foreground",
+    status === "correct" && "border-primary bg-primary text-primary-foreground",
     status === "present" &&
       "border-secondary bg-secondary text-secondary-foreground",
     status === "absent" && "border-muted/60 bg-muted text-muted-foreground",
@@ -210,15 +209,7 @@ export function WordleGame() {
     if (nextGuesses.length >= MAX_GUESSES) {
       setStatus("lost");
     }
-  }, [
-    answer,
-    currentGuess,
-    evaluations,
-    guesses,
-    status,
-    t,
-    wordSet,
-  ]);
+  }, [answer, currentGuess, evaluations, guesses, status, t, wordSet]);
 
   const handleKey = useCallback(
     (key: string) => {
@@ -292,26 +283,33 @@ export function WordleGame() {
         : message;
 
   const activeRow = guesses.length;
+  const rowIds = Array.from(
+    { length: MAX_GUESSES },
+    (_, index) => `row-${index + 1}`,
+  );
+  const tileIds = Array.from(
+    { length: WORD_LENGTH },
+    (_, index) => `tile-${index + 1}`,
+  );
 
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-border bg-card/60 p-4 shadow-sm">
         <div className="grid gap-2">
-          {Array.from({ length: MAX_GUESSES }).map((_, rowIndex) => {
+          {rowIds.map((rowId, rowIndex) => {
             const guess =
-              guesses[rowIndex] ??
-              (rowIndex === activeRow ? currentGuess : "");
+              guesses[rowIndex] ?? (rowIndex === activeRow ? currentGuess : "");
             const letters = Array.from(guess);
             const evaluation = evaluations[rowIndex] ?? [];
 
             return (
-              <div key={`row-${rowIndex}`} className="grid grid-cols-5 gap-2">
-                {Array.from({ length: WORD_LENGTH }).map((_, letterIndex) => {
+              <div key={rowId} className="grid grid-cols-5 gap-2">
+                {tileIds.map((tileId, letterIndex) => {
                   const letter = letters[letterIndex] ?? "";
                   const statusForTile = evaluation[letterIndex];
                   return (
                     <div
-                      key={`tile-${rowIndex}-${letterIndex}`}
+                      key={`${rowId}-${tileId}`}
                       className={tileClasses(statusForTile, Boolean(letter))}
                     >
                       {letter}
@@ -333,7 +331,10 @@ export function WordleGame() {
 
       <div className="space-y-2">
         {keyboardLayout.map((row) => (
-          <div key={row.join("-")} className="flex flex-wrap justify-center gap-2">
+          <div
+            key={row.join("-")}
+            className="flex flex-wrap justify-center gap-2"
+          >
             {row.map((key) => {
               const isAction = key === "ENTER" || key === "BACKSPACE";
               return (
