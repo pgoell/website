@@ -63,6 +63,12 @@
           "ready": "Ready to solve"
         }
       }
+    },
+    "kniffel": {
+      "title": "Kniffel",
+      "description": "Classic dice game for 1-6 players",
+      "play": "Play",
+      "instructions": "Roll dice and score combinations. Play digitally or use as a tracker for physical dice."
     }
   }
 }
