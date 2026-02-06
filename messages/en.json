@@ -20,7 +20,8 @@
     "menu": "Menu",
     "home": "Home",
     "blog": "Blog",
-    "games": "Games"
+    "games": "Games",
+    "tools": "Tools"
   },
   "games": {
     "title": "Games",
@@ -49,7 +50,7 @@
         "info": "Info",
         "noMatches": "No matching words found",
         "enterGuess": "Enter your guess and mark each letter",
-        "clickToMark": "Click tiles to cycle: absent → present → correct",
+        "clickToMark": "Click tiles to cycle: absent \u2192 present \u2192 correct",
         "controls": {
           "play": "Play",
           "pause": "Pause",
@@ -69,6 +70,105 @@
       "description": "Classic dice game for 1-6 players",
       "play": "Play",
       "instructions": "Roll dice and score combinations. Play digitally or use as a tracker for physical dice."
+    }
+  },
+  "tools": {
+    "title": "Tools",
+    "subtitle": "Productivity tools grounded in science.",
+    "pomodoro": {
+      "title": "Pomodoro Timer",
+      "description": "Focus timer with scientifically-backed work/break intervals.",
+      "open": "Open Timer"
+    }
+  },
+  "pomodoro": {
+    "title": "Pomodoro Timer",
+    "instructions": "Choose a preset, then set a number of sessions or pick a time to focus until.",
+    "presets": {
+      "pomodoro": "Pomodoro Classic",
+      "pomodoroDesc": "25 min work / 5 min break",
+      "desktime": "DeskTime",
+      "desktimeDesc": "52 min work / 17 min break",
+      "deepwork": "Deep Work",
+      "deepworkDesc": "90 min work / 20 min break",
+      "custom": "Custom",
+      "customDesc": "Set your own durations"
+    },
+    "timer": {
+      "work": "Focus",
+      "break": "Break",
+      "longBreak": "Long Break",
+      "start": "Start",
+      "pause": "Pause",
+      "resume": "Resume",
+      "reset": "Reset",
+      "skip": "Skip",
+      "done": "All sessions complete!"
+    },
+    "schedule": {
+      "title": "Schedule",
+      "session": "Session {number}",
+      "breakLabel": "Break",
+      "longBreakLabel": "Long Break",
+      "duration": "{minutes} min",
+      "totalWork": "Total focus: {minutes} min",
+      "totalBreak": "Total break: {minutes} min",
+      "ratio": "Break ratio: {percent}%",
+      "ratioGood": "Within the recommended 20\u201325% range.",
+      "breaksTooShort": "Breaks are shorter than recommended. Consider longer breaks.",
+      "breaksTooLong": "Breaks exceed the recommended ratio. Consider shorter breaks."
+    },
+    "sessions": {
+      "label": "Sessions",
+      "completed": "{current} of {total} completed"
+    },
+    "focusUntil": {
+      "label": "Focus until",
+      "endTime": "End time",
+      "pastTime": "End time must be in the future",
+      "noFit": "Selected preset doesn't fit in this time window",
+      "suggestion": "{preset} fits better: {minutes} min focus",
+      "switch": "Switch"
+    },
+    "custom": {
+      "workMinutes": "Work (min)",
+      "breakMinutes": "Break (min)",
+      "longBreakMinutes": "Long break (min)",
+      "sessionsBeforeLongBreak": "Sessions before long break",
+      "sessionCount": "Number of sessions"
+    },
+    "stats": {
+      "title": "Statistics",
+      "today": "Today",
+      "sessionsToday": "{count} sessions",
+      "focusToday": "{minutes} min focus",
+      "streak": "{days}-day streak",
+      "allTime": "All time: {sessions} sessions, {hours}h focus",
+      "noData": "No sessions recorded yet."
+    },
+    "timeOfDay": {
+      "peakFocus": "Peak focus window \u2014 your best time for deep work.",
+      "afternoonDip": "Afternoon dip \u2014 consider a lighter task or shorter session."
+    },
+    "notifications": {
+      "workDone": "Focus session complete! Time for a break.",
+      "breakDone": "Break is over. Ready for the next session?",
+      "allDone": "All sessions complete! Great work today."
+    },
+    "sources": {
+      "title": "Scientific References",
+      "pomodoroTechnique": "The Pomodoro Technique (Cirillo, 2006)",
+      "pomodoroDesc": "Original 25/5 pattern with 4-cycle structure. Foundation of structured interval-based focus.",
+      "desktime": "DeskTime Productivity Study (Draugiem Group, 2014)",
+      "desktimeDesc": "Analysis of top 10% most productive workers found 52/17 work-break ratio. Updated data suggests 75\u2013112 min sessions.",
+      "ultradian": "Basic Rest-Activity Cycle (Kleitman, 1982)",
+      "ultradianDesc": "90\u2013120 minute biological rhythm affecting alertness and cognitive performance during wakefulness.",
+      "huberman": "Huberman Lab: Focus & Concentration Protocols",
+      "hubermanDesc": "Neurobiological basis for 90-minute focus sessions with 10\u201330 min defocus periods. Max 2\u20133 sessions per day.",
+      "microbreaks": "Micro-Breaks Meta-Analysis (Albulescu et al., 2022)",
+      "microbreaksDesc": "Systematic review showing longer breaks yield greater performance recovery, especially after depleting tasks.",
+      "breakRatio": "Optimal Work-Break Ratios (Bailey, 2017)",
+      "breakRatioDesc": "Most productive people spend 20\u201325% of their workday on breaks. Break quality matters as much as duration."
     }
   }
 }

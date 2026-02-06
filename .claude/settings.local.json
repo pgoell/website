@@ -57,7 +57,12 @@
       "Bash(grep:*)",
       "Bash(tree:*)",
       "Bash(gh pr diff:*)",
-      "Bash(gh api:*)"
+      "Bash(gh api:*)",
+      "Bash(wc:*)",
+      "Bash(jj git init:*)",
+      "Bash(jj file show:*)",
+      "Bash(bunx vitest run:*)"
     ]
-  }
+  },
+  "outputStyle": "default"
 }
