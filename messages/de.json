@@ -20,7 +20,8 @@
     "menu": "Menü",
     "home": "Startseite",
     "blog": "Blog",
-    "games": "Spiele"
+    "games": "Spiele",
+    "tools": "Werkzeuge"
   },
   "games": {
     "title": "Spiele",
@@ -49,7 +50,7 @@
         "info": "Info",
         "noMatches": "Keine passenden Wörter gefunden",
         "enterGuess": "Gib deinen Versuch ein und markiere jeden Buchstaben",
-        "clickToMark": "Klicke auf Kacheln: absent → present → correct",
+        "clickToMark": "Klicke auf Kacheln: absent \u2192 present \u2192 correct",
         "controls": {
           "play": "Start",
           "pause": "Pause",
@@ -69,6 +70,105 @@
       "description": "Klassisches Würfelspiel für 1-6 Spieler",
       "play": "Spielen",
       "instructions": "Würfle und sammle Punkte mit Kombinationen. Spiele digital oder nutze es als Tracker für echte Würfel."
+    }
+  },
+  "tools": {
+    "title": "Werkzeuge",
+    "subtitle": "Produktivitätstools auf wissenschaftlicher Grundlage.",
+    "pomodoro": {
+      "title": "Pomodoro-Timer",
+      "description": "Fokus-Timer mit wissenschaftlich fundierten Arbeits- und Pausenintervallen.",
+      "open": "Timer öffnen"
+    }
+  },
+  "pomodoro": {
+    "title": "Pomodoro-Timer",
+    "instructions": "Wähle ein Preset, dann lege die Anzahl der Sessions fest oder wähle eine Uhrzeit bis zu der du fokussieren möchtest.",
+    "presets": {
+      "pomodoro": "Pomodoro Klassisch",
+      "pomodoroDesc": "25 Min Arbeit / 5 Min Pause",
+      "desktime": "DeskTime",
+      "desktimeDesc": "52 Min Arbeit / 17 Min Pause",
+      "deepwork": "Deep Work",
+      "deepworkDesc": "90 Min Arbeit / 20 Min Pause",
+      "custom": "Benutzerdefiniert",
+      "customDesc": "Eigene Zeiten festlegen"
+    },
+    "timer": {
+      "work": "Fokus",
+      "break": "Pause",
+      "longBreak": "Lange Pause",
+      "start": "Starten",
+      "pause": "Pausieren",
+      "resume": "Fortsetzen",
+      "reset": "Zurücksetzen",
+      "skip": "Überspringen",
+      "done": "Alle Sessions abgeschlossen!"
+    },
+    "schedule": {
+      "title": "Zeitplan",
+      "session": "Session {number}",
+      "breakLabel": "Pause",
+      "longBreakLabel": "Lange Pause",
+      "duration": "{minutes} Min",
+      "totalWork": "Fokus gesamt: {minutes} Min",
+      "totalBreak": "Pausen gesamt: {minutes} Min",
+      "ratio": "Pausenanteil: {percent}%",
+      "ratioGood": "Im empfohlenen Bereich von 20\u201325%.",
+      "breaksTooShort": "Pausen sind kürzer als empfohlen. Längere Pausen in Betracht ziehen.",
+      "breaksTooLong": "Pausen übersteigen den empfohlenen Anteil. Kürzere Pausen in Betracht ziehen."
+    },
+    "sessions": {
+      "label": "Sessions",
+      "completed": "{current} von {total} abgeschlossen"
+    },
+    "focusUntil": {
+      "label": "Fokus bis",
+      "endTime": "Endzeit",
+      "pastTime": "Endzeit muss in der Zukunft liegen",
+      "noFit": "Gewähltes Preset passt nicht in dieses Zeitfenster",
+      "suggestion": "{preset} passt besser: {minutes} Min Fokus",
+      "switch": "Wechseln"
+    },
+    "custom": {
+      "workMinutes": "Arbeit (Min)",
+      "breakMinutes": "Pause (Min)",
+      "longBreakMinutes": "Lange Pause (Min)",
+      "sessionsBeforeLongBreak": "Sessions vor langer Pause",
+      "sessionCount": "Anzahl Sessions"
+    },
+    "stats": {
+      "title": "Statistik",
+      "today": "Heute",
+      "sessionsToday": "{count} Sessions",
+      "focusToday": "{minutes} Min Fokus",
+      "streak": "{days}-Tage-Serie",
+      "allTime": "Gesamt: {sessions} Sessions, {hours}h Fokus",
+      "noData": "Noch keine Sessions aufgezeichnet."
+    },
+    "timeOfDay": {
+      "peakFocus": "Optimales Fokus-Fenster \u2014 beste Zeit für konzentrierte Arbeit.",
+      "afternoonDip": "Nachmittagstief \u2014 leichtere Aufgabe oder kürzere Session erwägen."
+    },
+    "notifications": {
+      "workDone": "Fokus-Session abgeschlossen! Zeit für eine Pause.",
+      "breakDone": "Pause vorbei. Bereit für die nächste Session?",
+      "allDone": "Alle Sessions abgeschlossen! Gute Arbeit heute."
+    },
+    "sources": {
+      "title": "Wissenschaftliche Quellen",
+      "pomodoroTechnique": "Die Pomodoro-Technik (Cirillo, 2006)",
+      "pomodoroDesc": "Ursprüngliches 25/5-Muster mit 4-Zyklen-Struktur. Grundlage für strukturiertes Intervall-Fokussieren.",
+      "desktime": "DeskTime-Produktivitätsstudie (Draugiem Group, 2014)",
+      "desktimeDesc": "Analyse der produktivsten 10% der Mitarbeiter ergab ein 52/17 Arbeits-Pausen-Verhältnis.",
+      "ultradian": "Grundlegender Ruhe-Aktivitäts-Zyklus (Kleitman, 1982)",
+      "ultradianDesc": "90\u2013120-minütiger biologischer Rhythmus, der Wachheit und kognitive Leistung beeinflusst.",
+      "huberman": "Huberman Lab: Fokus- & Konzentrationsprotokolle",
+      "hubermanDesc": "Neurobiologische Grundlage für 90-Minuten-Fokussessions. Maximal 2\u20133 Sessions pro Tag.",
+      "microbreaks": "Mikropausen-Metaanalyse (Albulescu et al., 2022)",
+      "microbreaksDesc": "Systematische Übersicht zeigt, dass längere Pausen eine bessere Leistungserholung bewirken.",
+      "breakRatio": "Optimale Arbeits-Pausen-Verhältnisse (Bailey, 2017)",
+      "breakRatioDesc": "Die produktivsten Menschen verbringen 20\u201325% ihres Arbeitstages mit Pausen."
     }
   }
 }

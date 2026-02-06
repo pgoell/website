@@ -74,6 +74,14 @@ export function SiteNav() {
           >
             {t("games")}
           </Link>
+          <Link
+            href={`/${locale}/tools`}
+            className="block rounded-md px-2 py-1 text-sm hover:bg-accent"
+            onClick={() => setMenuOpen(false)}
+            role="menuitem"
+          >
+            {t("tools")}
+          </Link>
         </div>
       )}
     </div>
