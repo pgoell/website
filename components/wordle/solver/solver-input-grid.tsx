@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MAX_GUESSES, WORD_LENGTH } from "@/lib/wordle";
@@ -22,7 +23,6 @@ interface SolverInputGridProps {
   onLetterInput: (letter: string) => void;
   onBackspace: () => void;
   onSubmit: () => void;
-  locale: string;
 }
 
 const STATE_COLORS: Record<ConstraintState | "empty", string> = {
@@ -41,9 +41,9 @@ export function SolverInputGrid({
   onLetterInput,
   onBackspace,
   onSubmit,
-  locale,
 }: SolverInputGridProps) {
-  const isDE = locale === "de";
+  const locale = useLocale();
+  const t = useTranslations("games.wordle.solver");
 
   // Handle keyboard input
   useEffect(() => {
@@ -76,9 +76,10 @@ export function SolverInputGrid({
     <div className="flex flex-col items-center gap-4">
       {/* Instructions */}
       <p className="text-sm text-muted-foreground text-center">
-        {isDE
-          ? "Tippe dein Wort ein, dann klicke auf Kacheln um den Status zu ändern"
-          : "Type your word, then click tiles to change their status"}
+        {t("enterGuess")}
+      </p>
+      <p className="text-sm text-muted-foreground text-center">
+        {t("clickToMark")}
       </p>
 
       {/* Grid */}
@@ -121,22 +122,22 @@ export function SolverInputGrid({
           rows[currentRowIndex]?.tiles.some((t) => !t.letter)
         }
       >
-        {isDE ? "Vorschlag holen" : "Get Suggestions"}
+        {t("getSuggestions")}
       </Button>
 
       {/* Legend */}
       <div className="flex gap-4 text-sm">
         <div className="flex items-center gap-1.5">
           <div className="size-4 bg-muted border border-muted-foreground/20" />
-          <span>{isDE ? "Falsch" : "Absent"}</span>
+          <span>{t("absent")}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="size-4 bg-[var(--wordle-present)]" />
-          <span>{isDE ? "Falsche Stelle" : "Present"}</span>
+          <span>{t("present")}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="size-4 bg-[var(--wordle-correct)]" />
-          <span>{isDE ? "Richtig" : "Correct"}</span>
+          <span>{t("correct")}</span>
         </div>
       </div>
     </div>

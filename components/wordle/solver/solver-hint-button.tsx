@@ -1,6 +1,7 @@
 "use client";
 
 import { Lightbulb } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { ScoredWord } from "@/lib/wordle/solver";
@@ -9,7 +10,6 @@ interface SolverHintButtonProps {
   suggestions: ScoredWord[];
   possibleWordsCount: number;
   disabled?: boolean;
-  locale: string;
   onToggle?: (enabled: boolean) => void;
 }
 
@@ -17,11 +17,10 @@ export function SolverHintButton({
   suggestions,
   possibleWordsCount,
   disabled,
-  locale,
   onToggle,
 }: SolverHintButtonProps) {
+  const t = useTranslations("games.wordle.solver");
   const [showHint, setShowHint] = useState(false);
-  const isDE = locale === "de";
 
   useEffect(() => {
     onToggle?.(showHint);
@@ -41,22 +40,20 @@ export function SolverHintButton({
         className="gap-2"
       >
         <Lightbulb className="size-4" />
-        {isDE ? "Hinweis" : "Hint"}
+        {t("hint")}
       </Button>
 
       {showHint && suggestions.length > 0 && (
         <div className="bg-muted rounded-md p-3 text-sm space-y-2 min-w-[200px]">
           <div className="text-muted-foreground">
-            {isDE ? "Verbleibende Wörter" : "Words remaining"}:{" "}
+            {t("wordsRemaining")}:{" "}
             <span className="font-medium text-foreground">
               {possibleWordsCount}
             </span>
           </div>
 
           <div className="space-y-1">
-            <div className="text-muted-foreground">
-              {isDE ? "Beste Vorschläge" : "Best guesses"}:
-            </div>
+            <div className="text-muted-foreground">{t("bestGuesses")}:</div>
             <ul className="space-y-1">
               {suggestions.slice(0, 3).map((s, i) => (
                 <li key={s.word} className="flex items-center justify-between">
@@ -65,7 +62,7 @@ export function SolverHintButton({
                   </span>
                   {s.isPossibleSolution && (
                     <span className="text-xs text-muted-foreground ml-2">
-                      {isDE ? "(möglich)" : "(possible)"}
+                      ({t("possible")})
                     </span>
                   )}
                 </li>
@@ -77,7 +74,7 @@ export function SolverHintButton({
 
       {showHint && suggestions.length === 0 && (
         <div className="bg-muted rounded-md p-3 text-sm text-muted-foreground">
-          {isDE ? "Lädt..." : "Loading..."}
+          {t("loading")}
         </div>
       )}
     </div>

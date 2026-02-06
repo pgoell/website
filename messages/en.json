@@ -21,7 +21,8 @@
     "home": "Home",
     "blog": "Blog",
     "games": "Games",
-    "tools": "Tools"
+    "tools": "Tools",
+    "back": "back"
   },
   "games": {
     "title": "Games",
@@ -35,6 +36,9 @@
       "notEnough": "Not enough letters",
       "youWin": "You won!",
       "youLose": "The word was {word}",
+      "reset": "Reset",
+      "showKeyboard": "Keyboard",
+      "hideKeyboard": "Hide Keyboard",
       "solver": {
         "title": "Wordle Solver",
         "description": "Get help solving any Wordle puzzle",
@@ -51,6 +55,13 @@
         "noMatches": "No matching words found",
         "enterGuess": "Enter your guess and mark each letter",
         "clickToMark": "Click tiles to cycle: absent \u2192 present \u2192 correct",
+        "failed": "Failed. The word was {word}",
+        "loading": "Loading...",
+        "absent": "Absent",
+        "present": "Present",
+        "correct": "Correct",
+        "getSuggestions": "Get Suggestions",
+        "solution": "Solution",
         "controls": {
           "play": "Play",
           "pause": "Pause",

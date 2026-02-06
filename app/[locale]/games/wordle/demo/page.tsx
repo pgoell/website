@@ -10,6 +10,7 @@ interface SolverDemoPageProps {
 export default async function SolverDemoPage({ params }: SolverDemoPageProps) {
   const { locale } = await params;
   const t = await getTranslations("games");
+  const nav = await getTranslations("nav");
   const wordList = locale === "de" ? WORDS_DE : WORDS_EN;
 
   return (
@@ -19,14 +20,14 @@ export default async function SolverDemoPage({ params }: SolverDemoPageProps) {
           href={`/${locale}/games/wordle`}
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          ← {locale === "de" ? "zurück" : "back"}
+          &larr; {nav("back")}
         </Link>
       </div>
       <h1 className="text-2xl font-bold">{t("wordle.solver.demo.title")}</h1>
       <p className="text-muted-foreground text-center max-w-md">
         {t("wordle.solver.demo.description")}
       </p>
-      <SolverDemo wordList={wordList} locale={locale} />
+      <SolverDemo wordList={wordList} />
     </div>
   );
 }

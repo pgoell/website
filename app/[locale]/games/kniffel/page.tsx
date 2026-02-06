@@ -9,6 +9,7 @@ interface KniffelPageProps {
 export default async function KniffelPage({ params }: KniffelPageProps) {
   const { locale } = await params;
   const t = await getTranslations("games");
+  const nav = await getTranslations("nav");
 
   return (
     <div className="flex flex-col items-center space-y-6">
@@ -17,7 +18,7 @@ export default async function KniffelPage({ params }: KniffelPageProps) {
           href={`/${locale}/games`}
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          ← {locale === "de" ? "zurück" : "back"}
+          &larr; {nav("back")}
         </Link>
       </div>
       <h1 className="text-2xl font-bold">{t("kniffel.title")}</h1>

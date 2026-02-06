@@ -1,6 +1,7 @@
 "use client";
 
 import { Pause, Play, RotateCcw, SkipForward } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { TileData } from "@/lib/wordle";
@@ -17,7 +18,6 @@ import { WordleBoard } from "../wordle-board";
 
 interface SolverDemoProps {
   wordList: string[];
-  locale: string;
 }
 
 type DemoStatus = "ready" | "solving" | "solved" | "failed";
@@ -30,7 +30,9 @@ const SPEEDS = [
 
 const DEFAULT_SPEED = SPEEDS[1];
 
-export function SolverDemo({ wordList, locale }: SolverDemoProps) {
+export function SolverDemo({ wordList }: SolverDemoProps) {
+  const t = useTranslations("games.wordle.solver");
+
   const [solution, setSolution] = useState(() => getRandomWord(wordList));
   const [guesses, setGuesses] = useState<string[]>([]);
   const [solverState, setSolverState] = useState<SolverState>(() =>
@@ -41,7 +43,6 @@ export function SolverDemo({ wordList, locale }: SolverDemoProps) {
   const [speedIndex, setSpeedIndex] = useState(1);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const isDE = locale === "de";
   const currentSpeed = SPEEDS[speedIndex] ?? DEFAULT_SPEED;
 
   // Build board rows from guesses
@@ -146,19 +147,13 @@ export function SolverDemo({ wordList, locale }: SolverDemoProps) {
   const getStatusText = () => {
     switch (status) {
       case "ready":
-        return isDE ? "Bereit zum Lösen" : "Ready to solve";
+        return t("status.ready");
       case "solving":
-        return isDE
-          ? `Löst... (${solverState.possibleWords.length} Wörter übrig)`
-          : `Solving... (${solverState.possibleWords.length} words left)`;
+        return `${t("status.solving")} (${solverState.possibleWords.length})`;
       case "solved":
-        return isDE
-          ? `Gelöst in ${guesses.length} Versuchen!`
-          : `Solved in ${guesses.length} guesses!`;
+        return t("status.solved", { count: guesses.length });
       case "failed":
-        return isDE
-          ? `Fehlgeschlagen. Das Wort war ${solution}`
-          : `Failed. The word was ${solution}`;
+        return t("failed", { word: solution });
     }
   };
 
@@ -193,7 +188,7 @@ export function SolverDemo({ wordList, locale }: SolverDemoProps) {
             className="gap-2"
           >
             <Play className="size-4" />
-            {isDE ? "Start" : "Play"}
+            {t("controls.play")}
           </Button>
         ) : (
           <Button
@@ -203,7 +198,7 @@ export function SolverDemo({ wordList, locale }: SolverDemoProps) {
             className="gap-2"
           >
             <Pause className="size-4" />
-            {isDE ? "Pause" : "Pause"}
+            {t("controls.pause")}
           </Button>
         )}
 
@@ -215,7 +210,7 @@ export function SolverDemo({ wordList, locale }: SolverDemoProps) {
           className="gap-2"
         >
           <SkipForward className="size-4" />
-          {isDE ? "Schritt" : "Step"}
+          {t("controls.step")}
         </Button>
 
         <Button
@@ -225,7 +220,7 @@ export function SolverDemo({ wordList, locale }: SolverDemoProps) {
           className="gap-2"
         >
           <RotateCcw className="size-4" />
-          {isDE ? "Neustart" : "Reset"}
+          {t("controls.reset")}
         </Button>
 
         <Button
@@ -241,7 +236,7 @@ export function SolverDemo({ wordList, locale }: SolverDemoProps) {
       {/* Solution reveal (when game is over) */}
       {(status === "solved" || status === "failed") && (
         <div className="text-sm text-muted-foreground">
-          {isDE ? "Lösung" : "Solution"}:{" "}
+          {t("solution")}:{" "}
           <span className="font-mono font-bold">{solution}</span>
         </div>
       )}

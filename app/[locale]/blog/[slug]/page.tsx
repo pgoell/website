@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { locales } from "@/i18n/config";
 import { getPostBySlug, getPostSlugs } from "@/lib/posts";
@@ -22,6 +23,7 @@ export default async function BlogPost({
 }) {
   const { locale, slug } = await params;
   const post = await getPostBySlug(locale, slug);
+  const t = await getTranslations("nav");
 
   if (!post) notFound();
 
@@ -31,7 +33,7 @@ export default async function BlogPost({
         href={`/${locale}/blog`}
         className="text-sm text-muted-foreground hover:text-foreground mb-1 inline-block"
       >
-        ← go back
+        &larr; {t("back")}
       </Link>
       <h1 className="text-3xl font-bold">{post.meta.title}</h1>
       <p className="text-sm text-muted-foreground mt-2 mb-8">

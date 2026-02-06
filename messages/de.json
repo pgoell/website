@@ -21,7 +21,8 @@
     "home": "Startseite",
     "blog": "Blog",
     "games": "Spiele",
-    "tools": "Werkzeuge"
+    "tools": "Werkzeuge",
+    "back": "zurück"
   },
   "games": {
     "title": "Spiele",
@@ -35,6 +36,9 @@
       "notEnough": "Nicht genug Buchstaben",
       "youWin": "Gewonnen!",
       "youLose": "Das Wort war {word}",
+      "reset": "Neu starten",
+      "showKeyboard": "Tastatur",
+      "hideKeyboard": "Tastatur ausblenden",
       "solver": {
         "title": "Wordle Solver",
         "description": "Hilfe beim Lösen von Wordle-Rätseln",
@@ -51,6 +55,13 @@
         "noMatches": "Keine passenden Wörter gefunden",
         "enterGuess": "Gib deinen Versuch ein und markiere jeden Buchstaben",
         "clickToMark": "Klicke auf Kacheln: absent \u2192 present \u2192 correct",
+        "failed": "Fehlgeschlagen. Das Wort war {word}",
+        "loading": "Lädt...",
+        "absent": "Falsch",
+        "present": "Falsche Stelle",
+        "correct": "Richtig",
+        "getSuggestions": "Vorschlag holen",
+        "solution": "Lösung",
         "controls": {
           "play": "Start",
           "pause": "Pause",

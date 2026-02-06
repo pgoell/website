@@ -1,7 +1,8 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { GameState, StoredGameState, TileData } from "@/lib/wordle";
+import type { GameState, TileData } from "@/lib/wordle";
 import {
   createCurrentRow,
   createEmptyRow,
@@ -12,51 +13,13 @@ import {
   updateLetterStates,
   WORD_LENGTH,
 } from "@/lib/wordle";
+import {
+  clearGameState,
+  loadGameState,
+  saveGameState,
+} from "@/lib/wordle/storage";
 import { VALID_WORDS_DE, WORDS_DE } from "@/lib/wordle/words-de";
 import { VALID_WORDS_EN, WORDS_EN } from "@/lib/wordle/words-en";
-
-const STORAGE_KEY_PREFIX = "wordle-state-";
-
-function getStorageKey(locale: string): string {
-  return `${STORAGE_KEY_PREFIX}${locale}`;
-}
-
-function loadGameState(locale: string): StoredGameState | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const stored = localStorage.getItem(getStorageKey(locale));
-    if (!stored) return null;
-    return JSON.parse(stored) as StoredGameState;
-  } catch {
-    return null;
-  }
-}
-
-function saveGameState(state: GameState, locale: string): void {
-  if (typeof window === "undefined") return;
-  try {
-    const toStore: StoredGameState = {
-      solution: state.solution,
-      guesses: state.guesses,
-      gameStatus: state.gameStatus,
-      letterStates: state.letterStates,
-      locale,
-      timestamp: Date.now(),
-    };
-    localStorage.setItem(getStorageKey(locale), JSON.stringify(toStore));
-  } catch {
-    // Ignore storage errors
-  }
-}
-
-function clearGameState(locale: string): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.removeItem(getStorageKey(locale));
-  } catch {
-    // Ignore storage errors
-  }
-}
 
 export type MessageType = "error" | "success" | "info";
 
@@ -65,7 +28,10 @@ export interface GameMessage {
   type: MessageType;
 }
 
-export function useWordle(locale: string) {
+export function useWordle() {
+  const locale = useLocale();
+  const t = useTranslations("games.wordle");
+
   const words = locale === "de" ? WORDS_DE : WORDS_EN;
   const validWords = locale === "de" ? VALID_WORDS_DE : VALID_WORDS_EN;
 
@@ -146,19 +112,13 @@ export function useWordle(locale: string) {
     const guess = gameState.currentGuess;
 
     if (guess.length < WORD_LENGTH) {
-      showMessage(
-        locale === "de" ? "Nicht genug Buchstaben" : "Not enough letters",
-        "error",
-      );
+      showMessage(t("notEnough"), "error");
       setShakeRow(gameState.guesses.length);
       return;
     }
 
     if (!isValidWord(guess, validWords)) {
-      showMessage(
-        locale === "de" ? "Nicht in der Wortliste" : "Not in word list",
-        "error",
-      );
+      showMessage(t("invalidWord"), "error");
       setShakeRow(gameState.guesses.length);
       // Clear the invalid guess so user can try again
       setGameState((prev) => ({
@@ -180,15 +140,10 @@ export function useWordle(locale: string) {
     let newStatus: GameState["gameStatus"] = "playing";
     if (isWin) {
       newStatus = "won";
-      showMessage(locale === "de" ? "Gewonnen!" : "You won!", "success");
+      showMessage(t("youWin"), "success");
     } else if (isLastGuess) {
       newStatus = "lost";
-      showMessage(
-        locale === "de"
-          ? `Das Wort war ${gameState.solution}`
-          : `The word was ${gameState.solution}`,
-        "info",
-      );
+      showMessage(t("youLose", { word: gameState.solution }), "info");
     }
 
     setGameState((prev) => ({
@@ -206,7 +161,7 @@ export function useWordle(locale: string) {
     gameState.letterStates,
     validWords,
     showMessage,
-    locale,
+    t,
   ]);
 
   const resetGame = useCallback(() => {
