@@ -2,6 +2,7 @@
 
 import { Bot, Keyboard, RotateCcw } from "lucide-react";
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { WORDS_DE, WORDS_EN } from "@/lib/wordle";
@@ -10,11 +11,9 @@ import { useWordle } from "./use-wordle";
 import { WordleBoard } from "./wordle-board";
 import { WordleKeyboard } from "./wordle-keyboard";
 
-interface WordleGameProps {
-  locale: string;
-}
-
-export function WordleGame({ locale }: WordleGameProps) {
+export function WordleGame() {
+  const locale = useLocale();
+  const t = useTranslations("games.wordle");
   const inputRef = useRef<HTMLInputElement>(null);
   const {
     gameState,
@@ -27,7 +26,7 @@ export function WordleGame({ locale }: WordleGameProps) {
     removeLetter,
     submitGuess,
     resetGame,
-  } = useWordle(locale);
+  } = useWordle();
 
   const [hintEnabled, setHintEnabled] = useState(false);
   const [showKeyboard, setShowKeyboard] = useState(() => {
@@ -133,7 +132,6 @@ export function WordleGame({ locale }: WordleGameProps) {
           <SolverHintButton
             suggestions={suggestions}
             possibleWordsCount={possibleWordsCount}
-            locale={locale}
             onToggle={setHintEnabled}
           />
         )}
@@ -145,20 +143,18 @@ export function WordleGame({ locale }: WordleGameProps) {
           className="gap-2"
         >
           <RotateCcw className="size-4" />
-          {locale === "de" ? "Neu starten" : "Reset"}
+          {t("reset")}
         </Button>
 
         <Button variant="ghost" size="sm" asChild>
           <Link href={`/${locale}/games/wordle/demo`} className="gap-2">
             <Bot className="size-4" />
-            {locale === "de" ? "Demo" : "Demo"}
+            Demo
           </Link>
         </Button>
 
         <Button variant="ghost" size="sm" asChild>
-          <Link href={`/${locale}/games/wordle/solver`}>
-            {locale === "de" ? "Solver" : "Solver"}
-          </Link>
+          <Link href={`/${locale}/games/wordle/solver`}>Solver</Link>
         </Button>
 
         <Button
@@ -166,7 +162,7 @@ export function WordleGame({ locale }: WordleGameProps) {
           size="sm"
           onClick={() => setShowKeyboard(!showKeyboard)}
           className="gap-2"
-          aria-label={showKeyboard ? "Hide keyboard" : "Show keyboard"}
+          aria-label={showKeyboard ? t("hideKeyboard") : t("showKeyboard")}
         >
           <Keyboard className="size-4" />
         </Button>
@@ -179,7 +175,6 @@ export function WordleGame({ locale }: WordleGameProps) {
           onKey={addLetter}
           onEnter={submitGuess}
           onBackspace={removeLetter}
-          locale={locale}
           disabled={gameState.gameStatus !== "playing"}
         />
       )}

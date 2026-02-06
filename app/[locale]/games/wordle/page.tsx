@@ -9,6 +9,7 @@ interface WordlePageProps {
 export default async function WordlePage({ params }: WordlePageProps) {
   const { locale } = await params;
   const t = await getTranslations("games");
+  const nav = await getTranslations("nav");
 
   return (
     <div className="flex flex-col items-center space-y-6">
@@ -17,14 +18,14 @@ export default async function WordlePage({ params }: WordlePageProps) {
           href={`/${locale}/games`}
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          ← {locale === "de" ? "zurück" : "back"}
+          &larr; {nav("back")}
         </Link>
       </div>
       <h1 className="text-2xl font-bold">{t("wordle.title")}</h1>
       <p className="text-muted-foreground text-center max-w-md">
         {t("wordle.instructions")}
       </p>
-      <WordleGame locale={locale} />
+      <WordleGame />
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { Keyboard, RotateCcw } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,10 +19,12 @@ import {
 } from "@/lib/wordle/solver";
 
 export default function SolverPage() {
-  const params = useParams();
-  const locale = (params.locale as string) || "en";
+  const locale = useLocale();
+  const t = useTranslations("games.wordle");
+  const ts = useTranslations("games.wordle.solver");
+  const nav = useTranslations("nav");
+
   const wordList = locale === "de" ? WORDS_DE : WORDS_EN;
-  const isDE = locale === "de";
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [showKeyboard, setShowKeyboard] = useState(() => {
@@ -96,16 +98,12 @@ export default function SolverPage() {
           href={`/${locale}/games/wordle`}
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          ← {isDE ? "zurück" : "back"}
+          &larr; {nav("back")}
         </Link>
       </div>
-      <h1 className="text-2xl font-bold">
-        {isDE ? "Wordle Solver" : "Wordle Solver"}
-      </h1>
+      <h1 className="text-2xl font-bold">{ts("title")}</h1>
       <p className="text-muted-foreground text-center max-w-md">
-        {isDE
-          ? "Hilfe beim Lösen von Wordle-Rätseln. Gib deine Versuche ein und erhalte Vorschläge."
-          : "Get help solving any Wordle puzzle. Enter your guesses and get suggestions."}
+        {ts("description")}
       </p>
 
       {/* Hidden input for mobile keyboard */}
@@ -139,21 +137,20 @@ export default function SolverPage() {
               onLetterInput={handleLetterInput}
               onBackspace={handleBackspace}
               onSubmit={handleSubmit}
-              locale={locale}
             />
           </button>
 
           <div className="flex gap-2">
             <Button onClick={reset} variant="outline" className="gap-2">
               <RotateCcw className="size-4" />
-              {isDE ? "Zurücksetzen" : "Reset"}
+              {t("reset")}
             </Button>
 
             <Button
               variant={showKeyboard ? "secondary" : "ghost"}
               size="icon"
               onClick={() => setShowKeyboard(!showKeyboard)}
-              aria-label={showKeyboard ? "Hide keyboard" : "Show keyboard"}
+              aria-label={showKeyboard ? t("hideKeyboard") : t("showKeyboard")}
             >
               <Keyboard className="size-4" />
             </Button>
@@ -166,7 +163,6 @@ export default function SolverPage() {
               onKey={handleLetterInput}
               onEnter={handleSubmit}
               onBackspace={handleBackspace}
-              locale={locale}
             />
           )}
         </div>
@@ -177,7 +173,6 @@ export default function SolverPage() {
             <SolverSuggestions
               suggestions={suggestions}
               possibleWordsCount={possibleWordsCount}
-              locale={locale}
             />
           </div>
         )}

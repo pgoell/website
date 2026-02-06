@@ -4,20 +4,20 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ALL_CATEGORIES,
   calculateScore,
+  clearGameState,
   createInitialDice,
   type GameMode,
   type GameState,
   isPlayerComplete,
+  loadGameState,
   MAX_ROLLS,
   type Player,
   resetHolds,
   rollDice,
   type ScoreCategory,
-  type StoredGameState,
+  saveGameState,
   toggleHold,
 } from "@/lib/kniffel";
-
-const STORAGE_KEY = "kniffel-state";
 
 function createEmptyScores(): Record<ScoreCategory, number | null> {
   return Object.fromEntries(ALL_CATEGORIES.map((cat) => [cat, null])) as Record<
@@ -47,50 +47,6 @@ function createInitialState(): GameState {
   };
 }
 
-function loadGameState(): StoredGameState | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return null;
-    return JSON.parse(stored) as StoredGameState;
-  } catch {
-    return null;
-  }
-}
-
-function saveGameState(state: GameState): void {
-  if (typeof window === "undefined") return;
-  if (state.phase === "mode-select" || !state.mode) {
-    clearGameState();
-    return;
-  }
-  try {
-    const toStore: StoredGameState = {
-      mode: state.mode,
-      phase: state.phase,
-      players: state.players,
-      currentPlayerIndex: state.currentPlayerIndex,
-      currentTurn: state.currentTurn,
-      dice: state.dice,
-      rollsRemaining: state.rollsRemaining,
-      hasRolled: state.hasRolled,
-      timestamp: Date.now(),
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore));
-  } catch {
-    // Ignore storage errors
-  }
-}
-
-function clearGameState(): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    // Ignore storage errors
-  }
-}
-
 export function useKniffel() {
   const [gameState, setGameState] = useState<GameState>(() => {
     const stored = loadGameState();
@@ -118,7 +74,21 @@ export function useKniffel() {
 
   // Save state on changes
   useEffect(() => {
-    saveGameState(gameState);
+    if (gameState.phase === "mode-select" || !gameState.mode) {
+      clearGameState();
+      return;
+    }
+    saveGameState({
+      mode: gameState.mode,
+      phase: gameState.phase,
+      players: gameState.players,
+      currentPlayerIndex: gameState.currentPlayerIndex,
+      currentTurn: gameState.currentTurn,
+      dice: gameState.dice,
+      rollsRemaining: gameState.rollsRemaining,
+      hasRolled: gameState.hasRolled,
+      timestamp: Date.now(),
+    });
   }, [gameState]);
 
   const selectMode = useCallback((mode: GameMode) => {

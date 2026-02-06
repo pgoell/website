@@ -88,30 +88,57 @@ jj bookmark create feature/other
 
 **Commit format:** `type: description` (feat, fix, chore, docs, refactor, test, perf)
 
+## ADR-First Development Workflow
+
+All architectural decisions are documented in `docs/adr/`. The ADRs are the source of truth.
+
+**Before implementing any new feature, structural change, or pattern deviation:**
+
+1. **Check ADRs** — Read relevant ADRs in `docs/adr/` to understand existing decisions
+2. **Update/Create ADR** — If the change contradicts an existing ADR, update it first (set old to "Superseded"). If the change introduces a new pattern, create a new ADR (status "Proposed")
+3. **Update Implementation Plan** — Reflect the change in `docs/IMPLEMENTATION_PLAN.md`
+4. **Implement** — Follow the ADR and implementation plan
+5. **Verify compliance** — Use the checklist at the bottom of `docs/IMPLEMENTATION_PLAN.md`
+
+**Nothing gets implemented without being documented in an ADR first.**
+
+Key ADR documents:
+- `docs/adr/README.md` — Index, governance, known inconsistencies
+- `docs/IMPLEMENTATION_PLAN.md` — Phased plan derived from ADRs
+
 ## Architecture
 
 **Stack:** Next.js 16 (App Router) + React 19 + Tailwind 4 + Biome + bun
 
-**Typography:** Custom MDX components in `mdx-components.tsx`
-- Style MDX elements (h1, p, etc.) with Tailwind classes directly
-- No @tailwindcss/typography (incompatible with Tailwind v4)
+**Feature architecture** (ADR-005): Four layers for every interactive feature:
+1. `lib/{feature}/` — Pure logic, types, constants (no React)
+2. `components/{feature}/use-{feature}.ts` — Custom hook (React bridge)
+3. `components/{feature}/*.tsx` — UI components ("use client")
+4. `app/[locale]/{category}/{feature}/page.tsx` — Server component route
 
-**Internationalization:** next-intl with locale-based routing
+**Internationalization** (ADR-003): next-intl with locale-based routing
 - Locales: `en`, `de` (configured in `i18n/config.ts`)
 - Routes use `[locale]` dynamic segment: `app/[locale]/page.tsx`
-- Translations: `messages/{locale}.json`
-- Middleware handles locale detection and redirects
+- Translations: `messages/{locale}.json` — all UI text via `useTranslations()`
+- Key naming: camelCase, namespaced by feature
 
-**Theming:** next-themes with CSS variables
-- Theme tokens in `app/globals.css` (light/dark using oklch colors)
+**Styling** (ADR-002): Tailwind 4 CSS-first + next-themes
+- Theme tokens in `app/globals.css` (oklch colors, `@theme inline` block)
+- No JS config file — pure CSS configuration
 - `ThemeProvider` wraps app in locale layout
 
-**UI Components:** shadcn/ui pattern
-- Base components in `components/ui/` (e.g., `Button` with CVA variants)
+**UI Components** (ADR-004): shadcn/ui pattern
+- Base components in `components/ui/` (Button with CVA variants, DropdownMenu)
 - Utility: `cn()` from `@/lib/utils` for class merging
 
+**State management** (ADR-012): useState + useEffect + localStorage
+- Per-feature isolation, no global state
+- Runtime type guards for storage validation (follow Pomodoro's pattern)
+
+**Testing** (ADR-007): Vitest, pure function tests in `lib/{feature}/__tests__/`
+
 **Key files:**
-- `middleware.ts` — Locale routing middleware
+- `proxy.ts` — Locale routing middleware (Next.js 16 pattern)
 - `app/layout.tsx` — Root layout (imports globals.css)
 - `app/[locale]/layout.tsx` — Locale layout (providers, html lang)
 - `i18n/request.ts` — next-intl request config
@@ -120,14 +147,18 @@ jj bookmark create feature/other
 
 **Implemented:**
 - Personal blog (MDX) at `/blog`
-- Wordle game at `/games/wordle` (EN/DE word lists)
+- Wordle game at `/games/wordle` (EN/DE word lists, solver, demo)
+- Kniffel tracker at `/games/kniffel` (digital + manual modes)
+- Pomodoro timer at `/tools/pomodoro` (presets, scheduling, stats)
 
-**Planned:**
-- Song bingo game (Spotify OAuth)
-- Kniffel tracker
+**Planned** (see `docs/IMPLEMENTATION_PLAN.md`):
+- Song bingo game (Spotify OAuth — needs ADR-013)
+- Blog enhancements (syntax highlighting, more MDX components)
 
 ## Infrastructure
 
-- Hosting: Hetzner via Docker
-- Reverse proxy: Caddy (handles HTTPS)
+- Hosting: Hetzner via Docker (ADR-009)
+- Reverse proxy: Caddy (handles HTTPS + compression)
 - Output: standalone (`next.config.ts`)
+- CI: GitHub Actions (lint + build on PRs, manual/release deploys)
+- VCS: Jujutsu (ADR-010)

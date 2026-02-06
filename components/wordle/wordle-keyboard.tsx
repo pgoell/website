@@ -2,6 +2,7 @@
 
 import { cva } from "class-variance-authority";
 import { Delete } from "lucide-react";
+import { useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { LetterState } from "@/lib/wordle/types";
 
@@ -50,7 +51,6 @@ interface WordleKeyboardProps {
   onKey: (key: string) => void;
   onEnter: () => void;
   onBackspace: () => void;
-  locale: string;
   disabled?: boolean;
 }
 
@@ -59,9 +59,9 @@ export function WordleKeyboard({
   onKey,
   onEnter,
   onBackspace,
-  locale,
   disabled = false,
 }: WordleKeyboardProps) {
+  const locale = useLocale();
   const keyboard = locale === "de" ? KEYBOARD_DE : KEYBOARD_EN;
   const isGerman = locale === "de";
 

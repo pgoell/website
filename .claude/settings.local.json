@@ -61,7 +61,8 @@
       "Bash(wc:*)",
       "Bash(jj git init:*)",
       "Bash(jj file show:*)",
-      "Bash(bunx vitest run:*)"
+      "Bash(bunx vitest run:*)",
+      "Bash(bun install:*)"
     ]
   },
   "outputStyle": "default"
