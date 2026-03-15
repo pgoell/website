@@ -21,9 +21,6 @@ export default async function BingoPage({ params }: BingoPageProps) {
         </Link>
       </div>
       <h1 className="text-2xl font-bold">{t("bingo.title")}</h1>
-      <p className="text-muted-foreground text-center max-w-md">
-        {t("bingo.instructions")}
-      </p>
       <BingoCard locale={locale} />
     </div>
   );
