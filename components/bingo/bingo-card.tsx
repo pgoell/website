@@ -1,7 +1,7 @@
 "use client";
 
-import { Download, RotateCcw, Shuffle, X } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { RotateCcw, Shuffle, X } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -82,11 +82,6 @@ export function BingoCard({
   const [grid, setGrid] = useState<Cell[][]>(() =>
     generateGrid(size, defaultItems),
   );
-  const [editingCell, setEditingCell] = useState<{
-    row: number;
-    col: number;
-  } | null>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
 
   const handleShuffle = () => {
     const shuffled = shuffleArray(items.slice(0, totalCells));
@@ -98,7 +93,6 @@ export function BingoCard({
       return next;
     });
     setGrid(generateGrid(size, shuffled));
-    setEditingCell(null);
   };
 
   const handleShuffleColors = () => {
@@ -116,7 +110,6 @@ export function BingoCard({
   };
 
   const handleCellClick = (row: number, col: number) => {
-    if (editingCell?.row === row && editingCell?.col === col) return;
     setGrid((prev) => {
       if (!prev) return prev;
       const next = prev.map((r) => r.map((c) => ({ ...c })));
@@ -126,45 +119,9 @@ export function BingoCard({
     });
   };
 
-  const handleCellEdit = (row: number, col: number, value: string) => {
-    setGrid((prev) => {
-      if (!prev) return prev;
-      const next = prev.map((r) => r.map((c) => ({ ...c })));
-      const cell = next[row]?.[col];
-      if (cell) cell.text = value;
-      return next;
-    });
-    const index = row * size + col;
-    setItems((prev) => {
-      const next = [...prev];
-      next[index] = value;
-      return next;
-    });
-  };
-
   const handleReset = () => {
     setGrid(generateGrid(size, items));
-    setEditingCell(null);
   };
-
-  const handleDownload = useCallback(async () => {
-    if (!cardRef.current) return;
-    const { toBlob } = await import("html-to-image");
-    const cardEl = cardRef.current;
-    const style = getComputedStyle(cardEl);
-    const bgColor = style.backgroundColor;
-    const blob = await toBlob(cardRef.current, {
-      backgroundColor: bgColor || undefined,
-      pixelRatio: 2,
-    });
-    if (!blob) return;
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `bingo-${Date.now()}.png`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }, []);
 
   return (
     <div className="w-full max-w-2xl space-y-4">
@@ -177,20 +134,13 @@ export function BingoCard({
           <RotateCcw className="size-4" />
           {isDE ? "Farben mischen" : "Shuffle Colors"}
         </Button>
-        <Button variant="outline" onClick={handleDownload}>
-          <Download className="size-4" />
-          {isDE ? "Speichern" : "Save Image"}
-        </Button>
         <Button variant="outline" onClick={handleReset}>
           <X className="size-4" />
           {isDE ? "Zurücksetzen" : "Reset"}
         </Button>
       </div>
 
-      <div
-        ref={cardRef}
-        className="rounded-2xl bg-card p-4 shadow-lg border border-border"
-      >
+      <div className="rounded-2xl bg-card p-4 shadow-lg border border-border">
         {title && (
           <h2 className="mb-3 text-center font-bold text-lg text-card-foreground tracking-wide">
             {title}
@@ -201,55 +151,31 @@ export function BingoCard({
           style={{ gridTemplateColumns: `repeat(${size}, 1fr)` }}
         >
           {grid.map((row, rowIdx) =>
-            row.map((cell, colIdx) => {
-              const isEditing =
-                editingCell?.row === rowIdx && editingCell?.col === colIdx;
-              return (
-                <button
-                  type="button"
-                  key={cell.id}
-                  className={cn(
-                    "relative aspect-square rounded-lg flex items-center justify-center p-1 cursor-pointer transition-all select-none border-none",
-                    cell.color,
-                    cell.marked && "ring-3 ring-white/80 brightness-75",
-                  )}
-                  onClick={() => handleCellClick(rowIdx, colIdx)}
-                  onDoubleClick={() =>
-                    setEditingCell({ row: rowIdx, col: colIdx })
-                  }
-                >
-                  {cell.marked && (
-                    <X className="absolute size-[60%] text-white/90 stroke-[3]" />
-                  )}
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={cell.text}
-                      onChange={(e) =>
-                        handleCellEdit(rowIdx, colIdx, e.target.value)
-                      }
-                      onBlur={() => setEditingCell(null)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") setEditingCell(null);
-                      }}
-                      className="w-full bg-transparent text-center text-xs font-semibold text-gray-900 outline-none"
-                    />
-                  ) : (
-                    <span className="text-center text-[10px] font-semibold leading-tight text-gray-900 sm:text-xs">
-                      {cell.text}
-                    </span>
-                  )}
-                </button>
-              );
-            }),
+            row.map((cell, colIdx) => (
+              <button
+                type="button"
+                key={cell.id}
+                className={cn(
+                  "relative aspect-square rounded-lg flex items-center justify-center p-1 cursor-pointer transition-all select-none border-none",
+                  cell.color,
+                  cell.marked && "ring-3 ring-white/80 brightness-75",
+                )}
+                onClick={() => handleCellClick(rowIdx, colIdx)}
+              >
+                {cell.marked && (
+                  <X className="absolute size-[60%] text-white/90 stroke-[3]" />
+                )}
+                <span className="text-center text-[10px] font-semibold leading-tight text-gray-900 sm:text-xs">
+                  {cell.text}
+                </span>
+              </button>
+            )),
           )}
         </div>
       </div>
 
       <p className="text-center text-xs text-muted-foreground">
-        {isDE
-          ? "Klicken zum Markieren • Doppelklick zum Bearbeiten"
-          : "Click to mark • Double-click to edit"}
+        {isDE ? "Klicken zum Markieren" : "Click to mark"}
       </p>
     </div>
   );
