@@ -5,19 +5,12 @@ import { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const PASTEL_COLORS = [
-  "bg-pink-300",
+const BINGO_COLORS = [
   "bg-sky-300",
-  "bg-yellow-300",
+  "bg-pink-300",
   "bg-purple-300",
   "bg-green-300",
-  "bg-lime-300",
-  "bg-rose-300",
-  "bg-cyan-300",
-  "bg-amber-300",
-  "bg-violet-300",
-  "bg-emerald-300",
-  "bg-fuchsia-300",
+  "bg-yellow-300",
 ];
 
 type Cell = {
@@ -27,36 +20,74 @@ type Cell = {
   marked: boolean;
 };
 
-function getRandomColor(exclude?: string): string {
-  const available = exclude
-    ? PASTEL_COLORS.filter((c) => c !== exclude)
-    : PASTEL_COLORS;
-  return available[Math.floor(Math.random() * available.length)] as string;
+function buildColorPool(): string[] {
+  const pool: string[] = [];
+  for (const color of BINGO_COLORS) {
+    for (let i = 0; i < 5; i++) {
+      pool.push(color);
+    }
+  }
+  return pool;
 }
 
 function generateGrid(size: number, items: string[]): Cell[][] {
+  const colorPool = shuffleArray(buildColorPool());
+
+  // Try multiple times to find a layout with no adjacent same colors
+  for (let attempt = 0; attempt < 50; attempt++) {
+    const candidate = shuffleArray(colorPool);
+    let valid = true;
+    outer: for (let row = 0; row < size; row++) {
+      for (let col = 0; col < size; col++) {
+        const idx = row * size + col;
+        const color = candidate[idx];
+        if (row > 0 && candidate[(row - 1) * size + col] === color) {
+          valid = false;
+          break outer;
+        }
+        if (col > 0 && candidate[idx - 1] === color) {
+          valid = false;
+          break outer;
+        }
+      }
+    }
+    if (valid) {
+      return buildGrid(size, items, candidate);
+    }
+  }
+
+  // Fallback: use best-effort swap approach
+  const colors = shuffleArray(colorPool);
+  for (let row = 0; row < size; row++) {
+    for (let col = 0; col < size; col++) {
+      const idx = row * size + col;
+      const above = row > 0 ? colors[(row - 1) * size + col] : "";
+      const left = col > 0 ? colors[idx - 1] : "";
+      if (colors[idx] === above || colors[idx] === left) {
+        for (let s = idx + 1; s < colors.length; s++) {
+          if (colors[s] !== above && colors[s] !== left) {
+            const temp = colors[idx] as string;
+            colors[idx] = colors[s] as string;
+            colors[s] = temp;
+            break;
+          }
+        }
+      }
+    }
+  }
+  return buildGrid(size, items, colors);
+}
+
+function buildGrid(size: number, items: string[], colors: string[]): Cell[][] {
   const grid: Cell[][] = [];
-  let prevColor = "";
   for (let row = 0; row < size; row++) {
     const rowCells: Cell[] = [];
     for (let col = 0; col < size; col++) {
       const index = row * size + col;
-      const aboveColor = row > 0 ? (grid[row - 1]?.[col]?.color ?? "") : "";
-      const leftColor = col > 0 ? (rowCells[col - 1]?.color ?? "") : "";
-      let color = getRandomColor();
-      let attempts = 0;
-      while (
-        (color === aboveColor || color === leftColor || color === prevColor) &&
-        attempts < 20
-      ) {
-        color = getRandomColor();
-        attempts++;
-      }
-      prevColor = color;
       rowCells.push({
         id: `${row}-${col}-${Math.random().toString(36).slice(2, 8)}`,
         text: items[index] || "",
-        color,
+        color: colors[index] ?? (BINGO_COLORS[0] as string),
         marked: false,
       });
     }
@@ -82,8 +113,9 @@ interface BingoCardProps {
 
 export function BingoCard({ locale }: BingoCardProps) {
   const isDE = locale === "de";
-  const [size, setSize] = useState(5);
-  const [items, setItems] = useState<string[]>(Array(25).fill(""));
+  const size = 5;
+  const totalCells = 25;
+  const [items, setItems] = useState<string[]>(Array(totalCells).fill(""));
   const [grid, setGrid] = useState<Cell[][] | null>(null);
   const [title, setTitle] = useState("");
   const [editingCell, setEditingCell] = useState<{
@@ -91,20 +123,6 @@ export function BingoCard({ locale }: BingoCardProps) {
     col: number;
   } | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
-
-  const totalCells = size * size;
-
-  const handleSizeChange = (newSize: number) => {
-    const newTotal = newSize * newSize;
-    setSize(newSize);
-    setItems((prev) => {
-      if (newTotal > prev.length) {
-        return [...prev, ...Array(newTotal - prev.length).fill("")];
-      }
-      return prev.slice(0, newTotal);
-    });
-    setGrid(null);
-  };
 
   const handleItemChange = (index: number, value: string) => {
     setItems((prev) => {
@@ -199,24 +217,6 @@ export function BingoCard({ locale }: BingoCardProps) {
     return (
       <div className="w-full max-w-2xl space-y-6">
         <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-medium">
-              {isDE ? "Rastergröße" : "Grid Size"}
-            </span>
-            <div className="flex gap-2">
-              {[3, 4, 5].map((s) => (
-                <Button
-                  key={s}
-                  variant={size === s ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleSizeChange(s)}
-                >
-                  {s}x{s}
-                </Button>
-              ))}
-            </div>
-          </div>
-
           <div>
             <label className="text-sm font-medium" htmlFor="bingo-title">
               {isDE ? "Kartentitel (optional)" : "Card Title (optional)"}
@@ -245,11 +245,11 @@ export function BingoCard({ locale }: BingoCardProps) {
             <div
               className="grid gap-2"
               style={{
-                gridTemplateColumns: `repeat(${Math.min(size, 5)}, 1fr)`,
+                gridTemplateColumns: "repeat(5, 1fr)",
               }}
             >
               {Array.from({ length: totalCells }, (_, i) => {
-                const cellId = `input-${size}-${i}`;
+                const cellId = `input-${i}`;
                 return (
                   <input
                     key={cellId}
