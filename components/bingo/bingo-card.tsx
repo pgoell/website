@@ -31,51 +31,7 @@ function buildColorPool(): string[] {
 }
 
 function generateGrid(size: number, items: string[]): Cell[][] {
-  const colorPool = shuffleArray(buildColorPool());
-
-  // Try multiple times to find a layout with no adjacent same colors
-  for (let attempt = 0; attempt < 50; attempt++) {
-    const candidate = shuffleArray(colorPool);
-    let valid = true;
-    outer: for (let row = 0; row < size; row++) {
-      for (let col = 0; col < size; col++) {
-        const idx = row * size + col;
-        const color = candidate[idx];
-        if (row > 0 && candidate[(row - 1) * size + col] === color) {
-          valid = false;
-          break outer;
-        }
-        if (col > 0 && candidate[idx - 1] === color) {
-          valid = false;
-          break outer;
-        }
-      }
-    }
-    if (valid) {
-      return buildGrid(size, items, candidate);
-    }
-  }
-
-  // Fallback: use best-effort swap approach
-  const colors = shuffleArray(colorPool);
-  for (let row = 0; row < size; row++) {
-    for (let col = 0; col < size; col++) {
-      const idx = row * size + col;
-      const above = row > 0 ? colors[(row - 1) * size + col] : "";
-      const left = col > 0 ? colors[idx - 1] : "";
-      if (colors[idx] === above || colors[idx] === left) {
-        for (let s = idx + 1; s < colors.length; s++) {
-          if (colors[s] !== above && colors[s] !== left) {
-            const temp = colors[idx] as string;
-            colors[idx] = colors[s] as string;
-            colors[s] = temp;
-            break;
-          }
-        }
-      }
-    }
-  }
-  return buildGrid(size, items, colors);
+  return buildGrid(size, items, shuffleArray(buildColorPool()));
 }
 
 function buildGrid(size: number, items: string[], colors: string[]): Cell[][] {
