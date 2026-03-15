@@ -70,6 +70,12 @@
       "description": "Classic dice game for 1-6 players",
       "play": "Play",
       "instructions": "Roll dice and score combinations. Play digitally or use as a tracker for physical dice."
+    },
+    "bingo": {
+      "title": "Bingo Card Generator",
+      "description": "Create colorful bingo cards for any occasion",
+      "play": "Create",
+      "instructions": "Fill in your items, generate a card, and click tiles to mark them during play. Double-click to edit a tile."
     }
   },
   "tools": {

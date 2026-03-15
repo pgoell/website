@@ -70,6 +70,12 @@
       "description": "Klassisches Würfelspiel für 1-6 Spieler",
       "play": "Spielen",
       "instructions": "Würfle und sammle Punkte mit Kombinationen. Spiele digital oder nutze es als Tracker für echte Würfel."
+    },
+    "bingo": {
+      "title": "Bingo-Karten Generator",
+      "description": "Erstelle bunte Bingo-Karten für jeden Anlass",
+      "play": "Erstellen",
+      "instructions": "Fülle die Felder aus, erstelle eine Karte und klicke auf Kacheln um sie zu markieren. Doppelklick zum Bearbeiten."
     }
   },
   "tools": {

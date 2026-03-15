@@ -37,6 +37,16 @@ export default async function GamesPage({
             </Button>
           </div>
         </div>
+
+        <div className="rounded-2xl border border-border bg-card/60 p-4 shadow-sm">
+          <div className="space-y-3">
+            <h2 className="text-xl font-semibold">{t("bingo.title")}</h2>
+            <p className="text-muted-foreground">{t("bingo.description")}</p>
+            <Button asChild>
+              <Link href={`/${locale}/games/bingo`}>{t("bingo.play")}</Link>
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
