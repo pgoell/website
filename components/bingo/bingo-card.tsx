@@ -1,6 +1,6 @@
 "use client";
 
-import { RotateCcw, Shuffle, X } from "lucide-react";
+import { Shuffle, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -97,21 +97,6 @@ export function BingoCard({
     setGuess("");
   };
 
-  const handleShuffleColors = () => {
-    setGrid((prev) => {
-      if (!prev) return prev;
-      const newColors = shuffleArray(buildColorPool());
-      return prev.map((row, rowIdx) =>
-        row.map((cell, colIdx) => ({
-          ...cell,
-          color:
-            newColors[rowIdx * size + colIdx] ?? (BINGO_COLORS[0] as string),
-        })),
-      );
-    });
-    setGuess("");
-  };
-
   const handleCellClick = (row: number, col: number) => {
     setGrid((prev) => {
       if (!prev) return prev;
@@ -147,10 +132,6 @@ export function BingoCard({
         <Button variant="outline" onClick={handleShuffle}>
           <Shuffle className="size-4" />
           {isDE ? "Mischen" : "Shuffle"}
-        </Button>
-        <Button variant="outline" onClick={handleShuffleColors}>
-          <RotateCcw className="size-4" />
-          {isDE ? "Farben mischen" : "Shuffle Colors"}
         </Button>
         <Button variant="outline" onClick={handleReset}>
           <X className="size-4" />
