@@ -82,6 +82,7 @@ export function BingoCard({
   const [grid, setGrid] = useState<Cell[][]>(() =>
     generateGrid(size, defaultItems),
   );
+  const [guess, setGuess] = useState("");
 
   const handleShuffle = () => {
     const shuffled = shuffleArray(items.slice(0, totalCells));
@@ -125,6 +126,20 @@ export function BingoCard({
 
   return (
     <div className="w-full max-w-2xl space-y-4">
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={guess}
+          onChange={(e) => setGuess(e.target.value)}
+          placeholder={isDE ? "Tipp eingeben…" : "Enter your guess…"}
+          className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        />
+        <Button variant="outline" onClick={() => setGuess("")} disabled={!guess}>
+          <X className="size-4" />
+          {isDE ? "Leeren" : "Clear"}
+        </Button>
+      </div>
+
       <div className="flex flex-wrap gap-3">
         <Button variant="outline" onClick={handleShuffle}>
           <Shuffle className="size-4" />
