@@ -94,6 +94,7 @@ export function BingoCard({
       return next;
     });
     setGrid(generateGrid(size, shuffled));
+    setGuess("");
   };
 
   const handleShuffleColors = () => {
@@ -108,6 +109,7 @@ export function BingoCard({
         })),
       );
     });
+    setGuess("");
   };
 
   const handleCellClick = (row: number, col: number) => {
@@ -122,6 +124,7 @@ export function BingoCard({
 
   const handleReset = () => {
     setGrid(generateGrid(size, items));
+    setGuess("");
   };
 
   return (
