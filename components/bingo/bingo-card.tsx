@@ -30,11 +30,8 @@ function buildColorPool(): string[] {
   return pool;
 }
 
-function generateGrid(size: number, items: string[]): Cell[][] {
-  return buildGrid(size, items, shuffleArray(buildColorPool()));
-}
-
-function buildGrid(size: number, items: string[], colors: string[]): Cell[][] {
+function generateGrid(size: number): Cell[][] {
+  const colors = shuffleArray(buildColorPool());
   const grid: Cell[][] = [];
   for (let row = 0; row < size; row++) {
     const rowCells: Cell[] = [];
@@ -42,7 +39,7 @@ function buildGrid(size: number, items: string[], colors: string[]): Cell[][] {
       const index = row * size + col;
       rowCells.push({
         id: `${row}-${col}-${Math.random().toString(36).slice(2, 8)}`,
-        text: items[index] || "",
+        text: "",
         color: colors[index] ?? (BINGO_COLORS[0] as string),
         marked: false,
       });
@@ -65,35 +62,17 @@ function shuffleArray<T>(arr: T[]): T[] {
 
 interface BingoCardProps {
   locale: string;
-  items?: string[];
   title?: string;
 }
 
-export function BingoCard({
-  locale,
-  items: initialItems,
-  title,
-}: BingoCardProps) {
+export function BingoCard({ locale, title }: BingoCardProps) {
   const isDE = locale === "de";
   const size = 5;
-  const totalCells = 25;
-  const defaultItems = initialItems ?? Array(totalCells).fill("");
-  const [items, setItems] = useState<string[]>(defaultItems);
-  const [grid, setGrid] = useState<Cell[][]>(() =>
-    generateGrid(size, defaultItems),
-  );
+  const [grid, setGrid] = useState<Cell[][]>(() => generateGrid(size));
   const [guess, setGuess] = useState("");
 
   const handleShuffle = () => {
-    const shuffled = shuffleArray(items.slice(0, totalCells));
-    setItems((prev) => {
-      const next = [...prev];
-      for (let i = 0; i < totalCells; i++) {
-        next[i] = shuffled[i] ?? "";
-      }
-      return next;
-    });
-    setGrid(generateGrid(size, shuffled));
+    setGrid(generateGrid(size));
     setGuess("");
   };
 
@@ -108,7 +87,7 @@ export function BingoCard({
   };
 
   const handleReset = () => {
-    setGrid(generateGrid(size, items));
+    setGrid(generateGrid(size));
     setGuess("");
   };
 
