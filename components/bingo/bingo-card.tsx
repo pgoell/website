@@ -101,7 +101,11 @@ export function BingoCard({ locale, title }: BingoCardProps) {
           placeholder={isDE ? "Tipp eingeben…" : "Enter your guess…"}
           className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         />
-        <Button variant="outline" onClick={() => setGuess("")} disabled={!guess}>
+        <Button
+          variant="outline"
+          onClick={() => setGuess("")}
+          disabled={!guess}
+        >
           <X className="size-4" />
           {isDE ? "Leeren" : "Clear"}
         </Button>
