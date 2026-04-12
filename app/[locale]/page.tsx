@@ -33,7 +33,7 @@ export default function Home() {
         </Link>
         {t("cta.comma")}{" "}
         <a
-          href="https://x.com/BearWithAI"
+          href="https://x.com/pagoell"
           target="_blank"
           rel="noopener noreferrer"
           className="underline"

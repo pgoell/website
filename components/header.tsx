@@ -65,7 +65,7 @@ export function Header() {
 
           <Button variant="ghost" size="icon" asChild>
             <a
-              href="https://x.com/BearWithAI"
+              href="https://x.com/pagoell"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="X (Twitter)"
