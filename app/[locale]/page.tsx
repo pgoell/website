@@ -20,7 +20,7 @@ export default function Home() {
         </Link>{" "}
         {t("cta.or")}{" "}
         <a
-          href="https://github.com/Spycner"
+          href="https://github.com/pgoell"
           target="_blank"
           rel="noopener noreferrer"
           className="underline"

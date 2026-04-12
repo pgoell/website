@@ -87,7 +87,7 @@ export function Header() {
 
           <Button variant="ghost" size="icon" asChild>
             <a
-              href="https://github.com/Spycner"
+              href="https://github.com/pgoell"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub"
