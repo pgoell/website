@@ -61,7 +61,7 @@ export function Header() {
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" asChild>
             <a
-              href="https://x.com/BearWithAI"
+              href="https://x.com/pagoell"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="X (Twitter)"
