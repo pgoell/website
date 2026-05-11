@@ -7,44 +7,48 @@ export default function Home() {
 
   return (
     <div className="space-y-6">
+      <h1 className="text-2xl font-semibold tracking-tight">{t("greeting")}</h1>
+
       <p>{t("intro")}</p>
 
-      {/* <p>{t("mission")}</p> */}
-
-      {/* <p>{t("personal")}</p> */}
-
       <p>
-        {t("cta.prefix")}{" "}
-        <Link href={`/${locale}/blog`} className="underline">
-          {t("cta.writing")}
-        </Link>{" "}
-        {t("cta.or")}{" "}
-        <a
-          href="https://github.com/pgoell"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline"
-        >
-          {t("cta.code")}
-        </a>
-        ,{" "}
-        <Link href={`/${locale}/games`} className="underline">
-          {t("cta.playGames")}
-        </Link>
-        {t("cta.comma")}{" "}
-        <a
-          href="https://x.com/pagoell"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline"
-        >
-          {t("cta.follow")}
-        </a>
-        {t("cta.period")}{" "}
-        <a href="mailto:hello@pascalkraus.com" className="underline">
-          {t("cta.reachOut")}
-        </a>
-        {t("cta.suffix")}
+        {t.rich("cta", {
+          writing: (chunks) => (
+            <Link href={`/${locale}/blog`} className="underline">
+              {chunks}
+            </Link>
+          ),
+          code: (chunks) => (
+            <a
+              href="https://github.com/pgoell"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              {chunks}
+            </a>
+          ),
+          games: (chunks) => (
+            <Link href={`/${locale}/games`} className="underline">
+              {chunks}
+            </Link>
+          ),
+          follow: (chunks) => (
+            <a
+              href="https://x.com/pagoell"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              {chunks}
+            </a>
+          ),
+          reachOut: (chunks) => (
+            <a href="mailto:hello@pascalkraus.com" className="underline">
+              {chunks}
+            </a>
+          ),
+        })}
       </p>
     </div>
   );

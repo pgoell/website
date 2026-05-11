@@ -1,20 +1,8 @@
 {
   "home": {
-    "intro": "Ich bin Entwickler und Autor. Ich arbeite bei Deloitte als Berater für Data Engineering und AI Engineering mit starkem Fokus auf Databricks. Zuvor war ich AI Engineer bei der Deutschen Bundesbank.",
-    "mission": "Meine Lebensaufgabe ist [deine Mission]. Ich interessiere mich für [Interessen].",
-    "personal": "Ich bin [persönliche Details]. Zuletzt gehört: [Song] von [Künstler].",
-    "cta": {
-      "prefix": "Du kannst meine",
-      "writing": "Artikel",
-      "or": "oder meinen",
-      "code": "Code lesen",
-      "comma": " oder mir",
-      "follow": "online folgen",
-      "period": ".",
-      "reachOut": "Melde dich",
-      "suffix": ", wenn du Interesse hast.",
-      "playGames": "Spiele spielen"
-    }
+    "greeting": "Hi, ich bin Pascal.",
+    "intro": "Ich arbeite in der Tech-Branche, schreibe über Ideen, die mich beschäftigen, und baue nebenbei kleine, nützliche Dinge. Hier lebt ein Teil davon.",
+    "cta": "Du kannst meine <writing>Texte lesen</writing>, dir den <code>Code anschauen</code>, ein <games>Spiel spielen</games> oder mir <follow>online folgen</follow>. <reachOut>Schreib mir</reachOut> jederzeit."
   },
   "nav": {
     "menu": "Menü",
