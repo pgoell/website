@@ -34,3 +34,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .DS_Store
 
 .next
+
+# local playgrounds (single-file HTML design tools, not source)
+*.playground.html
