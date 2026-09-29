@@ -1,4 +1,4 @@
-# pascalkraus.com
+# pgoell.com
 
 Personal website built with Next.js, featuring a blog and games.
 
