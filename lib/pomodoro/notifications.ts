@@ -13,5 +13,5 @@ export async function requestPermission(): Promise<boolean> {
 export function sendNotification(title: string, body: string): void {
   if (!canNotify()) return;
   if (Notification.permission !== "granted") return;
-  new Notification(title, { body, icon: "/favicon.ico" });
+  new Notification(title, { body, icon: "/apple-icon" });
 }
