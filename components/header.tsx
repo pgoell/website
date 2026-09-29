@@ -57,7 +57,7 @@ export function Header() {
           className="font-medium text-foreground hover:text-foreground/80 transition-colors"
         >
           <span className="sm:hidden">PK</span>
-          <span className="hidden sm:inline">Pascal Kraus</span>
+          <span className="hidden sm:inline">Pascal Göllner</span>
         </Link>
 
         <div className="flex items-center gap-1">

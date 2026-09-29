@@ -2,7 +2,7 @@
 
 **Status:** Accepted
 **Date:** 2026-02-06
-**Decision Makers:** Pascal Kraus
+**Decision Makers:** Pascal Göllner
 
 ## Context
 
