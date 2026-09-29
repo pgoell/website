@@ -44,7 +44,7 @@ export default function Home() {
             </a>
           ),
           reachOut: (chunks) => (
-            <a href="mailto:hello@pascalkraus.com" className="underline">
+            <a href="mailto:hello@pgoell.com" className="underline">
               {chunks}
             </a>
           ),
