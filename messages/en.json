@@ -59,15 +59,16 @@
         "l": "{zone} local"
       },
       "commits": {
-        "g": "Histogram of commits over the last 64 days, one bar per day. Sample shape.",
+        "g": "GitHub contributions over the last 64 days, one bar per day. Live.",
         "k": "Commits",
         "hd": "COMMITS",
         "span": "64D"
       },
       "playing": {
-        "g": "Music corner and bookshelf: what plays right now and what I am reading. Sample data.",
+        "g": "Music corner and bookshelf: what plays on Spotify right now, or played last, and what I am reading. The book is a sample.",
         "k": "Now playing",
         "hd": "NOW PLAYING",
+        "last": "LAST PLAYED",
         "lvl": "REC LVL",
         "reading": "READING"
       },
@@ -76,7 +77,7 @@
         "k": "Reading"
       },
       "lastCommit": {
-        "g": "Shutter slot: time since the last commit, pushed to klassenzeit. Sample value.",
+        "g": "Shutter slot: time since my last push to GitHub, with its commit. Live.",
         "k": "Last commit",
         "l": "last commit"
       },
@@ -232,6 +233,8 @@
         "read": "Read",
         "notRead": "Not read",
         "onRepeat": "On repeat",
+        "topArtists": "Top artists",
+        "languages": "Languages",
         "inBrowser": "In browser",
         "contact": "Contact",
         "display": "Display"

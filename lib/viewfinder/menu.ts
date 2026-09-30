@@ -1,5 +1,8 @@
 /** The camera menu: tabs, groups and items, plus the search across all of them. */
 
+import type { GithubStats } from "@/lib/stats/github";
+import type { SpotifyTop } from "@/lib/stats/spotify";
+
 export type MenuFlag = "soon" | "ph" | "ok";
 
 export type MenuAction =
@@ -58,6 +61,12 @@ export interface PostLink {
   date: string;
 }
 
+/** Live stats that replace placeholder entries; either may be missing. */
+export interface MenuStats {
+  github?: GithubStats | null;
+  spotify?: SpotifyTop | null;
+}
+
 export const MAIL = "mailto:hello@pgoell.com";
 export const GITHUB = "https://github.com/pgoell";
 export const LINKEDIN = "https://www.linkedin.com/in/pascal7kraus/";
@@ -67,7 +76,10 @@ const external = (href: string): MenuAction => ({ kind: "external", href });
 const pin = (index: number): MenuAction => ({ kind: "pin", index });
 const contact: MenuAction = { kind: "section", id: "contact" };
 
-export function buildMenu(posts: readonly PostLink[]): MenuTabDef[] {
+export function buildMenu(
+  posts: readonly PostLink[],
+  { github, spotify }: MenuStats = {},
+): MenuTabDef[] {
   return [
     {
       id: "main",
@@ -115,6 +127,19 @@ export function buildMenu(posts: readonly PostLink[]): MenuTabDef[] {
             { id: "football", action: pin(3) },
           ],
         },
+        ...(github?.languages.length
+          ? [
+              {
+                id: "languages",
+                items: github.languages.map((l) => ({
+                  id: `lang-${l.name}`,
+                  title: l.name,
+                  value: `${Math.round(l.share * 100)}%`,
+                  action: external(GITHUB),
+                })),
+              },
+            ]
+          : []),
         {
           id: "games",
           items: [
@@ -179,13 +204,36 @@ export function buildMenu(posts: readonly PostLink[]): MenuTabDef[] {
       icon: "disc",
       color: "#b07bff",
       groups: [
-        {
-          id: "onRepeat",
-          items: [
-            { id: "recordA", flag: "ph" },
-            { id: "recordB", flag: "ph" },
-          ],
-        },
+        spotify
+          ? {
+              id: "onRepeat",
+              items: spotify.tracks.map((t, i) => ({
+                id: `track-${i}`,
+                title: t.title,
+                value: t.artist,
+                action: external(t.url),
+              })),
+            }
+          : {
+              id: "onRepeat",
+              items: [
+                { id: "recordA", flag: "ph" },
+                { id: "recordB", flag: "ph" },
+              ],
+            },
+        ...(spotify
+          ? [
+              {
+                id: "topArtists",
+                items: spotify.artists.map((a, i) => ({
+                  id: `artist-${i}`,
+                  title: a.name,
+                  value: `#${i + 1}`,
+                  action: external(a.url),
+                })),
+              },
+            ]
+          : []),
       ],
     },
     {

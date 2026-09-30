@@ -32,6 +32,6 @@
 
 ## Fun/Experimental
 
-- [ ] **Spotify Currently Playing** — Show what you're listening to *(on hold: Spotify app creation unavailable)*
-- [ ] **GitHub Activity Widget** — Recent commits visualization
+- [x] **Spotify Currently Playing** — Show what you're listening to
+- [x] **GitHub Activity Widget** — Recent commits visualization
 - [ ] **AI Chat Widget** — Chat with a "digital you" trained on blog posts

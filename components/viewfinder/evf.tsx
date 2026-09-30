@@ -2,10 +2,21 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { berlinZoneName, formatHour, TIME_ZONE } from "@/lib/viewfinder/time";
+import type { GithubStats } from "@/lib/stats/github";
+import {
+  berlinZoneName,
+  formatHour,
+  sinceLabel,
+  TIME_ZONE,
+} from "@/lib/viewfinder/time";
 import { cls, cx } from "./cx";
 import { GelnhausenScene } from "./gelnhausen-scene";
-import { CommitHistogram, FocusScale, LevelMeters } from "./readouts";
+import {
+  CommitHistogram,
+  FocusScale,
+  LevelMeters,
+  useNowPlaying,
+} from "./readouts";
 import type { DisplayMode } from "./use-viewfinder";
 import s from "./viewfinder.module.css";
 
@@ -19,6 +30,7 @@ interface Props {
   onCycleMode: () => void;
   fnRef: React.RefObject<Array<() => void>>;
   onPowerOn: () => void;
+  github: GithubStats | null;
 }
 
 type Guide = { text: string; key: string } | null;
@@ -34,6 +46,7 @@ export function Evf({
   onCycleMode,
   fnRef,
   onPowerOn,
+  github,
 }: Props) {
   const t = useTranslations("home");
   const locale = useLocale();
@@ -45,6 +58,9 @@ export function Evf({
   const poweredRef = useRef(false);
   const [guide, setGuide] = useState<Guide>(null);
   const [clock, setClock] = useState({ time: "--:--", zone: "CET" });
+  const track = useNowPlaying();
+  const lastPush = github?.lastPush;
+  const [since, setSince] = useState("2H");
 
   // clock readout
   useEffect(() => {
@@ -62,6 +78,11 @@ export function Evf({
       zone: berlinZoneName(now),
     });
   }, [hour, timeOverride]);
+
+  // last push readout, set on the client so the server render cannot go stale
+  useEffect(() => {
+    if (lastPush) setSince(sinceLabel(lastPush.at, new Date()));
+  }, [lastPush]);
 
   /* ---------- AF frame ---------- */
   const box = useCallback(
@@ -326,17 +347,27 @@ export function Evf({
               <span>{t("ro.commits.hd")}</span>
               <span>{t("ro.commits.span")}</span>
             </div>
-            <CommitHistogram />
+            <CommitHistogram days={github?.days} />
           </div>
           <div className={cx(s.box, s.ro)} {...ro("playing")}>
             <div className={s.hd}>
-              <span>{t("ro.playing.hd")}</span>
+              <span>
+                {t(
+                  track && !track.playing ? "ro.playing.last" : "ro.playing.hd",
+                )}
+              </span>
               <span>{t("ro.playing.lvl")}</span>
             </div>
-            <LevelMeters />
-            <div className={s.trk}>
-              Says <em>Nils Frahm</em>
-            </div>
+            <LevelMeters live={track?.playing ?? true} />
+            {track ? (
+              <a className={s.trk} href={track.url}>
+                {track.title} <em>{track.artist}</em>
+              </a>
+            ) : (
+              <div className={s.trk}>
+                Says <em>Nils Frahm</em>
+              </div>
+            )}
             <div className={s.hd} style={{ margin: "9px 0 0" }}>
               <span>{t("ro.playing.reading")}</span>
               <span>41%</span>
@@ -360,7 +391,7 @@ export function Evf({
             <span ref={dotRef} className={s.fdot} />
             <div className={cx(s.ro, s.big)} {...ro("lastCommit")}>
               <div className={s.v}>
-                2H <small>3f9c2e1</small>
+                {since} <small>{lastPush?.sha ?? "3f9c2e1"}</small>
               </div>
               <div className={s.l}>{t("ro.lastCommit.l")}</div>
             </div>
