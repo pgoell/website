@@ -7,6 +7,10 @@ services:
     restart: unless-stopped
     networks:
       - web
+    # Live stats keys; the runner wipes its checkout, so they live outside it
+    env_file:
+      - path: /home/pascal/.config/website/stats.env
+        required: false
     environment:
       - NODE_ENV=production
 

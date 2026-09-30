@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
+import type { GithubStats } from "@/lib/stats/github";
+import type { SpotifyTop } from "@/lib/stats/spotify";
 import {
   buildMenu,
   GITHUB,
@@ -26,13 +28,24 @@ const ART_FONTS = {
 };
 
 /** The home page: a camera viewfinder over Gelnhausen, then the work on a map. */
-export function ViewfinderHome({ posts }: { posts: PostLink[] }) {
+export function ViewfinderHome({
+  posts,
+  github,
+  spotify,
+}: {
+  posts: PostLink[];
+  github: GithubStats | null;
+  spotify: SpotifyTop | null;
+}) {
   const t = useTranslations("home");
   const locale = useLocale();
   const vf = useViewfinder();
   const [powered, setPowered] = useState(false);
   const onPowerOn = useCallback(() => setPowered(true), []);
-  const tabs = useMemo(() => buildMenu(posts), [posts]);
+  const tabs = useMemo(
+    () => buildMenu(posts, { github, spotify }),
+    [posts, github, spotify],
+  );
   const other = locale === "en" ? "de" : "en";
 
   const shootLink = (target: string) => (e: React.MouseEvent) => {
@@ -65,6 +78,7 @@ export function ViewfinderHome({ posts }: { posts: PostLink[] }) {
         onCycleMode={vf.cycleMode}
         fnRef={vf.fnRef}
         onPowerOn={onPowerOn}
+        github={github}
       />
 
       <div className={s.peek}>

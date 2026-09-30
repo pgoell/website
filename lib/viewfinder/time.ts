@@ -38,3 +38,14 @@ export function formatHour(hour: number): string {
   const mm = total % 60;
   return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
 }
+
+/** Time since `iso` as a shutter-style readout: "40M", "2H", "3D". */
+export function sinceLabel(iso: string, now: Date): string {
+  const min = Math.max(
+    0,
+    Math.floor((now.getTime() - Date.parse(iso)) / 60000),
+  );
+  if (min < 60) return `${min}M`;
+  if (min < 60 * 24) return `${Math.floor(min / 60)}H`;
+  return `${Math.floor(min / 1440)}D`;
+}
