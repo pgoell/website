@@ -1,8 +1,410 @@
 {
   "home": {
-    "greeting": "Hi, ich bin Pascal.",
-    "intro": "Ich arbeite in der Tech-Branche, schreibe über Ideen, die mich beschäftigen, und baue nebenbei kleine, nützliche Dinge. Hier lebt ein Teil davon.",
-    "cta": "Du kannst meine <writing>Texte lesen</writing>, dir den <code>Code anschauen</code>, ein <games>Spiel spielen</games> oder mir <follow>online folgen</follow>. <reachOut>Schreib mir</reachOut> jederzeit."
+    "metaDescription": "AI Engineer in Gelnhausen im Kinzigtal. Ich baue LLM-Agenten und die Werkzeuge drumherum.",
+    "sceneLabel": "Gezeichnete Ansicht von Gelnhausen von der Kinzig aus: Marienkirche über der Altstadt, Hexenturm, Büdinger Wald, vorne die Ruine des Palas",
+    "eyebrow": "AI Engineer, Gelnhausen",
+    "role": "AI Engineer",
+    "lede": "Ich baue <b>LLM-Agenten und die Werkzeuge drumherum</b>. Freiberuflich und offen für Festanstellungen. Ich lebe im Kinzigtal; die Anzeigen rund um diesen Rahmen zeigen, woran ich gerade arbeite.",
+    "mainNav": "Hauptmenü",
+    "fn": {
+      "work": "Arbeit",
+      "writing": "Texte",
+      "photos": "Fotos",
+      "books": "Bücher",
+      "music": "Musik",
+      "hire": "Anfragen",
+      "menu": "MENÜ"
+    },
+    "hint": {
+      "menu": "Menü",
+      "search": "alles suchen",
+      "to": "bis",
+      "shoot": "auslösen",
+      "display": "Anzeige"
+    },
+    "guideDefault": "Hilfe",
+    "ro": {
+      "mode": {
+        "g": "Aufnahmemodus M. Jede Anzeige auf diesem Bildschirm stellt Pascal von Hand aus seinen eigenen Werkzeugen ein.",
+        "k": "Modus"
+      },
+      "photos": {
+        "g": "Aufnahmen mit der a7 IV in diesem Jahr. Beispielwert.",
+        "k": "Fotos",
+        "l": "Bilder 2026"
+      },
+      "focus": {
+        "g": "Worauf der Autofokus diese Woche scharf stellt: das Projekt auf dem Schreibtisch. Beispielwert.",
+        "k": "Fokus",
+        "l": "aktuelles Projekt"
+      },
+      "gps": {
+        "g": "Gelnhausen im Kinzigtal, Hessen. Klicken öffnet die Standortkarte der Arbeit.",
+        "k": "GPS",
+        "l": "Standort"
+      },
+      "weather": {
+        "g": "Weißabgleich nach dem Wetter im Tal: bewölkt, 13 °C. Beispielwert.",
+        "k": "Wetter",
+        "l": "WA bewölkt"
+      },
+      "pomodoro": {
+        "g": "Akku: heute erledigte Pomodoro-Einheiten, drei von vier. Beispielwert.",
+        "k": "Pomodoro",
+        "l": "Einheiten"
+      },
+      "clock": {
+        "g": "Ortszeit in Gelnhausen, Europe/Berlin. Live. Das Licht im Bild folgt ihr.",
+        "k": "Uhr",
+        "l": "{zone} Ortszeit"
+      },
+      "commits": {
+        "g": "Histogramm der Commits der letzten 64 Tage, ein Balken pro Tag. Beispielverlauf.",
+        "k": "Commits",
+        "hd": "COMMITS",
+        "span": "64T"
+      },
+      "playing": {
+        "g": "Musikecke und Bücherregal: was gerade läuft und was ich lese. Beispieldaten.",
+        "k": "Läuft gerade",
+        "hd": "LÄUFT GERADE",
+        "lvl": "PEGEL",
+        "reading": "LESE GERADE"
+      },
+      "reading": {
+        "g": "Im Bücherregal: aktuelles Buch und wie weit ich bin. Beispieltitel.",
+        "k": "Lesen"
+      },
+      "lastCommit": {
+        "g": "Verschlusszeit: Zeit seit dem letzten Commit, gepusht nach klassenzeit. Beispielwert.",
+        "k": "Letzter Commit",
+        "l": "letzter Commit"
+      },
+      "agents": {
+        "g": "Blende: heutige Läufe des Gmail-Brief-Agenten. Beispielwert.",
+        "k": "Agenten",
+        "l": "Agentenläufe"
+      },
+      "timer": {
+        "g": "Belichtungsskala: Fortschritt im laufenden 25-Minuten-Pomodoro. Die Nadel bewegt sich live.",
+        "k": "Fokus-Timer",
+        "v": "FOKUS"
+      },
+      "writing": {
+        "g": "ISO: Texte in der Schublade. Zwei Entwürfe, noch keiner veröffentlicht.",
+        "k": "Schreiben",
+        "v": "ENTWURF 2",
+        "l": "Schreiben"
+      },
+      "body": {
+        "g": "Objektiv: die Kamera selbst. Sony a7 IV mit 35-mm-Festbrennweite.",
+        "k": "Gehäuse",
+        "l": "a7 IV"
+      },
+      "disp": {
+        "g": "DISP wechselt die Anzeige: alle Infos, nur Werte, keine Infos. Taste D.",
+        "k": "Anzeige"
+      }
+    },
+    "sample": "BEISPIELDATEN",
+    "cap1": "ILLUSTRATION, KEIN FOTO",
+    "cap2": "GELNHAUSEN VON DER KINZIG AUS",
+    "peek": {
+      "playback": "Wiedergabe",
+      "mapped": "Arbeit, kartiert",
+      "files": "5 Dateien",
+      "map": "Standortkarte ▾"
+    },
+    "map": {
+      "kicker": "▶ WIEDERGABE, KARTENANSICHT",
+      "title": "Arbeit, kartiert",
+      "intro": "Jedes Projekt liegt auf einem Hügel rund um Gelnhausen: im Norden der Büdinger Wald, im Süden der Spessart. Wähle eine Datei und der Fokusrahmen rastet ein. Stilisiert, nicht maßstabsgetreu.",
+      "work": "ARBEIT",
+      "detail": "DETAIL",
+      "play": "▶ Abspielen",
+      "repo": "Repo",
+      "sheet": "KINZIGTAL, BLATT GELNHAUSEN",
+      "scale": "etwa 2,5 km",
+      "contour": "HÖHENLINIEN 20 m, ◀ ▶ wählen",
+      "label": "Höhenlinienkarte des Kinzigtals um Gelnhausen mit fünf Projekt-Pins"
+    },
+    "projects": {
+      "klassenzeit": {
+        "d": "Stundenplaner für Schulen",
+        "k": "Planer"
+      },
+      "gmail": {
+        "d": "Agent, der das Postfach zusammenfasst",
+        "k": "Agent"
+      },
+      "slides": {
+        "d": "Werkzeuge für Präsentationen als Code",
+        "k": "Werkzeug"
+      },
+      "football": {
+        "d": "Spielprognosen",
+        "k": "Modell"
+      },
+      "games": {
+        "d": "Wordle, Kniffel, Pomodoro",
+        "k": "Browserspiele"
+      }
+    },
+    "folders": {
+      "writing": {
+        "s": "DIR 101",
+        "t": "Texte",
+        "p": "Notizen zum Bauen mit LLMs. Die ersten Beiträge entstehen gerade."
+      },
+      "books": {
+        "s": "DIR 102, BALD",
+        "t": "Bücherregal",
+        "p": "Gedanken zu Büchern, gelesen oder nicht."
+      },
+      "music": {
+        "s": "DIR 103, BALD",
+        "t": "Musikecke",
+        "p": "Was beim Arbeiten in Dauerschleife läuft."
+      },
+      "photos": {
+        "s": "DIR 104, A7 IV, BALD",
+        "t": "Fotos",
+        "p": "Spaziergänge im Kinzigtal. Platzhalter, bis die RAWs bearbeitet sind."
+      }
+    },
+    "footer": {
+      "contact": "Schreib mir",
+      "blog": "Blog",
+      "games": "Spiele",
+      "tools": "Tools",
+      "place": "Gelnhausen, Kinzigtal",
+      "language": "English"
+    },
+    "playback": {
+      "label": "Wiedergabe",
+      "close": "Schließen",
+      "illustration": "ILLUSTRATION",
+      "what": "Was",
+      "type": "Art",
+      "repo": "Repo",
+      "status": "Status",
+      "placeholder": "[Platzhalter]",
+      "private": "privat",
+      "prev": "◀ Zurück",
+      "next": "Weiter ▶",
+      "open": "Öffnen"
+    },
+    "menu": {
+      "label": "Seitenmenü",
+      "placeholder": "Tippen, um alles zu durchsuchen",
+      "search": "Suche",
+      "found": "/ {count} gefunden",
+      "empty": "Kein Treffer. Versuch es mit \"Agent\", \"Foto\" oder \"Kniffel\".",
+      "tab": "Reiter",
+      "select": "wählen",
+      "open": "öffnen",
+      "back": "zurück",
+      "soon": "BALD",
+      "ph": "PLATZHALTER",
+      "helpPh": "Platzhalter, bis der echte Eintrag kommt.",
+      "helpSoon": "Kommt bald.",
+      "all": "ALLE",
+      "tabs": {
+        "main": "Übersicht",
+        "work": "Arbeit",
+        "writing": "Texte",
+        "photos": "Fotos",
+        "books": "Bücher",
+        "music": "Musik",
+        "play": "Spielen",
+        "setup": "Einstellungen"
+      },
+      "groups": {
+        "glance": "Auf einen Blick",
+        "shortcuts": "Abkürzungen",
+        "agents": "Agenten",
+        "tools": "Werkzeuge",
+        "games": "Spiele",
+        "posts": "Beiträge",
+        "kinzigtal": "Kinzigtal",
+        "read": "Gelesen",
+        "notRead": "Nicht gelesen",
+        "onRepeat": "In Dauerschleife",
+        "inBrowser": "Im Browser",
+        "contact": "Kontakt",
+        "display": "Anzeige"
+      },
+      "items": {
+        "name": {
+          "t": "Name",
+          "v": "Pascal Göllner"
+        },
+        "role": {
+          "t": "Rolle",
+          "v": "AI Engineer"
+        },
+        "based": {
+          "t": "Wohnort",
+          "v": "Gelnhausen, Kinzigtal"
+        },
+        "freelance": {
+          "t": "Freiberuflich",
+          "v": "offen",
+          "help": "Ich übernehme freie Aufträge zu KI-Agenten und internen Werkzeugen."
+        },
+        "stack": {
+          "t": "Stack",
+          "v": "Python, TypeScript, LLMs"
+        },
+        "camera": {
+          "t": "Kamera",
+          "v": "Sony a7 IV"
+        },
+        "hire": {
+          "t": "Anfragen",
+          "v": "Mail",
+          "help": "Öffnet eine Mail an mich."
+        },
+        "cv": {
+          "t": "Lebenslauf",
+          "v": "PDF"
+        },
+        "github": {
+          "t": "GitHub",
+          "v": "@pgoell"
+        },
+        "gmail": {
+          "t": "Gmail brief agent",
+          "v": "Postfach zu Brief",
+          "help": "Ein Agent, der mein Postfach liest und eine kurze Zusammenfassung schreibt."
+        },
+        "ask": {
+          "t": "Frag Pascal",
+          "v": "Agent für die Seite"
+        },
+        "klassenzeit": {
+          "t": "Klassenzeit",
+          "v": "Stundenplaner",
+          "help": "Plant Stundenpläne für Schulen."
+        },
+        "slides": {
+          "t": "Slides as code",
+          "v": "Präsentationen",
+          "help": "Folien als Code schreiben und als Präsentation rendern."
+        },
+        "football": {
+          "t": "Football forecast",
+          "v": "Spielmodell",
+          "help": "Ein kleines Modell, das Spielergebnisse vorhersagt."
+        },
+        "wordleMap": {
+          "t": "Wordle",
+          "v": "spielen"
+        },
+        "kniffelMap": {
+          "t": "Kniffel",
+          "v": "spielen"
+        },
+        "pomodoroMap": {
+          "t": "Pomodoro",
+          "v": "Timer"
+        },
+        "allPosts": {
+          "t": "Alle Beiträge",
+          "v": "Blog",
+          "help": "Alle Beiträge im Blog."
+        },
+        "photo1": {
+          "t": "Kinzigwiesen in der Dämmerung",
+          "v": "100-0421"
+        },
+        "photo2": {
+          "t": "Marienkirche vom Halbmond aus",
+          "v": "100-0438"
+        },
+        "photo3": {
+          "t": "Büdinger Wald im Nebel",
+          "v": "100-0450"
+        },
+        "bookA": {
+          "t": "Buchtitel A",
+          "v": "Notiz"
+        },
+        "bookB": {
+          "t": "Buchtitel B",
+          "v": "Notiz"
+        },
+        "bookC": {
+          "t": "Buchtitel C",
+          "v": "warum nicht"
+        },
+        "recordA": {
+          "t": "Platte A",
+          "v": "Künstler"
+        },
+        "recordB": {
+          "t": "Platte B",
+          "v": "Künstler"
+        },
+        "wordle": {
+          "t": "Wordle",
+          "v": "Wortspiel",
+          "help": "Errate das Wort mit fünf Buchstaben in sechs Versuchen."
+        },
+        "kniffel": {
+          "t": "Kniffel",
+          "v": "Würfelspiel",
+          "help": "Punkteblock für Kniffel, digital oder mit echten Würfeln."
+        },
+        "bingo": {
+          "t": "Song-Bingo",
+          "v": "Bingokarte"
+        },
+        "pomodoro": {
+          "t": "Pomodoro",
+          "v": "25 an, 5 aus",
+          "help": "Ein Fokus-Timer mit Vorlagen und Statistik."
+        },
+        "allGames": {
+          "t": "Alle Spiele",
+          "v": "Übersicht"
+        },
+        "allTools": {
+          "t": "Alle Tools",
+          "v": "Übersicht"
+        },
+        "email": {
+          "t": "E-Mail",
+          "v": "schreib mir"
+        },
+        "githubContact": {
+          "t": "GitHub",
+          "v": "@pgoell"
+        },
+        "linkedin": {
+          "t": "LinkedIn",
+          "v": "Profil"
+        },
+        "light": {
+          "t": "Licht",
+          "v": "folgt der Zeit in Gelnhausen",
+          "help": "Das Bild folgt der Ortszeit in Gelnhausen. Probier ?time=21."
+        },
+        "readouts": {
+          "t": "Anzeigen",
+          "v": "Beispieldaten"
+        },
+        "histogram": {
+          "t": "Histogramm",
+          "v": "Commits, 64 Tage"
+        },
+        "language": {
+          "t": "Sprache",
+          "v": "Deutsch",
+          "help": "Die Seite auf Englisch umstellen."
+        }
+      }
+    }
   },
   "nav": {
     "menu": "Menü",

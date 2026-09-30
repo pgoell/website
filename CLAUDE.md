@@ -123,11 +123,13 @@ jj bookmark create feature/other
 - `proxy.ts` — Locale routing middleware (Next.js 16 pattern)
 - `app/layout.tsx` — Root layout (imports globals.css)
 - `app/[locale]/layout.tsx` — Locale layout (providers, html lang)
+- `app/[locale]/(site)/layout.tsx` — Header and page frame for every route except the full-bleed home
 - `i18n/request.ts` — next-intl request config
 
 ## Features
 
 **Implemented:**
+- Viewfinder home page at `/` (canvas Gelnhausen scene lit by Europe/Berlin time, camera menu, work map; `?time=HH` and `?state=menu|search|map|play` for review)
 - Personal blog (MDX) at `/blog`
 - Wordle game at `/games/wordle` (EN/DE word lists, solver, demo)
 - Kniffel tracker at `/games/kniffel` (digital + manual modes)

@@ -1,8 +1,410 @@
 {
   "home": {
-    "greeting": "Hi, I'm Pascal.",
-    "intro": "I work in tech, write about ideas worth exploring, and build small useful things on the side. This site is where some of that lives.",
-    "cta": "You can read my <writing>writing</writing>, browse the <code>code</code>, <games>play a game</games>, or <follow>follow along</follow>. <reachOut>Reach out</reachOut> anytime."
+    "metaDescription": "AI engineer in Gelnhausen, Kinzigtal. I build LLM agents and the tools around them.",
+    "sceneLabel": "Drawn view of Gelnhausen from the Kinzig: Marienkirche over the old town, Hexenturm, Büdinger Wald, the Palas ruin in front",
+    "eyebrow": "AI engineer, Gelnhausen",
+    "role": "AI engineer",
+    "lede": "I build <b>LLM agents and the tools around them</b>. Freelance and open to roles. I live in the Kinzigtal; the readouts around this frame show what I am working on.",
+    "mainNav": "Main",
+    "fn": {
+      "work": "Work",
+      "writing": "Writing",
+      "photos": "Photos",
+      "books": "Books",
+      "music": "Music",
+      "hire": "Hire me",
+      "menu": "MENU"
+    },
+    "hint": {
+      "menu": "menu",
+      "search": "search all",
+      "to": "to",
+      "shoot": "shoot",
+      "display": "display"
+    },
+    "guideDefault": "Help",
+    "ro": {
+      "mode": {
+        "g": "Shooting mode M. Every readout on this screen is set by hand from Pascal's own tools.",
+        "k": "Mode"
+      },
+      "photos": {
+        "g": "Frames shot on the a7 IV this year. Sample value.",
+        "k": "Photos",
+        "l": "frames 2026"
+      },
+      "focus": {
+        "g": "What the autofocus tracks this week: the project on the desk. Sample value.",
+        "k": "Focus",
+        "l": "current project"
+      },
+      "gps": {
+        "g": "Gelnhausen in the Kinzigtal, Hesse. Click to open the location map of the work.",
+        "k": "GPS",
+        "l": "location"
+      },
+      "weather": {
+        "g": "White balance set by the weather in the valley: cloudy, 13 °C. Sample value.",
+        "k": "Weather",
+        "l": "wb cloudy"
+      },
+      "pomodoro": {
+        "g": "Battery: Pomodoro sessions done today, three of four. Sample value.",
+        "k": "Pomodoro",
+        "l": "sessions"
+      },
+      "clock": {
+        "g": "Local time in Gelnhausen, Europe/Berlin. Live. The light in the picture follows it.",
+        "k": "Clock",
+        "l": "{zone} local"
+      },
+      "commits": {
+        "g": "Histogram of commits over the last 64 days, one bar per day. Sample shape.",
+        "k": "Commits",
+        "hd": "COMMITS",
+        "span": "64D"
+      },
+      "playing": {
+        "g": "Music corner and bookshelf: what plays right now and what I am reading. Sample data.",
+        "k": "Now playing",
+        "hd": "NOW PLAYING",
+        "lvl": "REC LVL",
+        "reading": "READING"
+      },
+      "reading": {
+        "g": "On the bookshelf: current book and how far in. Sample title.",
+        "k": "Reading"
+      },
+      "lastCommit": {
+        "g": "Shutter slot: time since the last commit, pushed to klassenzeit. Sample value.",
+        "k": "Last commit",
+        "l": "last commit"
+      },
+      "agents": {
+        "g": "Aperture slot: agent runs today on the Gmail brief agent. Sample value.",
+        "k": "Agents",
+        "l": "agent runs"
+      },
+      "timer": {
+        "g": "Exposure scale: progress through the current 25 minute Pomodoro. The needle moves live.",
+        "k": "Focus timer",
+        "v": "FOCUS"
+      },
+      "writing": {
+        "g": "ISO slot: posts in the writing drawer. Two drafts, none out yet.",
+        "k": "Writing",
+        "v": "DRAFT 2",
+        "l": "writing"
+      },
+      "body": {
+        "g": "Lens slot: the camera itself. Sony a7 IV with a 35mm prime.",
+        "k": "Body",
+        "l": "a7 IV"
+      },
+      "disp": {
+        "g": "DISP cycles the display: all info, values only, no info. Key D.",
+        "k": "Display"
+      }
+    },
+    "sample": "SAMPLE DATA",
+    "cap1": "ILLUSTRATION, NOT A PHOTO",
+    "cap2": "GELNHAUSEN FROM THE KINZIG",
+    "peek": {
+      "playback": "Playback",
+      "mapped": "Work, mapped",
+      "files": "5 files",
+      "map": "Location map ▾"
+    },
+    "map": {
+      "kicker": "▶ PLAYBACK, LOCATION VIEW",
+      "title": "Work, mapped",
+      "intro": "Each project sits on a hill around Gelnhausen: the Büdinger Wald to the north, the Spessart to the south. Pick a file and the focus frame locks on. Stylised, not to scale.",
+      "work": "WORK",
+      "detail": "DETAIL",
+      "play": "▶ Play",
+      "repo": "Repo",
+      "sheet": "KINZIGTAL, SHEET GELNHAUSEN",
+      "scale": "2.5 km, roughly",
+      "contour": "CONTOUR 20 m, ◀ ▶ select",
+      "label": "Contour map of the Kinzigtal around Gelnhausen with five project pins"
+    },
+    "projects": {
+      "klassenzeit": {
+        "d": "school timetable planner",
+        "k": "planner"
+      },
+      "gmail": {
+        "d": "inbox summary agent",
+        "k": "agent"
+      },
+      "slides": {
+        "d": "presentations-as-code tooling",
+        "k": "tooling"
+      },
+      "football": {
+        "d": "match forecasting",
+        "k": "model"
+      },
+      "games": {
+        "d": "Wordle, Kniffel, Pomodoro",
+        "k": "web games"
+      }
+    },
+    "folders": {
+      "writing": {
+        "s": "DIR 101",
+        "t": "Writing",
+        "p": "Notes on building with LLMs. First posts in progress."
+      },
+      "books": {
+        "s": "DIR 102, SOON",
+        "t": "Bookshelf",
+        "p": "Thoughts on books, read or not."
+      },
+      "music": {
+        "s": "DIR 103, SOON",
+        "t": "Music corner",
+        "p": "What is on repeat while I work."
+      },
+      "photos": {
+        "s": "DIR 104, A7 IV, SOON",
+        "t": "Photos",
+        "p": "Kinzigtal walks. Placeholders until the RAWs are edited."
+      }
+    },
+    "footer": {
+      "contact": "Get in touch",
+      "blog": "Blog",
+      "games": "Games",
+      "tools": "Tools",
+      "place": "Gelnhausen, Kinzigtal",
+      "language": "Deutsch"
+    },
+    "playback": {
+      "label": "Playback",
+      "close": "Close",
+      "illustration": "ILLUSTRATION",
+      "what": "What",
+      "type": "Type",
+      "repo": "Repo",
+      "status": "Status",
+      "placeholder": "[placeholder]",
+      "private": "private",
+      "prev": "◀ Prev",
+      "next": "Next ▶",
+      "open": "Open"
+    },
+    "menu": {
+      "label": "Site menu",
+      "placeholder": "Type to search everything",
+      "search": "Search",
+      "found": "/ {count} found",
+      "empty": "No match. Try \"agent\", \"photo\" or \"kniffel\".",
+      "tab": "tab",
+      "select": "select",
+      "open": "open",
+      "back": "back",
+      "soon": "SOON",
+      "ph": "PLACEHOLDER",
+      "helpPh": "Placeholder until the real entry lands.",
+      "helpSoon": "Coming soon.",
+      "all": "ALL",
+      "tabs": {
+        "main": "Main",
+        "work": "Work",
+        "writing": "Writing",
+        "photos": "Photos",
+        "books": "Books",
+        "music": "Music",
+        "play": "Play",
+        "setup": "Setup"
+      },
+      "groups": {
+        "glance": "At a glance",
+        "shortcuts": "Shortcuts",
+        "agents": "Agents",
+        "tools": "Tools",
+        "games": "Games",
+        "posts": "Posts",
+        "kinzigtal": "Kinzigtal",
+        "read": "Read",
+        "notRead": "Not read",
+        "onRepeat": "On repeat",
+        "inBrowser": "In browser",
+        "contact": "Contact",
+        "display": "Display"
+      },
+      "items": {
+        "name": {
+          "t": "Name",
+          "v": "Pascal Göllner"
+        },
+        "role": {
+          "t": "Role",
+          "v": "AI engineer"
+        },
+        "based": {
+          "t": "Based in",
+          "v": "Gelnhausen, Kinzigtal"
+        },
+        "freelance": {
+          "t": "Freelance",
+          "v": "Open",
+          "help": "I take freelance work on AI agents and internal tools."
+        },
+        "stack": {
+          "t": "Stack",
+          "v": "Python, TypeScript, LLMs"
+        },
+        "camera": {
+          "t": "Camera",
+          "v": "Sony a7 IV"
+        },
+        "hire": {
+          "t": "Hire me",
+          "v": "mail",
+          "help": "Opens a mail to me."
+        },
+        "cv": {
+          "t": "CV",
+          "v": "PDF"
+        },
+        "github": {
+          "t": "GitHub",
+          "v": "@pgoell"
+        },
+        "gmail": {
+          "t": "Gmail brief agent",
+          "v": "inbox to brief",
+          "help": "An agent that reads my inbox and writes a short brief."
+        },
+        "ask": {
+          "t": "Ask Pascal",
+          "v": "site agent"
+        },
+        "klassenzeit": {
+          "t": "Klassenzeit",
+          "v": "timetable planner",
+          "help": "Plans school timetables."
+        },
+        "slides": {
+          "t": "Slides as code",
+          "v": "presentations",
+          "help": "Write decks as code, render them as slides."
+        },
+        "football": {
+          "t": "Football forecast",
+          "v": "match model",
+          "help": "A small model that forecasts match results."
+        },
+        "wordleMap": {
+          "t": "Wordle",
+          "v": "play"
+        },
+        "kniffelMap": {
+          "t": "Kniffel",
+          "v": "play"
+        },
+        "pomodoroMap": {
+          "t": "Pomodoro",
+          "v": "timer"
+        },
+        "allPosts": {
+          "t": "All posts",
+          "v": "blog",
+          "help": "Every post on the blog."
+        },
+        "photo1": {
+          "t": "Kinzig meadows at dusk",
+          "v": "100-0421"
+        },
+        "photo2": {
+          "t": "Marienkirche from the Halbmond",
+          "v": "100-0438"
+        },
+        "photo3": {
+          "t": "Büdinger Wald in fog",
+          "v": "100-0450"
+        },
+        "bookA": {
+          "t": "Book title A",
+          "v": "note"
+        },
+        "bookB": {
+          "t": "Book title B",
+          "v": "note"
+        },
+        "bookC": {
+          "t": "Book title C",
+          "v": "why not"
+        },
+        "recordA": {
+          "t": "Record A",
+          "v": "artist"
+        },
+        "recordB": {
+          "t": "Record B",
+          "v": "artist"
+        },
+        "wordle": {
+          "t": "Wordle",
+          "v": "word game",
+          "help": "Guess the five-letter word in six tries."
+        },
+        "kniffel": {
+          "t": "Kniffel",
+          "v": "dice game",
+          "help": "Score sheet for Kniffel, digital or with real dice."
+        },
+        "bingo": {
+          "t": "Song bingo",
+          "v": "bingo card"
+        },
+        "pomodoro": {
+          "t": "Pomodoro",
+          "v": "25 on, 5 off",
+          "help": "A focus timer with presets and stats."
+        },
+        "allGames": {
+          "t": "All games",
+          "v": "overview"
+        },
+        "allTools": {
+          "t": "All tools",
+          "v": "overview"
+        },
+        "email": {
+          "t": "Email",
+          "v": "write me"
+        },
+        "githubContact": {
+          "t": "GitHub",
+          "v": "@pgoell"
+        },
+        "linkedin": {
+          "t": "LinkedIn",
+          "v": "profile"
+        },
+        "light": {
+          "t": "Light",
+          "v": "follows Gelnhausen time",
+          "help": "The picture follows local time in Gelnhausen. Try ?time=21."
+        },
+        "readouts": {
+          "t": "Readouts",
+          "v": "sample data"
+        },
+        "histogram": {
+          "t": "Histogram",
+          "v": "commits, 64 days"
+        },
+        "language": {
+          "t": "Language",
+          "v": "English",
+          "help": "Switch the site to German."
+        }
+      }
+    }
   },
   "nav": {
     "menu": "Menu",
