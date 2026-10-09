@@ -1,11 +1,19 @@
 /* Gelnhausen from the upper town at the Marienkirche: layered poster illustration on canvas.
    Scene space is 1600 x 1000, cropped like "cover". */
 
-import { mix, rgba, rng, smoothstep as sm } from "@/lib/viewfinder/color";
+import {
+  hexToRgb,
+  mix,
+  rgba,
+  rgbToHex,
+  rng,
+  smoothstep as sm,
+} from "@/lib/viewfinder/color";
 import { type Palette, paletteFor } from "@/lib/viewfinder/palette";
 import { SEASONS, seasonOf } from "@/lib/viewfinder/season";
 import { sunAt } from "@/lib/viewfinder/sun";
 import { berlinHour } from "@/lib/viewfinder/time";
+import type { SceneWeather } from "@/lib/weather/weather";
 
 type Ctx = CanvasRenderingContext2D;
 type Face = "L" | "M" | "S";
@@ -35,6 +43,7 @@ const MAT = {
 const BEARING = 234;
 const PX_PER_DEG = SW / 75;
 const HORIZON = 584;
+const INK = "#04060c";
 
 let P: Palette = paletteFor(60, false);
 let SEA = SEASONS.summer;
@@ -52,7 +61,45 @@ let ALT = 0;
 let RIM = 0;
 // lit windows: darkness, less the small hours when people sleep
 let WIN = 0;
-function setLight(when: Date) {
+/* weather: null is the calm default, with cloud only around sunrise and sunset */
+let WX: SceneWeather | null = null;
+// overcast 0 to 1, rain wetness, fog, lying snow
+let OV = 0;
+let WET = 0;
+let FOG = 0;
+let SNOW = 0;
+let STORM = 0;
+// how far bad weather drains every colour, the fog's own colour, and the size of a scene unit on screen
+let GREY = 0;
+let FOGC = "#ffffff";
+let ZOOM = 1;
+const WHITE = "#eef2f6";
+// a colour drained toward its own grey
+const greys = new Map<string, string>();
+function drain(col: string, k: number): string {
+  if (k <= 0) return col;
+  let g = greys.get(col);
+  if (!g) {
+    const [r, gr, b] = hexToRgb(col);
+    const y = 0.3 * r + 0.59 * gr + 0.11 * b;
+    g = rgbToHex([y, y, y]);
+    greys.set(col, g);
+  }
+  return mix(col, g, k);
+}
+// surfaces under snow, remembered so that C can keep them pale after dark
+const snowy = new Set<string>();
+function snow(col: string, k: number): string {
+  if (!SNOW) return col;
+  const v = mix(col, WHITE, k);
+  snowy.add(v);
+  return v;
+}
+// a roof under the weather: white under snow, darker when wet
+const roofCol = (col: string) =>
+  SNOW ? snow(col, 0.93) : WET ? mix(col, "#140d0c", 0.25 * WET) : col;
+const ground = (col: string, k = 0.75) => snow(col, k);
+function setLight(when: Date, weather: SceneWeather | null) {
   const sun = sunAt(when);
   P = paletteFor(sun.alt, sun.rising);
   SEA = SEASONS[seasonOf(when)];
@@ -79,15 +126,76 @@ function setLight(when: Date) {
   RIM = Math.abs(d) < 60 ? (1 - LAT) * UP * (1 - sm(4, 12, sun.alt)) : 0;
   const h = berlinHour(when);
   WIN = P.win * (1 - 0.5 * (sm(0, 1.5, h) - sm(4.5, 6, h)));
+  WX = weather;
+  const wet = weather?.kind === "rain" || weather?.kind === "storm";
+  OV = sm(0.7, 1, weather?.cloud ?? 0);
+  WET = wet ? (weather?.intensity ?? 0) : 0;
+  STORM = weather?.kind === "storm" ? 1 : 0;
+  FOG = weather?.kind === "fog" ? weather.intensity : 0;
+  SNOW =
+    weather?.snowCover || (weather?.kind === "snow" && weather.intensity > 0.7)
+      ? 1
+      : 0;
+  GREY = Math.min(0.8, 0.5 * WET + 0.2 * STORM + 0.25 * OV + 0.3 * FOG);
+  if (!weather) return;
+  // under cloud the sky closes to a cool grey, the light goes flat and the shadows weak
+  const grey = mix(
+    mix(drain(mix(P.haze, P.shadow, 0.4), 1), "#56606e", 0.35),
+    INK,
+    0.22 * WET + 0.25 * STORM,
+  );
+  // fog is pale by day and takes the hour's tint; at night only the town lights it
+  FOGC = mix(
+    mix(drain(P.haze, 0.7), P.skyH, 0.3),
+    "#ffffff",
+    0.4 * (1 - 0.8 * P.flood),
+  );
+  const veil = sm(0.4, 0.9, weather.cloud);
+  const sky = (col: string, k: number, f: number) =>
+    mix(mix(col, grey, OV * k), FOGC, FOG * f);
+  P = {
+    ...P,
+    // what sun gets through a closed sky is dull and warm, not yellow
+    sun: mix(P.sun, "#c8845a", 0.7 * OV * P.disc),
+    skyT: sky(P.skyT, 0.9, 0.75),
+    skyM: sky(P.skyM, 0.9, 0.9),
+    skyH: sky(P.skyH, 0.85, 1),
+    glowA: P.glowA * (1 - 0.5 * OV),
+    rays: P.rays * (1 - OV),
+    stars: P.stars * (1 - veil),
+    moon: P.moon * (1 - veil),
+    light: mix(P.light, grey, OV * 0.85),
+    litMix: P.litMix * (1 - 0.5 * OV),
+    shadeMix: P.shadeMix * (1 - 0.3 * OV),
+    dark: P.dark + 0.1 * WET + 0.1 * STORM,
+    haze: mix(mix(P.haze, grey, Math.max(0.8 * WET, 0.6 * OV)), FOGC, FOG),
+    hazeK: P.hazeK * (1 + 0.8 * WET + 0.8 * FOG),
+    mist: P.mist + 0.5 * WET,
+    deck: mix(P.deck, mix(grey, INK, 0.15), OV * 0.8),
+    // by day a cloud's belly is soft grey-white, not a bright rim
+    deckLit: mix(mix(P.deckLit, P.deck, 0.6 * (1 - P.disc)), grey, OV * 0.9),
+    deckA: sm(0.15, 0.5, weather.cloud) * (1 - FOG),
+    cloud: mix(P.cloud, mix(grey, INK, 0.1), OV * 0.9),
+  };
+  LAT *= 1 - 0.8 * OV;
+  RIM *= 1 - OV;
+  UP *= 1 - OV;
 }
-const INK = "#04060c";
 function C(base: string, f: Face): string {
   const L = mix(base, P.light, P.litMix);
   const S = mix(base, P.shadow, P.shadeMix);
   // with the sun dead ahead or dead behind, neither side is the lit one
   const M = mix(L, S, P.front);
   const c0 = f === "M" ? M : mix(M, f === "L" ? L : S, LAT);
-  const c = mix(c0, INK, P.dark);
+  let c = mix(c0, INK, P.dark);
+  // snow stays the palest thing in a dark town
+  if (SNOW && snowy.has(base))
+    c = mix(
+      c,
+      f === "L" ? mix("#a9b8d6", P.light, 0.5) : "#a9b8d6",
+      0.55 * Math.min(1, P.dark * 1.2),
+    );
+  c = drain(c, GREY);
   return D ? mix(c, P.haze, Math.min(1, D * P.hazeK)) : c;
 }
 const side = (left: boolean): Face => (left === SUN < 0 ? "L" : "S");
@@ -95,7 +203,8 @@ const side = (left: boolean): Face => (left === SUN < 0 ? "L" : "S");
 function CH(base: string, f: Face, k = 1): string {
   const c = C(base, f);
   // a few warm lamps from below: weak overall, and slate takes little of it
-  const fl = P.flood * k * (base === MAT.slate ? 0.12 : 0.42);
+  const fl =
+    P.flood * k * (base === MAT.slate || snowy.has(base) ? 0.12 : 0.42);
   if (fl <= 0) return c;
   const F =
     f === "L"
@@ -186,7 +295,8 @@ function sky(c: Ctx) {
     c.save();
     // a sun far outside the frame still warms the nearer edge
     c.translate(Math.max(-300, Math.min(1900, SX)), SY);
-    c.scale(1.8, 0.6);
+    // under a closed sky only a narrow dull band is left on the horizon
+    c.scale(1.8, 0.6 - 0.42 * OV * (1 - FOG));
     const R = c.createRadialGradient(0, 0, 0, 0, 0, 640);
     R.addColorStop(0, rgba(mix(P.sun, "#ffffff", 0.4), P.glowA));
     R.addColorStop(0.12, rgba(P.sun, 0.75 * P.glowA));
@@ -225,9 +335,16 @@ function sky(c: Ctx) {
       c.ellipse(SX + dx, SY + dy, w, 3.2, 0, 0, 6.3);
       c.fill();
     }
-    circ(c, SX, SY, 64, rgba(P.sun, 0.3 * UP));
-    circ(c, SX, SY, 34, rgba(mix(P.sun, "#ffffff", 0.4), 0.55 * UP));
-    circ(c, SX, SY, 17, rgba(mix(P.sun, "#ffffff", 0.6), UP));
+    // high sun: a small bright disc in one soft glow; the ringed halo belongs to the low sun
+    const low = P.disc;
+    const G = c.createRadialGradient(SX, SY, 0, SX, SY, 60);
+    G.addColorStop(0, rgba("#fffbe6", 0.6 * UP * (1 - low)));
+    G.addColorStop(1, rgba("#fffbe6", 0));
+    c.fillStyle = G;
+    c.fillRect(SX - 60, SY - 60, 120, 120);
+    circ(c, SX, SY, 64, rgba(P.sun, 0.3 * UP * low));
+    circ(c, SX, SY, 34, rgba(mix(P.sun, "#ffffff", 0.4), 0.55 * UP * low));
+    circ(c, SX, SY, 12 + 5 * low, rgba(mix(P.sun, "#ffffff", 0.6), UP));
   }
   if (P.moon > 0.01) {
     const mx = 1290;
@@ -269,7 +386,7 @@ function deck(c: Ctx) {
     const x = r() * 1700;
     lumps.push([x, deckY(x) + 14 + r() * 26, 40 + r() * 60, 6 + r() * 8]);
   }
-  const lit = mix(P.deckLit, P.sun, 0.35 * P.disc);
+  const lit = mix(P.deckLit, P.sun, 0.35 * P.disc * (1 - OV));
   for (const [x, y, rx, ry] of lumps)
     oval(
       x,
@@ -337,12 +454,16 @@ const CL: [number, number, number, number][] = [
   [610, 440, 90, 6],
   [300, 470, 120, 6],
 ];
+const mod = (a: number, n: number) => ((a % n) + n) % n;
 function clouds(c: Ctx, t: number) {
   const body = mix(P.cloud, P.skyM, 0.2);
-  const lit = mix(P.cloud, P.sun, P.disc * 0.8);
+  const lit = mix(P.cloud, P.sun, P.disc * 0.8 * (1 - OV));
   const shd = mix(P.cloud, P.skyM, 0.5);
-  CL.forEach(([x0, y, w, h], i) => {
-    const x = ((x0 + t * (2 + (i % 3)) + 300) % 2200) - 300;
+  // a clear sky keeps a few scraps; they drift with the wind
+  const n = FOG ? 0 : WX ? Math.round(2 + 5 * sm(0, 0.5, WX.cloud)) : CL.length;
+  const drift = WX ? WX.wind * 0.5 : 2;
+  CL.slice(0, n).forEach(([x0, y, w, h], i) => {
+    const x = mod(x0 + t * (drift + (i % 3)) + 300, 2200) - 300;
     const rr = rng(40 + i);
     const puffs: [number, number][] = [];
     for (let k = 0; k < 7; k++) {
@@ -429,10 +550,10 @@ function range(
 }
 function hills(c: Ctx) {
   D = 0.86;
-  c.fillStyle = C(SEA.leaf, "M");
+  c.fillStyle = C(ground(SEA.leaf), "M");
   range(c, hillA, 9, 3);
   D = 0.3;
-  c.fillStyle = C(SEA.wood, "S");
+  c.fillStyle = C(ground(SEA.wood, 0.55), "S");
   range(c, hillB, 11, 4.5, SEA.patches);
   // village on the slope: pale specks, lit after dark
   const r = rng(13);
@@ -445,7 +566,7 @@ function hills(c: Ctx) {
     c.fillRect(x, y, 2 + r() * 3, 1.6 + r());
   }
   D = 0.2;
-  c.fillStyle = C(SEA.wood, "S");
+  c.fillStyle = C(ground(SEA.wood, 0.55), "S");
   range(c, hillC, 12, 5, SEA.patches);
 }
 
@@ -454,8 +575,8 @@ function valley(c: Ctx) {
   const r = rng(51);
   D = 0.42;
   const g = c.createLinearGradient(0, 610, 0, 760);
-  g.addColorStop(0, C(SEA.field, "M"));
-  g.addColorStop(1, C(SEA.leaf, "S"));
+  g.addColorStop(0, C(ground(SEA.field), "M"));
+  g.addColorStop(1, C(ground(SEA.leaf), "S"));
   c.fillStyle = g;
   c.fillRect(-100, 612, 1900, 500);
   for (let i = 0; i < 9; i++) {
@@ -465,7 +586,7 @@ function valley(c: Ctx) {
     poly(
       c,
       [x, y, x + w, y - 2, x + w + 12, y + 4, x + 8, y + 6],
-      C(i % 2 ? SEA.field : SEA.field2, "L"),
+      C(ground(i % 2 ? SEA.field : SEA.field2), "L"),
     );
   }
   const items: [number, number, number][] = [];
@@ -494,7 +615,7 @@ function valley(c: Ctx) {
       poly(
         c,
         [x - 1, y - h, x + w / 2, y - h * 1.9, x + w + 1, y - h],
-        C(q < 0.72 ? MAT.clay : MAT.slate, "M"),
+        C(roofCol(q < 0.72 ? MAT.clay : MAT.slate), "M"),
       );
     if (q * 7 - 4 < WIN) {
       c.fillStyle = "#ffc46b";
@@ -518,7 +639,8 @@ function church(c: Ctx) {
   c.save();
   c.transform(0.97, 0, 0, 0.94, 450, 60);
   const sand = MAT.sand;
-  const sl = MAT.slate;
+  // the spires are too steep for snow; it lies on their skirts and on the lower roofs
+  const sl = snow(MAT.slate, 0.8);
   const pink = MAT.pink;
   const win = CH(MAT.win, "S", 0.3);
   const lit = (k: number, b = 0.9) => mix(win, "#ffc46b", WIN > k ? b : 0);
@@ -550,10 +672,12 @@ function church(c: Ctx) {
     const d = cx + hw * 0.36;
     const e = cx + hw;
     // slate stays dark even on its sunny facet; the lit edge lines carry the light
-    const m = CH(sl, "M");
-    const sh = CH(sl, "S");
+    const m = CH(MAT.slate, "M");
+    const sh = CH(MAT.slate, "S");
     const mid = mix(m, sh, 0.5);
     poly(c, [a, base, cx, tip, e, base, cx + tw, top, cx - tw, top], mid);
+    if (SNOW)
+      poly(c, [a, base, e, base, cx + tw, top, cx - tw, top], CH(sl, "M"));
     poly(c, [a, base, cx, tip, b, base], SUN < 0 ? m : sh);
     poly(c, [d, base, cx, tip, e, base], SUN < 0 ? sh : m);
     line(c, cx, tip, SUN < 0 ? b : d, base, rgba(CH("#8a93a8", "L"), 0.6), 1.4);
@@ -834,6 +958,16 @@ function branches(
     const x1 = x0 + Math.sin(a) * len;
     const y1 = y0 - Math.cos(a) * len;
     line(c, x0, y0, x1, y1, col, Math.max(1.1, wd));
+    if (SNOW && n < 4)
+      line(
+        c,
+        x0,
+        y0 - 1.2,
+        x1,
+        y1 - 1.2,
+        C(WHITE, "L"),
+        Math.max(0.9, wd * 0.5),
+      );
     if (n === 0) return;
     for (const s of [-1, 1])
       grow(
@@ -880,7 +1014,7 @@ function tree(c: Ctx, x: number, y: number, w: number, h: number, i: number) {
       c.fill();
     }
   };
-  oval(1, 0, 0, C(acc ?? SEA.leafLit, "L"));
+  oval(1, 0, 0, C(ground(acc ?? SEA.leafLit, 0.85), "L"));
   oval(0.94, -SUN * w * 0.035, h * 0.03, C(leaf, "M"));
   oval(0.6, -SUN * w * 0.12, h * 0.14, C(leaf, "S"));
 }
@@ -911,6 +1045,7 @@ interface House {
 }
 let SMOKE: [number, number] = [0, 0];
 function house(c: Ctx, h: House) {
+  const mat = roofCol(h.mat);
   const { w, rh, wh, sk, dy, gd } = h;
   const r = rng(h.seed);
   const gf = side(!!h.flip);
@@ -922,10 +1057,10 @@ function house(c: Ctx, h: House) {
   c.scale(h.flip ? -h.k : h.k, h.k);
   // a roof leaning toward the sun catches it
   const roofM =
-    side(!h.flip) === "L"
-      ? mix(C(h.mat, "M"), C(h.mat, "L"), 0.55)
-      : C(h.mat, "M");
-  const roofS = C(h.mat, "S");
+    side(!h.flip) === "L" ? mix(C(mat, "M"), C(mat, "L"), 0.55) : C(mat, "M");
+  const roofS = C(mat, "S");
+  // eaves and verges show the tile under the snow
+  const edge = C(h.mat, "S");
   const ax = w + sk;
   const ay = rh + dy;
   if (gd) {
@@ -960,8 +1095,8 @@ function house(c: Ctx, h: House) {
         c.fillRect(ax + (bx - ax) * f - 6, y, 12, 18);
       }
     }
-    line(c, w, dy, ax - 3, ay + 3, roofS, 5);
-    line(c, w, dy, bx + 3, by + 2, roofS, 4);
+    line(c, w, dy, ax - 3, ay + 3, edge, 5);
+    line(c, w, dy, bx + 3, by + 2, edge, 4);
   }
   // wall under the eave
   poly(c, [sk, rh, ax, ay, ax, ay + wh, sk, rh + wh], C(h.wall, "M"));
@@ -980,7 +1115,7 @@ function house(c: Ctx, h: House) {
       line(c, sk + w * f, rh + dy * f, sk + w * f, rh + dy * f + wh, beam, 2.4);
     }
   }
-  poly(c, [sk, rh, ax, ay, ax, ay + 5, sk, rh + 5], mix(roofS, INK, 0.35));
+  poly(c, [sk, rh, ax, ay, ax, ay + 5, sk, rh + 5], mix(edge, INK, 0.35));
   // roof face with tile courses
   poly(c, [0, 0, w, dy, ax, ay, sk, rh], roofM);
   c.strokeStyle = mix(roofM, INK, 0.2);
@@ -997,10 +1132,10 @@ function house(c: Ctx, h: House) {
     const f = r();
     const v = 0.1 + r() * 0.7;
     const pw = 14 + r() * 30;
-    c.fillStyle = rgba(r() < 0.5 ? C(h.mat, "L") : roofS, 0.22);
+    c.fillStyle = rgba(r() < 0.5 ? C(mat, "L") : roofS, 0.22);
     c.fillRect(w * f * 0.9 + sk * v, dy * f + rh * v, pw, 7);
   }
-  line(c, 0, 0, w, dy, C(h.mat, "L"), 3);
+  line(c, 0, 0, w, dy, C(mat, "L"), 3);
   const sl = sk / rh;
   for (let i = 0; i < (h.sky ?? 0); i++) {
     const f = (i + 0.6 + r() * 0.3) / ((h.sky ?? 0) + 0.6);
@@ -1356,8 +1491,18 @@ function near(c: Ctx) {
   for (const h of NEAR) house(c, h);
 }
 
+// fog lies in the valley as a bright bank: it takes the hill feet and thins upward, so the towers stand clear
+function fog(c: Ctx, a: number, top: number) {
+  if (!FOG) return;
+  const g = c.createLinearGradient(0, top, 0, top + 130);
+  g.addColorStop(0, rgba(FOGC, 0));
+  g.addColorStop(1, rgba(FOGC, Math.min(1, a * FOG)));
+  c.fillStyle = g;
+  c.fillRect(-100, top, 1900, 900);
+}
 function mist(c: Ctx) {
   const k = P.mist * (AM ? SEA.mistAM : 1);
+  fog(c, 1.2, 440);
   if (k < 0.02) return;
   const col = mix(P.haze, "#ffffff", 0.25);
   const M: [number, number, number][] = [
@@ -1387,9 +1532,22 @@ interface Layer {
   m?: () => Wash;
 }
 const LAYERS: Layer[] = [
-  { g: 0, f: deck, a: () => P.deckA * (AM ? 1 - sm(0, 4, ALT) : 1) },
-  { g: 1, f: hills, m: () => [540, 630, 0, 0.5] },
-  { g: 1, f: valley, m: () => [610, 700, 0.3, 0] },
+  {
+    g: 0,
+    f: deck,
+    a: () => (WX ? P.deckA : P.deckA * (AM ? 1 - sm(0, 4, ALT) : 1)),
+  },
+  {
+    g: 1,
+    f: hills,
+    m: () => [
+      520,
+      630,
+      0.5 * FOG + 0.45 * WET,
+      Math.min(1, 0.5 + 0.5 * FOG + 0.3 * WET),
+    ],
+  },
+  { g: 1, f: valley, m: () => [610, 700, 0.3 + 0.4 * WET, 0.3 * WET] },
   { g: 1, f: mist },
   { g: 1, f: nightGlow },
   {
@@ -1398,13 +1556,19 @@ const LAYERS: Layer[] = [
     rim: true,
     m: () => [900, 600, 0.4 * P.flood, 0, "#ffb46e"],
   },
-  { g: 2, f: town, m: () => [640, 760, 0.25, 0] },
-  { g: 2, f: near },
+  { g: 2, f: (c) => fog(c, 0.55, 520) },
+  {
+    g: 2,
+    f: town,
+    m: () => [640, 760, 0.25 + 0.7 * FOG + 0.2 * WET, 0.4 * FOG],
+  },
+  { g: 2, f: near, m: () => [760, 1000, 0.3 * FOG, 0.1 * FOG] },
 ];
 
 /* ---------- living details: chimney smoke and swifts round the spires ---------- */
 function details(c: Ctx, t: number) {
   const [sx, sy] = SMOKE;
+  const lean = WX ? Math.max(-170, Math.min(170, WX.wind * 7)) : 70;
   const col = mix(P.haze, "#ffffff", 0.35);
   for (let i = 0; i < 14; i++) {
     const a = (t * 0.09 + i / 14) % 1;
@@ -1414,7 +1578,7 @@ function details(c: Ctx, t: number) {
     );
     c.beginPath();
     c.arc(
-      sx + a * a * 70 + Math.sin(a * 7 + i) * 3,
+      sx + a * a * lean + Math.sin(a * 7 + i) * 3,
       sy - a * 90,
       (2 + a * 10) * (0.75 + 0.25 * SEA.smoke),
       0,
@@ -1422,7 +1586,7 @@ function details(c: Ctx, t: number) {
     );
     c.fill();
   }
-  if (SEA.swifts && P.dark < 0.4) {
+  if (SEA.swifts && P.dark < 0.4 && !WX?.intensity) {
     c.strokeStyle = C("#22242a", "S");
     c.lineWidth = 1.3;
     for (let i = 0; i < 6; i++) {
@@ -1440,6 +1604,52 @@ function details(c: Ctx, t: number) {
   }
 }
 
+/* ---------- falling rain and snow, and the storm's soft flash: cheap, capped, on the animated layers ---------- */
+function precipitation(c: Ctx, t: number) {
+  if (!WX || !WX.intensity || WX.kind === "fog") return;
+  const r = rng(17);
+  const k = WX.intensity;
+  const n = Math.round((40 + 200 * k) * (1 + 0.6 * STORM));
+  // on a small screen the scene shrinks; streaks and flakes must not
+  const z = Math.max(1, 0.8 / ZOOM);
+  c.beginPath();
+  if (WX.kind === "snow") {
+    for (let i = 0; i < n; i++) {
+      const v = 50 + r() * 70;
+      const sway = Math.sin(t * (0.5 + r()) + i) * 14;
+      const x = mod(r() * 1900 + t * WX.wind * 4 + sway, 1900) - 150;
+      const y = mod(r() * 1100 + t * v, 1100) - 50;
+      const d = (1.2 + r() * 2.2) * z;
+      c.moveTo(x + d, y);
+      c.arc(x, y, d, 0, 6.3);
+    }
+    c.fillStyle = rgba("#ffffff", 0.85 - P.dark * 0.4);
+    c.fill();
+    return;
+  }
+  const slant = Math.max(-0.5, Math.min(0.5, WX.wind / 60));
+  const len = (24 + 34 * k) * (1 + 0.5 * STORM) * z;
+  for (let i = 0; i < n; i++) {
+    const v = 900 + r() * 500;
+    const x = mod(r() * 1900 + t * v * slant, 1900) - 150;
+    const y = mod(r() * 1100 + t * v, 1100) - 50;
+    c.moveTo(x, y);
+    c.lineTo(x - slant * len, y - len);
+  }
+  c.strokeStyle = rgba(mix(P.haze, "#ffffff", 0.6), 0.2 + 0.25 * k);
+  c.lineWidth = (1.4 + 0.5 * STORM) * z;
+  c.stroke();
+}
+// one slow pulse every eleven seconds, behind the hills and the town
+function flash(c: Ctx, t: number) {
+  if (WX?.kind !== "storm") return;
+  const ph = t % 11;
+  const f = ph < 0.15 ? ph / 0.15 : Math.max(0, 1 - (ph - 0.15) / 0.7);
+  if (f <= 0) return;
+  c.fillStyle = rgba("#dfe6ff", 0.2 * f);
+  c.fillRect(-3000, -3000, 8000, 8000);
+}
+
 /* ---------- mounting ---------- */
 export interface SceneOptions {
   /** The instant to draw: sun, light and season all follow from it. */
@@ -1448,13 +1658,16 @@ export interface SceneOptions {
   focusX?: number;
   /** Where focusX sits across the visible width, 0 left to 1 right. */
   anchorX?: number;
-  /** Animate the clouds, smoke and swifts. */
+  /** Live weather; null or absent keeps the calm default. */
+  weather?: SceneWeather | null;
+  /** Animate the clouds, smoke, swifts, rain and snow. Without it the storm does not flash. */
   motion?: boolean;
   portraitK?: number;
 }
 
 export interface Scene {
   setTime(d: Date): void;
+  setWeather(w: SceneWeather | null): void;
   /** Starts or stops the animation loop, e.g. when the scene scrolls out of view. */
   setRunning(on: boolean): void;
   destroy(): void;
@@ -1514,6 +1727,7 @@ export function createGelnhausenScene(
   let W = 1;
   let XF: [number, number, number] | null = null;
   let when = o.at;
+  let weather = o.weather ?? null;
 
   function layout() {
     W = el.clientWidth || 1;
@@ -1522,6 +1736,7 @@ export function createGelnhausenScene(
     const portrait = W / H < 0.9;
     const s = Math.max(W / SW, (H * (portrait ? o.portraitK : 1)) / SH);
     const vw = W / s;
+    ZOOM = s;
     const left = Math.max(0, Math.min(SW - vw, o.focusX - vw * o.anchorX));
     // crop mostly off the bottom, so the spires keep their sky
     const top = (H - SH * s) * 0.2;
@@ -1594,7 +1809,7 @@ export function createGelnhausenScene(
     D = 0;
   }
   function render() {
-    setLight(when);
+    setLight(when, weather);
     renderTo([ctx(0), ctx(2), ctx(3)], tmp);
     // depth of field: the distance slightly soft
     canvas(2).style.filter = `blur(${(W / 2600).toFixed(2)}px)`;
@@ -1615,7 +1830,10 @@ export function createGelnhausenScene(
       xf(c);
     }
     clouds(cx, t);
+    if (o.motion) flash(cx, t);
     details(ax, t);
+    // frozen streaks in mid air would look wrong, so no falling particles without motion
+    if (o.motion) precipitation(ax, t);
   }
   function loop(now: number) {
     raf = requestAnimationFrame(loop);
@@ -1647,6 +1865,10 @@ export function createGelnhausenScene(
     setTime(d) {
       if (d.getTime() === when.getTime()) return;
       when = d;
+      render();
+    },
+    setWeather(w) {
+      weather = w;
       render();
     },
     setRunning,

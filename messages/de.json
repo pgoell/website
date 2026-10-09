@@ -44,9 +44,18 @@
         "l": "Standort"
       },
       "weather": {
-        "g": "Weißabgleich nach dem Wetter im Tal: bewölkt, 13 °C. Beispielwert.",
+        "g": "Weißabgleich nach dem aktuellen Wetter im Tal. Das Bild zeigt denselben Himmel. Daten von Open-Meteo.",
         "k": "Wetter",
-        "l": "WA bewölkt"
+        "l": "WA {cond}",
+        "c": {
+          "clear": "klar",
+          "cloudy": "bewölkt",
+          "overcast": "bedeckt",
+          "rain": "Regen",
+          "snow": "Schnee",
+          "fog": "Nebel",
+          "storm": "Gewitter"
+        }
       },
       "pomodoro": {
         "g": "Akku: heute erledigte Pomodoro-Einheiten, drei von vier. Beispielwert.",
@@ -107,7 +116,6 @@
         "k": "Anzeige"
       }
     },
-    "sample": "BEISPIELDATEN",
     "cap1": "ILLUSTRATION, KEIN FOTO",
     "cap2": "GELNHAUSEN VON DER OBERSTADT AUS",
     "peek": {

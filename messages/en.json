@@ -44,9 +44,18 @@
         "l": "location"
       },
       "weather": {
-        "g": "White balance set by the weather in the valley: cloudy, 13 °C. Sample value.",
+        "g": "White balance set by the live weather in the valley. The picture shows the same sky. Data from Open-Meteo.",
         "k": "Weather",
-        "l": "wb cloudy"
+        "l": "wb {cond}",
+        "c": {
+          "clear": "clear",
+          "cloudy": "cloudy",
+          "overcast": "overcast",
+          "rain": "rain",
+          "snow": "snow",
+          "fog": "fog",
+          "storm": "storm"
+        }
       },
       "pomodoro": {
         "g": "Battery: Pomodoro sessions done today, three of four. Sample value.",
@@ -107,7 +116,6 @@
         "k": "Display"
       }
     },
-    "sample": "SAMPLE DATA",
     "cap1": "ILLUSTRATION, NOT A PHOTO",
     "cap2": "GELNHAUSEN FROM THE UPPER TOWN",
     "peek": {

@@ -13,6 +13,7 @@ import {
   type PostLink,
 } from "@/lib/viewfinder/menu";
 import { PROJECTS } from "@/lib/viewfinder/projects";
+import type { Weather } from "@/lib/weather/weather";
 import { CameraMenu } from "./camera-menu";
 import { cx } from "./cx";
 import { Evf } from "./evf";
@@ -32,10 +33,12 @@ export function ViewfinderHome({
   posts,
   github,
   spotify,
+  weather,
 }: {
   posts: PostLink[];
   github: GithubStats | null;
   spotify: SpotifyTop | null;
+  weather: Weather | null;
 }) {
   const t = useTranslations("home");
   const locale = useLocale();
@@ -70,6 +73,8 @@ export function ViewfinderHome({
       </a>
       <Evf
         at={vf.at}
+        temperature={weather?.temperature ?? null}
+        weather={vf.weatherOverride ?? weather?.scene ?? null}
         mode={vf.mode}
         shots={vf.shots}
         onShoot={vf.shoot}

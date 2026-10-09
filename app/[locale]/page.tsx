@@ -4,6 +4,7 @@ import { ViewfinderHome } from "@/components/viewfinder/viewfinder-home";
 import { getAllPosts } from "@/lib/posts";
 import { getGithubStats } from "@/lib/stats/github";
 import { getSpotifyTop } from "@/lib/stats/spotify";
+import { getWeather } from "@/lib/weather/weather";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("home");
@@ -16,10 +17,11 @@ export default async function Home({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const [allPosts, github, spotify] = await Promise.all([
+  const [allPosts, github, spotify, weather] = await Promise.all([
     getAllPosts(locale),
     getGithubStats(),
     getSpotifyTop(),
+    getWeather(),
   ]);
   const posts = allPosts.map((p) => ({
     slug: p.slug,
@@ -27,5 +29,12 @@ export default async function Home({
     date: p.date,
   }));
 
-  return <ViewfinderHome posts={posts} github={github} spotify={spotify} />;
+  return (
+    <ViewfinderHome
+      posts={posts}
+      github={github}
+      spotify={spotify}
+      weather={weather}
+    />
+  );
 }

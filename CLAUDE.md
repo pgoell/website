@@ -129,7 +129,7 @@ jj bookmark create feature/other
 ## Features
 
 **Implemented:**
-- Viewfinder home page at `/` (canvas rooftop view of Gelnhausen lit by the real sun over the town, four seasons, camera menu, work map; `?time=HH[:MM]`, `?date=YYYY-MM-DD` (Berlin local) and `?state=menu|search|map|play` for review)
+- Viewfinder home page at `/` (canvas rooftop view of Gelnhausen lit by the real sun over the town, four seasons, camera menu, work map; live weather from Open-Meteo; `?time=HH[:MM]`, `?date=YYYY-MM-DD` (Berlin local), `?weather=clear|cloudy|overcast|rain|snow|fog|storm` and `?state=menu|search|map|play` for review)
 - Personal blog (MDX) at `/blog`
 - Wordle game at `/games/wordle` (EN/DE word lists, solver, demo)
 - Kniffel tracker at `/games/kniffel` (digital + manual modes)
