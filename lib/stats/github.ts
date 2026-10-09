@@ -12,24 +12,12 @@ export interface GithubStats {
   languages: { name: string; share: number }[];
 }
 
-interface CalendarDay {
-  contributionCount: number;
-}
-interface LanguageEdge {
+interface Repo {
+  fork: boolean;
+  /** Main language, null for a repo without code. */
+  language: string | null;
+  /** Repo size in KB. */
   size: number;
-  node: { name: string };
-}
-interface GraphResponse {
-  data?: {
-    user: {
-      contributionsCollection: {
-        contributionCalendar: {
-          weeks: { contributionDays: CalendarDay[] }[];
-        };
-      };
-      repositories: { nodes: { languages: { edges: LanguageEdge[] } }[] };
-    };
-  };
 }
 interface PushEvent {
   type: string;
@@ -38,56 +26,61 @@ interface PushEvent {
   payload: { head?: string };
 }
 
-const QUERY = `query($login: String!) {
-  user(login: $login) {
-    contributionsCollection {
-      contributionCalendar { weeks { contributionDays { contributionCount } } }
-    }
-    repositories(first: 100, ownerAffiliations: OWNER, isFork: false, privacy: PUBLIC) {
-      nodes { languages(first: 10) { edges { size node { name } } } }
-    }
+/**
+ * Reads the public profile calendar: each day is a cell with a date and an id,
+ * and a tooltip for that id carries the count ("12 contributions on …").
+ */
+export function contributionDays(html: string): number[] {
+  const counts = new Map<string, number>();
+  for (const m of html.matchAll(/<tool-tip[^>]*\bfor="([^"]+)"[^>]*>(\d*)/g))
+    counts.set(m[1] as string, Number(m[2]));
+  const days: [string, number][] = [];
+  for (const [cell] of html.matchAll(/<td[^>]*\bdata-date="[^>]*>/g)) {
+    const date = /\bdata-date="([^"]+)"/.exec(cell)?.[1];
+    const id = /\bid="([^"]+)"/.exec(cell)?.[1];
+    if (date && id) days.push([date, counts.get(id) ?? 0]);
   }
-}`;
+  return days
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .slice(-DAYS)
+    .map((d) => d[1]);
+}
 
-/** Adds up language sizes across repos and returns the top five shares. */
-export function languageShares(
-  repos: { languages: { edges: LanguageEdge[] } }[],
-): GithubStats["languages"] {
-  const bytes = new Map<string, number>();
+/** Weighs each repo's main language by repo size and returns the top five shares. */
+export function languageShares(repos: Repo[]): GithubStats["languages"] {
+  const sizes = new Map<string, number>();
   for (const r of repos)
-    for (const e of r.languages.edges)
-      bytes.set(e.node.name, (bytes.get(e.node.name) ?? 0) + e.size);
-  const total = [...bytes.values()].reduce((a, b) => a + b, 0);
+    if (!r.fork && r.language)
+      sizes.set(r.language, (sizes.get(r.language) ?? 0) + r.size);
+  const total = [...sizes.values()].reduce((a, b) => a + b, 0);
   if (!total) return [];
-  return [...bytes]
+  return [...sizes]
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
     .map(([name, size]) => ({ name, share: size / total }));
 }
 
-/** Null without GITHUB_TOKEN or when GitHub fails; the page then shows sample data. */
+/** Public pages only, no token. Null when GitHub fails; the page then shows sample data. */
 export async function getGithubStats(): Promise<GithubStats | null> {
-  const token = process.env.GITHUB_TOKEN;
-  if (!token) return null;
-  const headers = { Authorization: `Bearer ${token}` };
+  const get = (url: string) =>
+    fetch(url, { next: { revalidate: HOUR } }).then((r) => {
+      if (!r.ok) throw new Error(`${url}: ${r.status}`);
+      return r;
+    });
   try {
-    const [graph, events] = await Promise.all([
-      fetch("https://api.github.com/graphql", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ query: QUERY, variables: { login: LOGIN } }),
-        next: { revalidate: HOUR },
-      }).then((r) => r.json() as Promise<GraphResponse>),
-      fetch(`https://api.github.com/users/${LOGIN}/events/public`, {
-        headers,
-        next: { revalidate: HOUR },
-      }).then((r) => r.json() as Promise<PushEvent[]>),
+    const [html, events, repos] = await Promise.all([
+      get(`https://github.com/users/${LOGIN}/contributions`).then((r) =>
+        r.text(),
+      ),
+      get(`https://api.github.com/users/${LOGIN}/events/public`).then(
+        (r) => r.json() as Promise<PushEvent[]>,
+      ),
+      get(
+        `https://api.github.com/users/${LOGIN}/repos?type=owner&per_page=100`,
+      ).then((r) => r.json() as Promise<Repo[]>),
     ]);
-    const user = graph.data?.user;
-    if (!user) return null;
-    const days = user.contributionsCollection.contributionCalendar.weeks
-      .flatMap((w) => w.contributionDays.map((d) => d.contributionCount))
-      .slice(-DAYS);
+    const days = contributionDays(html);
+    if (!days.length) return null;
     const push = events.find((e) => e.type === "PushEvent");
     return {
       days,
@@ -98,7 +91,7 @@ export async function getGithubStats(): Promise<GithubStats | null> {
             at: push.created_at,
           }
         : null,
-      languages: languageShares(user.repositories.nodes),
+      languages: languageShares(repos),
     };
   } catch {
     return null;
