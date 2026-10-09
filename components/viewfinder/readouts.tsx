@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { NowPlaying } from "@/lib/stats/spotify";
 import { lcg } from "@/lib/viewfinder/color";
+import { sunCrossings } from "@/lib/viewfinder/sun";
+import { TIME_ZONE } from "@/lib/viewfinder/time";
 import s from "./viewfinder.module.css";
 
 const reducedMotion = () =>
@@ -87,20 +89,29 @@ function MeterRow({ label, level }: { label: string; level: number }) {
   );
 }
 
-const POMODORO = 1500;
-
-/** Exposure scale: progress through the current 25 minute Pomodoro. */
-export function FocusScale({ label }: { label: string }) {
-  const [left, setLeft] = useState(18 * 60 + 42);
-  useEffect(() => {
-    const id = window.setInterval(
-      () => setLeft((l) => Math.max(0, l - 1)),
-      1000,
-    );
-    return () => clearInterval(id);
-  }, []);
-  const mm = String(Math.floor(left / 60)).padStart(2, "0");
-  const ss = String(left % 60).padStart(2, "0");
+/** Exposure scale: how far the day (or the night) has run, and when the sun next crosses the horizon. */
+export function DayScale({
+  at,
+  sunset,
+  sunrise,
+}: {
+  at: Date | null;
+  sunset: string;
+  sunrise: string;
+}) {
+  const sun = useMemo(() => (at ? sunCrossings(at) : null), [at]);
+  const done =
+    at && sun
+      ? (at.getTime() - sun.last.getTime()) /
+        (sun.next.getTime() - sun.last.getTime())
+      : 0;
+  const next = sun
+    ? sun.next.toLocaleTimeString("de-DE", {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: TIME_ZONE,
+      })
+    : "--:--";
   return (
     <>
       <svg className={s.ticks} viewBox="0 0 260 22" aria-hidden="true">
@@ -121,16 +132,13 @@ export function FocusScale({ label }: { label: string }) {
             />
           );
         })}
-        <g
-          className={s.needle}
-          transform={`translate(${5 + ((POMODORO - left) / POMODORO) * 250} 0)`}
-        >
+        <g className={s.needle} transform={`translate(${5 + done * 250} 0)`}>
           <path d="M0 22 L-4 16 L4 16 Z" fill="#f08a00" />
           <rect x="-1" y="2" width="2" height="14" fill="#f08a00" />
         </g>
       </svg>
       <div className={s.v}>
-        {label} {mm}:{ss}
+        {sun?.up === false ? sunrise : sunset} {next}
       </div>
     </>
   );

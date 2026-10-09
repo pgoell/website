@@ -45,3 +45,29 @@ export function sunAt(date: Date, place = GELNHAUSEN): SunPosition {
     rising: Math.sin(h) < 0,
   };
 }
+
+/** Sunrise and sunset: the upper limb on the horizon with refraction. */
+const HORIZON = -0.83;
+
+/** The last and the next time the sun crosses the horizon, and whether it is up now. */
+export function sunCrossings(
+  date: Date,
+  place = GELNHAUSEN,
+): { up: boolean; last: Date; next: Date } {
+  const above = (t: number) => sunAt(new Date(t), place).alt > HORIZON;
+  const now = date.getTime();
+  const up = above(now);
+  const cross = (dir: 1 | -1) => {
+    const step = dir * 600000;
+    let a = now;
+    while (above(a + step) === up) a += step;
+    let b = a + step;
+    while (Math.abs(b - a) > 1000) {
+      const mid = (a + b) / 2;
+      if (above(mid) === up) a = mid;
+      else b = mid;
+    }
+    return new Date(b);
+  };
+  return { up, last: cross(-1), next: cross(1) };
+}
