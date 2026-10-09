@@ -57,11 +57,6 @@
           "storm": "Gewitter"
         }
       },
-      "pomodoro": {
-        "g": "Akku: heute erledigte Pomodoro-Einheiten, drei von vier. Beispielwert.",
-        "k": "Pomodoro",
-        "l": "Einheiten"
-      },
       "clock": {
         "g": "Ortszeit in Gelnhausen, Europe/Berlin. Live. Das Licht im Bild folgt ihr.",
         "k": "Uhr",

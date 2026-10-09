@@ -57,11 +57,6 @@
           "storm": "storm"
         }
       },
-      "pomodoro": {
-        "g": "Battery: Pomodoro sessions done today, three of four. Sample value.",
-        "k": "Pomodoro",
-        "l": "sessions"
-      },
       "clock": {
         "g": "Local time in Gelnhausen, Europe/Berlin. Live. The light in the picture follows it.",
         "k": "Clock",

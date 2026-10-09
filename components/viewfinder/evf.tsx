@@ -319,18 +319,6 @@ export function Evf({
                 })}
               </div>
             </div>
-            <div className={s.ro} {...ro("pomodoro")}>
-              <div className={s.v}>
-                <span className={s.bat}>
-                  <b />
-                  <b />
-                  <b />
-                  <b className={s.o} />
-                </span>
-                3/4
-              </div>
-              <div className={s.l}>{t("ro.pomodoro.l")}</div>
-            </div>
             <div className={s.ro} {...ro("clock")}>
               <div className={s.v}>{clock.time}</div>
               <div className={s.l}>{t("ro.clock.l", { zone: clock.zone })}</div>
