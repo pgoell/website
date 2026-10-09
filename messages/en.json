@@ -91,9 +91,10 @@
         "l": "agent runs"
       },
       "timer": {
-        "g": "Exposure scale: progress through the current 25 minute Pomodoro. The needle moves live.",
-        "k": "Focus timer",
-        "v": "FOCUS"
+        "g": "Exposure scale: how far the day has run between sunrise and sunset in Gelnhausen, or the night between sunset and sunrise. The time is the next of the two. Live.",
+        "k": "Daylight",
+        "sunset": "SUNSET",
+        "sunrise": "SUNRISE"
       },
       "writing": {
         "g": "ISO slot: posts in the writing drawer. Two drafts, none out yet.",

@@ -91,9 +91,10 @@
         "l": "Agentenläufe"
       },
       "timer": {
-        "g": "Belichtungsskala: Fortschritt im laufenden 25-Minuten-Pomodoro. Die Nadel bewegt sich live.",
-        "k": "Fokus-Timer",
-        "v": "FOKUS"
+        "g": "Belichtungsskala: wie weit der Tag zwischen Sonnenaufgang und Sonnenuntergang in Gelnhausen ist, oder die Nacht dazwischen. Die Uhrzeit ist der nächste der beiden. Live.",
+        "k": "Tageslicht",
+        "sunset": "UNTERGANG",
+        "sunrise": "AUFGANG"
       },
       "writing": {
         "g": "ISO: Texte in der Schublade. Zwei Entwürfe, noch keiner veröffentlicht.",

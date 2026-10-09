@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { sunAt } from "../sun";
+import { sunAt, sunCrossings } from "../sun";
 
 const at = (iso: string) => sunAt(new Date(iso));
 
@@ -38,5 +38,23 @@ describe("sunAt over Gelnhausen", () => {
   it("never gets astronomically dark in June", () => {
     expect(at("2026-06-21T21:00:00Z").alt).toBeGreaterThan(-12);
     expect(at("2026-06-21T23:27:00Z").alt).toBeGreaterThan(-18);
+  });
+});
+
+describe("sunCrossings over Gelnhausen", () => {
+  const near = (d: Date, iso: string) =>
+    expect(Math.abs(d.getTime() - Date.parse(iso))).toBeLessThan(3 * 60000);
+
+  it("brackets a midsummer afternoon with sunrise and sunset", () => {
+    const c = sunCrossings(new Date("2026-06-21T13:00:00Z"));
+    expect(c.up).toBe(true);
+    near(c.last, "2026-06-21T03:12:00Z");
+    near(c.next, "2026-06-21T19:37:00Z");
+  });
+  it("brackets a midwinter night with sunset and the next sunrise", () => {
+    const c = sunCrossings(new Date("2026-12-21T22:00:00Z"));
+    expect(c.up).toBe(false);
+    near(c.last, "2026-12-21T15:22:00Z");
+    near(c.next, "2026-12-22T07:21:00Z");
   });
 });

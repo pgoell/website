@@ -9,7 +9,7 @@ import { cls, cx } from "./cx";
 import { GelnhausenScene } from "./gelnhausen-scene";
 import {
   CommitHistogram,
-  FocusScale,
+  DayScale,
   LevelMeters,
   useNowPlaying,
 } from "./readouts";
@@ -390,7 +390,11 @@ export function Evf({
             </div>
           </div>
           <div className={cx(s.ro, s.scale)} {...ro("timer")}>
-            <FocusScale label={t("ro.timer.v")} />
+            <DayScale
+              at={at}
+              sunset={t("ro.timer.sunset")}
+              sunrise={t("ro.timer.sunrise")}
+            />
           </div>
           <div className={s.grp}>
             <div className={cx(s.ro, s.big, s.hideM)} {...ro("writing")}>
