@@ -369,12 +369,6 @@ export function Evf({
             </div>
           </div>
         </div>
-        <div className={s.cap}>
-          {t("cap1")}
-          <br />
-          {t("cap2")}
-        </div>
-
         <div className={cx(s.bar, s.b)}>
           <div className={s.grp}>
             <span ref={dotRef} className={s.fdot} />
