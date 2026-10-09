@@ -120,6 +120,7 @@ export function ViewfinderHome({ posts }: { posts: PostLink[] }) {
         <Link href={`/${locale}/blog`}>{t("footer.blog")}</Link>
         <Link href={`/${locale}/games`}>{t("footer.games")}</Link>
         <Link href={`/${locale}/tools`}>{t("footer.tools")}</Link>
+        <Link href={`/${locale}/impressum`}>{t("footer.impressum")}</Link>
         <span className={s.sp} />
         <Link href={`/${other}`} hrefLang={other}>
           {t("footer.language")}

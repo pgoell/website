@@ -177,6 +177,7 @@
       "blog": "Blog",
       "games": "Spiele",
       "tools": "Tools",
+      "impressum": "Impressum",
       "place": "Gelnhausen, Kinzigtal",
       "language": "English"
     },
@@ -577,5 +578,14 @@
       "breakRatio": "Optimale Arbeits-Pausen-Verhältnisse (Bailey, 2017)",
       "breakRatioDesc": "Die produktivsten Menschen verbringen 20\u201325% ihres Arbeitstages mit Pausen."
     }
+  },
+  "impressum": {
+    "title": "Impressum",
+    "basis": "Angaben gemäß § 5 DDG",
+    "address": "__ADDRESS__",
+    "contact": "Kontakt",
+    "email": "E-Mail",
+    "responsible": "Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV: Pascal Göllner, Anschrift wie oben",
+    "private": "Dies ist eine private Website ohne kommerzielle Absicht."
   }
 }
