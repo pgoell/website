@@ -7,9 +7,8 @@ export interface Palette {
   skyH: string;
   sun: string;
   glowA: number;
+  /** Strength of the low-sun colouring on clouds and streaks. */
   disc: number;
-  sunX: number;
-  sunY: number;
   haze: string;
   light: string;
   shadow: string;
@@ -39,8 +38,6 @@ export const PALETTES = {
     sun: "#fff6e0",
     glowA: 0,
     disc: 0,
-    sunX: 800,
-    sunY: -500,
     haze: "#18223f",
     light: "#7a88b4",
     shadow: "#0a0f22",
@@ -65,16 +62,14 @@ export const PALETTES = {
     skyM: "#8b84ac",
     skyH: "#f4c8a3",
     sun: "#fff0cc",
-    glowA: 0.95,
-    disc: 1,
-    sunX: 110,
-    sunY: 556,
+    glowA: 0.5,
+    disc: 0,
     haze: "#d6b8ba",
     light: "#ffcf9c",
     shadow: "#4a4f7c",
     litMix: 0.36,
     shadeMix: 0.5,
-    front: 0.58,
+    front: 0.36,
     dark: 0.1,
     flood: 0,
     win: 0.3,
@@ -83,65 +78,35 @@ export const PALETTES = {
     mist: 0.95,
     hazeK: 1,
     cloud: "#f0c0b0",
-    rays: 0.8,
+    rays: 0,
     deck: "#5d5682",
     deckLit: "#f2a58c",
     deckA: 0.7,
   },
-  day9: {
-    skyT: "#2e66a8",
-    skyM: "#77a6d2",
-    skyH: "#dce8ea",
-    sun: "#fffbe8",
-    glowA: 0.3,
+  day: {
+    skyT: "#2f67a7",
+    skyM: "#7ba7d1",
+    skyH: "#e1e7e3",
+    sun: "#fff9e3",
+    glowA: 0.32,
     disc: 0,
-    sunX: 250,
-    sunY: -200,
-    haze: "#c3d3dc",
-    light: "#fff3d8",
-    shadow: "#56688b",
-    litMix: 0.14,
+    haze: "#c8d5d9",
+    light: "#fff2d4",
+    shadow: "#56678b",
+    litMix: 0.15,
     shadeMix: 0.38,
-    front: 0.3,
+    front: 0.32,
     dark: 0,
     flood: 0,
     win: 0,
     stars: 0,
     moon: 0,
-    mist: 0.25,
+    mist: 0.2,
     hazeK: 0.9,
     cloud: "#ffffff",
     rays: 0,
     deck: "#b9c9da",
-    deckLit: "#ffffff",
-    deckA: 0,
-  },
-  day17: {
-    skyT: "#3067a6",
-    skyM: "#7ea8d0",
-    skyH: "#e6e6dc",
-    sun: "#fff6de",
-    glowA: 0.35,
-    disc: 0,
-    sunX: 1400,
-    sunY: -150,
-    haze: "#cdd6d6",
-    light: "#fff0d0",
-    shadow: "#56668a",
-    litMix: 0.16,
-    shadeMix: 0.38,
-    front: 0.34,
-    dark: 0,
-    flood: 0,
-    win: 0,
-    stars: 0,
-    moon: 0,
-    mist: 0.15,
-    hazeK: 0.9,
-    cloud: "#ffffff",
-    rays: 0,
-    deck: "#b9c9da",
-    deckLit: "#ffe9c8",
+    deckLit: "#fff4e4",
     deckA: 0,
   },
   gold: {
@@ -151,8 +116,6 @@ export const PALETTES = {
     sun: "#ffe27a",
     glowA: 1,
     disc: 1,
-    sunX: 1525,
-    sunY: 580,
     haze: "#a2664a",
     light: "#ff7c2c",
     shadow: "#2a1e30",
@@ -179,8 +142,6 @@ export const PALETTES = {
     sun: "#ffc0a0",
     glowA: 0.4,
     disc: 0,
-    sunX: 1560,
-    sunY: 690,
     haze: "#535c8c",
     light: "#b598b8",
     shadow: "#1a2046",
@@ -204,34 +165,33 @@ export const PALETTES = {
 
 export type PaletteName = keyof typeof PALETTES;
 
-/** Keyframes: hour of day to palette. Sunrise is behind the hills at far left, sunset on the horizon at far right. */
-export const KEYFRAMES: ReadonlyArray<readonly [number, PaletteName]> = [
-  [0, "night"],
-  [5.2, "night"],
-  [6.6, "dawn"],
-  [9, "day9"],
-  [16.6, "day17"],
-  [19.1, "gold"],
-  [20.4, "blue"],
-  [21.7, "night"],
-  [24, "night"],
+/** Stops by solar altitude in degrees. Evening passes through the sunset look, morning through dawn, where the sun is behind the viewer. */
+const STOPS = (
+  rising: boolean,
+): ReadonlyArray<readonly [number, PaletteName]> => [
+  [-9, "night"],
+  [-5, "blue"],
+  [0.4, rising ? "dawn" : "gold"],
+  [12, "day"],
 ];
 
-/** Palette for a fractional hour (0 to 24), eased between the two nearest keyframes. */
-export function paletteAt(hour: number): Palette {
-  const h = ((hour % 24) + 24) % 24;
+/** Palette for a solar altitude, eased between the two nearest stops. June nights at this latitude bottom out near -16 degrees, so night starts early. */
+export function paletteFor(alt: number, rising: boolean): Palette {
+  const stops = STOPS(rising);
   let i = 0;
   while (
-    i < KEYFRAMES.length - 2 &&
-    (KEYFRAMES[i + 1] as readonly [number, PaletteName])[0] <= h
+    i < stops.length - 2 &&
+    (stops[i + 1] as readonly [number, PaletteName])[0] <= alt
   )
     i++;
-  const [h0, a] = KEYFRAMES[i] as readonly [number, PaletteName];
-  const [h1, b] = KEYFRAMES[i + 1] as readonly [number, PaletteName];
-  let t = h1 > h0 ? Math.max(0, Math.min(1, (h - h0) / (h1 - h0))) : 0;
+  const [a0, a] = stops[i] as readonly [number, PaletteName];
+  const [a1, b] = stops[i + 1] as readonly [number, PaletteName];
+  let t = Math.max(0, Math.min(1, (alt - a0) / (a1 - a0)));
   t = t * t * (3 - 2 * t);
   const A: Palette = PALETTES[a];
   const B: Palette = PALETTES[b];
+  if (t <= 0) return A;
+  if (t >= 1) return B;
   const out = {} as Record<string, number | string>;
   for (const k of Object.keys(A) as (keyof Palette)[]) {
     const va = A[k];

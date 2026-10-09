@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { mix, rgba } from "../color";
-import { PALETTES, paletteAt } from "../palette";
+import { PALETTES, paletteFor } from "../palette";
 
 describe("mix", () => {
   it("returns the ends at 0 and 1", () => {
@@ -18,25 +18,26 @@ describe("rgba", () => {
   });
 });
 
-describe("paletteAt", () => {
-  it("is full night at midnight and 3 am", () => {
-    expect(paletteAt(0)).toEqual(PALETTES.night);
-    expect(paletteAt(3).skyT).toBe(PALETTES.night.skyT);
+describe("paletteFor", () => {
+  it("is full night once the sun is 9 degrees down, morning or evening", () => {
+    expect(paletteFor(-9, false)).toEqual(PALETTES.night);
+    expect(paletteFor(-40, true)).toEqual(PALETTES.night);
   });
-  it("hits the keyframes exactly", () => {
-    expect(paletteAt(6.6).skyT).toBe(PALETTES.dawn.skyT);
-    expect(paletteAt(19.1).sunX).toBe(PALETTES.gold.sunX);
+  it("is full day from 12 degrees up", () => {
+    expect(paletteFor(12, true)).toEqual(PALETTES.day);
+    expect(paletteFor(63, false)).toEqual(PALETTES.day);
   });
-  it("puts the sun on the left in the morning and on the right in the evening", () => {
-    expect(paletteAt(10).sunX).toBeLessThan(800);
-    expect(paletteAt(18).sunX).toBeGreaterThan(800);
+  it("shows the sunset look at the evening horizon and dawn at the morning one", () => {
+    expect(paletteFor(0.4, false)).toEqual(PALETTES.gold);
+    expect(paletteFor(0.4, true)).toEqual(PALETTES.dawn);
   });
   it("floodlights the church only after dark", () => {
-    expect(paletteAt(12).flood).toBe(0);
-    expect(paletteAt(22).flood).toBe(1);
+    expect(paletteFor(30, false).flood).toBe(0);
+    expect(paletteFor(-10, false).flood).toBe(1);
   });
-  it("wraps hours outside 0 to 24", () => {
-    expect(paletteAt(26)).toEqual(paletteAt(2));
-    expect(paletteAt(-1)).toEqual(paletteAt(23));
+  it("changes without a jump across a stop", () => {
+    const a = paletteFor(-5.01, false);
+    const b = paletteFor(-4.99, false);
+    expect(Math.abs(a.dark - b.dark)).toBeLessThan(0.01);
   });
 });

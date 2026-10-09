@@ -2,7 +2,10 @@
    Scene space is 1600 x 1000, cropped like "cover". */
 
 import { mix, rgba, rng, smoothstep as sm } from "@/lib/viewfinder/color";
-import { type Palette, paletteAt } from "@/lib/viewfinder/palette";
+import { type Palette, paletteFor } from "@/lib/viewfinder/palette";
+import { SEASONS, seasonOf } from "@/lib/viewfinder/season";
+import { sunAt } from "@/lib/viewfinder/sun";
+import { berlinHour } from "@/lib/viewfinder/time";
 
 type Ctx = CanvasRenderingContext2D;
 type Face = "L" | "M" | "S";
@@ -12,7 +15,7 @@ const at = <T>(a: ArrayLike<T>, i: number): T => a[i] as T;
 const SW = 1600;
 const SH = 1000;
 
-/* ---------- materials (from the reference: red sandstone, slate, clay, plaster; foliage is June) ---------- */
+/* ---------- materials (from the reference: red sandstone, slate, clay, plaster; foliage and fields come from the season table) ---------- */
 const MAT = {
   sand: "#a9523f",
   slate: "#363c4e",
@@ -24,22 +27,66 @@ const MAT = {
   ochre: "#d7c29c",
   pink: "#d2b0a4",
   beam: "#5b3a2a",
-  beech: "#52703d",
-  beech2: "#6f8a46",
-  spruce: "#2b4030",
-  meadow: "#8d9a52",
   win: "#2a2522",
 };
 
 /* ---------- light: one source, shared state while a frame is drawn ---------- */
-let P: Palette = paletteAt(12);
+/* ---------- camera: one fixed bearing and field of view, so the real sun lands where it should ---------- */
+const BEARING = 234;
+const PX_PER_DEG = SW / 75;
+const HORIZON = 584;
+
+let P: Palette = paletteFor(60, false);
+let SEA = SEASONS.summer;
 let D = 0;
+// sun on screen (it may be far outside the frame), which side it lights, and how far to the side it stands
+let SX = 0;
+let SY = 0;
 let SUN = 1;
+let LAT = 1;
+// 1 while the sun is above the horizon
+let UP = 1;
+let AM = false;
+let ALT = 0;
+// backlight: the low sun stands ahead, behind the buildings
+let RIM = 0;
+// lit windows: darkness, less the small hours when people sleep
+let WIN = 0;
+function setLight(when: Date) {
+  const sun = sunAt(when);
+  P = paletteFor(sun.alt, sun.rising);
+  SEA = SEASONS[seasonOf(when)];
+  ALT = sun.alt;
+  // the season's cast on daylight; sunsets and nights keep their own colour
+  const k = SEA.skyK * sm(2, 12, sun.alt);
+  if (k > 0)
+    P = {
+      ...P,
+      skyT: mix(P.skyT, SEA.sky, k * 0.7),
+      skyM: mix(P.skyM, SEA.sky, k),
+      skyH: mix(P.skyH, SEA.sky, k),
+      haze: mix(P.haze, SEA.sky, k),
+      light: mix(P.light, SEA.sky, k),
+      litMix: P.litMix * (1 - k * 0.5),
+    };
+  const d = ((sun.az - BEARING + 540) % 360) - 180;
+  SX = SW / 2 + d * PX_PER_DEG;
+  SY = HORIZON - sun.alt * PX_PER_DEG;
+  SUN = d < 0 ? -1 : 1;
+  LAT = sm(0, 0.35, Math.abs(Math.sin((d * Math.PI) / 180)));
+  UP = sm(-1.5, -0.5, sun.alt);
+  AM = sun.rising;
+  RIM = Math.abs(d) < 60 ? (1 - LAT) * UP * (1 - sm(4, 12, sun.alt)) : 0;
+  const h = berlinHour(when);
+  WIN = P.win * (1 - 0.5 * (sm(0, 1.5, h) - sm(4.5, 6, h)));
+}
 const INK = "#04060c";
 function C(base: string, f: Face): string {
   const L = mix(base, P.light, P.litMix);
   const S = mix(base, P.shadow, P.shadeMix);
-  const c0 = f === "L" ? L : f === "S" ? S : mix(L, S, P.front);
+  // with the sun dead ahead or dead behind, neither side is the lit one
+  const M = mix(L, S, P.front);
+  const c0 = f === "M" ? M : mix(M, f === "L" ? L : S, LAT);
   const c = mix(c0, INK, P.dark);
   return D ? mix(c, P.haze, Math.min(1, D * P.hazeK)) : c;
 }
@@ -95,19 +142,6 @@ function arch(c: Ctx, x: number, y: number, w: number, h: number, col: string) {
   c.closePath();
   c.fill();
 }
-function crown(
-  c: Ctx,
-  x: number,
-  y: number,
-  r: number,
-  sh: string,
-  li: string,
-  mid?: string,
-) {
-  circ(c, x, y, r, sh);
-  if (mid) circ(c, x + SUN * r * 0.12, y - r * 0.12, r * 0.86, mid);
-  circ(c, x + SUN * r * 0.26, y - r * 0.26, r * 0.64, li);
-}
 function line(
   c: Ctx,
   x0: number,
@@ -150,7 +184,8 @@ function sky(c: Ctx) {
   // glow: a wide flat band along the horizon, brightest at the sun
   if (P.glowA > 0.01) {
     c.save();
-    c.translate(P.sunX, P.sunY);
+    // a sun far outside the frame still warms the nearer edge
+    c.translate(Math.max(-300, Math.min(1900, SX)), SY);
     c.scale(1.8, 0.6);
     const R = c.createRadialGradient(0, 0, 0, 0, 0, 640);
     R.addColorStop(0, rgba(mix(P.sun, "#ffffff", 0.4), P.glowA));
@@ -161,22 +196,22 @@ function sky(c: Ctx) {
     c.fillRect(-4000, -9000, 8000, 12000);
     c.restore();
   }
-  if (P.rays > 0.01) {
+  if (P.rays * UP > 0.01) {
     c.save();
     c.globalCompositeOperation = "lighter";
     for (let i = 0; i < 9; i++) {
       const a = -Math.PI * (0.08 + i * 0.1);
       const w = 0.022 + 0.01 * (i % 3);
-      c.fillStyle = rgba(P.sun, 0.035 * P.rays);
+      c.fillStyle = rgba(P.sun, 0.035 * P.rays * UP);
       c.beginPath();
-      c.moveTo(P.sunX, P.sunY);
-      c.arc(P.sunX, P.sunY, 1400, a - w, a + w);
+      c.moveTo(SX, SY);
+      c.arc(SX, SY, 1400, a - w, a + w);
       c.closePath();
       c.fill();
     }
     c.restore();
   }
-  if (P.disc > 0.01) {
+  if (UP > 0.01) {
     // thin bright streaks of cloud close to the sun
     const S: [number, number, number][] = [
       [-190, -46, 150],
@@ -185,20 +220,14 @@ function sky(c: Ctx) {
       [-120, -22, 90],
     ];
     for (const [dx, dy, w] of S) {
-      c.fillStyle = rgba(mix(P.sun, "#ffffff", 0.25), 0.8 * P.disc);
+      c.fillStyle = rgba(mix(P.sun, "#ffffff", 0.25), 0.8 * P.disc * UP);
       c.beginPath();
-      c.ellipse(P.sunX + dx, P.sunY + dy, w, 3.2, 0, 0, 6.3);
+      c.ellipse(SX + dx, SY + dy, w, 3.2, 0, 0, 6.3);
       c.fill();
     }
-    circ(c, P.sunX, P.sunY, 64, rgba(P.sun, 0.3 * P.disc));
-    circ(
-      c,
-      P.sunX,
-      P.sunY,
-      34,
-      rgba(mix(P.sun, "#ffffff", 0.4), 0.55 * P.disc),
-    );
-    circ(c, P.sunX, P.sunY, 17, rgba(mix(P.sun, "#ffffff", 0.6), P.disc));
+    circ(c, SX, SY, 64, rgba(P.sun, 0.3 * UP));
+    circ(c, SX, SY, 34, rgba(mix(P.sun, "#ffffff", 0.4), 0.55 * UP));
+    circ(c, SX, SY, 17, rgba(mix(P.sun, "#ffffff", 0.6), UP));
   }
   if (P.moon > 0.01) {
     const mx = 1290;
@@ -222,7 +251,8 @@ const deckY = (x: number) =>
   358 + 32 * Math.sin(x / 240 + 0.4) + 16 * Math.sin(x / 77) - x * 0.02;
 // how strongly the low sun reaches a spot under the deck: more low down and toward the sun
 const deckK = (x: number, y: number) =>
-  sm(0, 320, y) ** 1.5 * (0.2 + 0.8 * sm(-100, 1300, x));
+  sm(0, 320, y) ** 1.5 *
+  (1 - 0.8 * sm(300, 1500, Math.abs(x - Math.max(-300, Math.min(1900, SX)))));
 function deck(c: Ctx) {
   const r = rng(77);
   const oval = (x: number, y: number, rx: number, ry: number, col: string) => {
@@ -357,7 +387,13 @@ const hillB = (x: number) =>
   56 * sm(1290, 1520, x);
 const hillC = (x: number) =>
   606 + 5 * Math.sin(x / 90 + 1) + 3 * Math.sin(x / 31);
-function range(c: Ctx, f: (x: number) => number, seed: number, bump: number) {
+function range(
+  c: Ctx,
+  f: (x: number) => number,
+  seed: number,
+  bump: number,
+  patches: string[] = [],
+) {
   const r = rng(seed);
   c.beginPath();
   c.moveTo(-100, 1100);
@@ -370,27 +406,47 @@ function range(c: Ctx, f: (x: number) => number, seed: number, bump: number) {
     c.arc(x, f(x) + bump * 0.3, bump * (0.6 + r() * 0.6), 0, 6.3);
     c.fill();
   }
+  // stands of another colour on the slope: conifers in winter, turning trees in autumn
+  for (let i = 0; i < patches.length * 44; i++) {
+    const x = r() * 1800 - 100;
+    const y = f(x) + 6 + r() * 46;
+    c.fillStyle = C(
+      at(patches, (r() * patches.length) | 0),
+      r() < 0.5 ? "S" : "M",
+    );
+    for (let k = 0; k < 3 + r() * 4; k++) {
+      c.beginPath();
+      c.arc(
+        x + (r() - 0.5) * 22,
+        y + (r() - 0.5) * 7,
+        bump * (0.5 + r() * 0.6),
+        0,
+        6.3,
+      );
+      c.fill();
+    }
+  }
 }
 function hills(c: Ctx) {
   D = 0.86;
-  c.fillStyle = C(MAT.beech, "M");
+  c.fillStyle = C(SEA.leaf, "M");
   range(c, hillA, 9, 3);
   D = 0.3;
-  c.fillStyle = C(mix(MAT.beech, MAT.spruce, 0.5), "S");
-  range(c, hillB, 11, 4.5);
+  c.fillStyle = C(SEA.wood, "S");
+  range(c, hillB, 11, 4.5, SEA.patches);
   // village on the slope: pale specks, lit after dark
   const r = rng(13);
   for (let i = 0; i < 170; i++) {
     const x = i < 110 ? 1190 + r() * 400 : r() * 540;
     const top = hillB(x) + 12;
     const y = top + r() * Math.max(4, 612 - top);
-    const on = r() < P.win * 0.8;
+    const on = r() < WIN * 0.8;
     c.fillStyle = on ? "#ffc46b" : C(r() < 0.7 ? MAT.plaster : MAT.clay, "L");
     c.fillRect(x, y, 2 + r() * 3, 1.6 + r());
   }
   D = 0.2;
-  c.fillStyle = C(mix(MAT.beech, MAT.spruce, 0.5), "S");
-  range(c, hillC, 12, 5);
+  c.fillStyle = C(SEA.wood, "S");
+  range(c, hillC, 12, 5, SEA.patches);
 }
 
 /* ---------- valley floor: fields, tree clumps and the lower town, small and hazy ---------- */
@@ -398,8 +454,8 @@ function valley(c: Ctx) {
   const r = rng(51);
   D = 0.42;
   const g = c.createLinearGradient(0, 610, 0, 760);
-  g.addColorStop(0, C(MAT.meadow, "M"));
-  g.addColorStop(1, C(MAT.beech, "S"));
+  g.addColorStop(0, C(SEA.field, "M"));
+  g.addColorStop(1, C(SEA.leaf, "S"));
   c.fillStyle = g;
   c.fillRect(-100, 612, 1900, 500);
   for (let i = 0; i < 9; i++) {
@@ -409,7 +465,7 @@ function valley(c: Ctx) {
     poly(
       c,
       [x, y, x + w, y - 2, x + w + 12, y + 4, x + 8, y + 6],
-      C(i % 2 ? MAT.meadow : MAT.beech2, "L"),
+      C(i % 2 ? SEA.field : SEA.field2, "L"),
     );
   }
   const items: [number, number, number][] = [];
@@ -419,7 +475,8 @@ function valley(c: Ctx) {
     const k = (y - 610) / 130;
     D = 0.42 - k * 0.22;
     if (q < 0.55) {
-      crown(c, x, y, 3 + k * 10, C(MAT.beech, "S"), C(MAT.beech2, "L"));
+      const rr = 3 + k * 10;
+      tree(c, x, y - rr, rr * 2.8, rr * 2.4, (q * 1000) | 0);
       continue;
     }
     const w = (8 + k * 20) * (q > 0.95 ? 3 : 1);
@@ -439,7 +496,7 @@ function valley(c: Ctx) {
         [x - 1, y - h, x + w / 2, y - h * 1.9, x + w + 1, y - h],
         C(q < 0.72 ? MAT.clay : MAT.slate, "M"),
       );
-    if (q * 7 - 4 < P.win) {
+    if (q * 7 - 4 < WIN) {
       c.fillStyle = "#ffc46b";
       c.fillRect(x + w * 0.3, y - h * 0.7, 1.4 + k * 2, 1.4 + k * 2);
     }
@@ -464,7 +521,7 @@ function church(c: Ctx) {
   const sl = MAT.slate;
   const pink = MAT.pink;
   const win = CH(MAT.win, "S", 0.3);
-  const lit = (k: number, b = 0.9) => mix(win, "#ffc46b", P.win > k ? b : 0);
+  const lit = (k: number, b = 0.9) => mix(win, "#ffc46b", WIN > k ? b : 0);
   const cross = (x: number, y: number, h: number) => {
     line(c, x, y, x, y - h, CH(sl, "S"), 3);
     line(
@@ -562,51 +619,55 @@ function church(c: Ctx) {
   arch(c, 458, 494, 14, 56, win);
   course(418, 492, 555, sand);
 
-  // the lighter tower: cream plaster, two gabled faces, slate helm, lantern and vane
+  // the lighter tower: cream plaster, two gabled faces, slate helm, lantern and vane.
+  // The faces meet at x 717; every opening sits on its face's axis, under the gable apex.
   const cream = MAT.cream;
-  rect(c, 638, 535, 797, 1000, CH(cream, side(true), 0.6));
-  rect(c, 718, 535, 797, 1000, CH(cream, side(false), 0.6));
-  poly(c, [676, 445, 702, 400, 727, 400, 756, 445, 717, 534], CH(sl, "M", 0.6));
-  poly(c, [714, 400, 727, 400, 756, 445, 717, 534], CH(sl, side(false), 0.6));
-  poly(c, [632, 540, 676, 443, 720, 540], CH(cream, side(true), 0.6));
-  poly(c, [714, 540, 756, 443, 802, 540], CH(cream, side(false), 0.6));
-  line(c, 631, 541, 676, 441, CH(sl, "S", 0.6), 5);
-  line(c, 676, 441, 717, 534, CH(sl, "S", 0.6), 3);
-  line(c, 717, 534, 756, 441, CH(sl, "S", 0.6), 3);
-  line(c, 756, 441, 803, 541, CH(sl, "L", 0.6), 5);
-  rect(c, 703, 352, 727, 402, CH(sl, "M", 0.6));
-  rect(c, 720, 352, 727, 402, CH(sl, side(false), 0.6));
-  for (let i = 0; i < 3; i++) rect(c, 706 + i * 7, 358, 710 + i * 7, 374, win);
-  poly(c, [695, 354, 715, 300, 735, 354], CH(sl, "M", 0.6));
-  poly(c, [715, 300, 735, 354, 722, 354], CH(sl, side(false), 0.6));
-  line(c, 715, 302, 715, 272, CH(sl, "S"), 1.8);
-  circ(c, 715, 296, 3, CH("#c9a24a", "L"));
-  poly(c, [715, 274, 725, 271, 715, 280], CH(sl, "S"));
+  const AX = [677, 757] as const;
+  rect(c, 637, 535, 797, 1000, CH(cream, side(true), 0.6));
+  rect(c, 717, 535, 797, 1000, CH(cream, side(false), 0.6));
+  poly(c, [677, 445, 705, 400, 729, 400, 757, 445, 717, 534], CH(sl, "M", 0.6));
+  poly(c, [717, 400, 729, 400, 757, 445, 717, 534], CH(sl, side(false), 0.6));
+  poly(c, [632, 540, 677, 443, 722, 540], CH(cream, side(true), 0.6));
+  poly(c, [712, 540, 757, 443, 802, 540], CH(cream, side(false), 0.6));
+  line(c, 631, 541, 677, 441, CH(sl, "S", 0.6), 5);
+  line(c, 677, 441, 717, 534, CH(sl, "S", 0.6), 3);
+  line(c, 717, 534, 757, 441, CH(sl, "S", 0.6), 3);
+  line(c, 757, 441, 803, 541, CH(sl, "L", 0.6), 5);
+  rect(c, 705, 352, 729, 402, CH(sl, "M", 0.6));
+  rect(c, 722, 352, 729, 402, CH(sl, side(false), 0.6));
+  for (let i = 0; i < 3; i++) rect(c, 708 + i * 7, 358, 712 + i * 7, 374, win);
+  poly(c, [697, 354, 717, 300, 737, 354], CH(sl, "M", 0.6));
+  poly(c, [717, 300, 737, 354, 724, 354], CH(sl, side(false), 0.6));
+  line(c, 717, 302, 717, 272, CH(sl, "S"), 1.8);
+  circ(c, 717, 296, 3, CH("#c9a24a", "L"));
+  poly(c, [717, 274, 727, 271, 717, 280], CH(sl, "S"));
   for (const y of [538, 600, 668]) {
-    rect(c, 638, y, 797, y + 4, CH(sand, "S", 0.6));
+    rect(c, 637, y, 797, y + 4, CH(sand, "S", 0.6));
   }
+  // quoins on the three corners
   for (let y = 546; y < 780; y += 16) {
-    rect(c, 714, y, 722, y + 9, CH(sand, "M", 0.6));
+    rect(c, 637, y, 644, y + 9, CH(sand, "M", 0.6));
+    rect(c, 713, y, 721, y + 9, CH(sand, "M", 0.6));
     rect(c, 790, y, 797, y + 9, CH(sand, "M", 0.6));
   }
-  circ(c, 753, 480, 12, CH("#c9a24a", "L", 0.6));
-  circ(c, 753, 480, 9.5, CH("#2a2622", "M", 0.3));
-  line(c, 753, 480, 753, 473, CH("#e8d9a8", "L"), 1.6);
-  line(c, 753, 480, 758, 483, CH("#e8d9a8", "L"), 1.6);
-  circ(c, 676, 482, 7, CH(sand, "S", 0.6));
-  circ(c, 676, 482, 4.5, win);
-  const pair = (x: number, y: number, w: number, h: number, k: number) => {
-    arch(c, x - 3, y - 3, w * 2 + 10, h + 5, CH(sand, "M", 0.6));
-    arch(c, x, y, w, h, lit(k));
-    arch(c, x + w + 4, y, w, h, lit(k));
+  circ(c, AX[1], 480, 12, CH("#c9a24a", "L", 0.6));
+  circ(c, AX[1], 480, 9.5, CH("#2a2622", "M", 0.3));
+  line(c, AX[1], 480, AX[1], 473, CH("#e8d9a8", "L"), 1.6);
+  line(c, AX[1], 480, AX[1] + 5, 483, CH("#e8d9a8", "L"), 1.6);
+  circ(c, AX[0], 482, 7, CH(sand, "S", 0.6));
+  circ(c, AX[0], 482, 4.5, win);
+  const pair = (cx: number, y: number, w: number, h: number, k: number) => {
+    arch(c, cx - w - 5, y - 3, w * 2 + 10, h + 5, CH(sand, "M", 0.6));
+    arch(c, cx - w - 2, y, w, h, lit(k));
+    arch(c, cx + 2, y, w, h, lit(k));
   };
-  pair(652, 503, 13, 28, 2);
-  pair(730, 503, 13, 28, 0.9);
-  pair(650, 558, 14, 34, 0.5);
-  pair(730, 558, 14, 34, 2);
-  arch(c, 742, 606, 22, 44, CH(sand, "M", 0.6));
-  arch(c, 746, 610, 14, 40, win);
-  rect(c, 750, 682, 758, 698, win);
+  pair(AX[0], 503, 13, 28, 2);
+  pair(AX[1], 503, 13, 28, 0.9);
+  pair(AX[0], 558, 14, 34, 0.5);
+  pair(AX[1], 558, 14, 34, 2);
+  arch(c, AX[1] - 11, 606, 22, 44, CH(sand, "M", 0.6));
+  arch(c, AX[1] - 7, 610, 14, 40, win);
+  rect(c, AX[1] - 4, 682, AX[1] + 4, 698, win);
 
   // transept roof between the slim tower and the pair
   poly(c, [248, 720, 248, 610, 298, 584, 316, 604, 316, 720], CH(sl, "M"));
@@ -751,8 +812,53 @@ function church(c: Ctx) {
   c.restore();
 }
 
-/* ---------- trees in leaf: three flat lobes, lit along the sun edge ---------- */
-function tree(c: Ctx, x: number, y: number, w: number, h: number) {
+/* ---------- trees: three flat lobes, lit along the sun edge; bare branches where the season says so ---------- */
+function branches(
+  c: Ctx,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  i: number,
+) {
+  const r = rng(300 + i);
+  const col = C("#3a2c24", "S");
+  const grow = (
+    x0: number,
+    y0: number,
+    a: number,
+    len: number,
+    wd: number,
+    n: number,
+  ) => {
+    const x1 = x0 + Math.sin(a) * len;
+    const y1 = y0 - Math.cos(a) * len;
+    line(c, x0, y0, x1, y1, col, Math.max(1.1, wd));
+    if (n === 0) return;
+    for (const s of [-1, 1])
+      grow(
+        x1,
+        y1,
+        a + s * (0.28 + r() * 0.34),
+        len * (0.62 + r() * 0.14),
+        wd * 0.64,
+        n - 1,
+      );
+  };
+  grow(x, y + h * 0.5, 0, h * 0.42, w * 0.07, h < 40 ? 3 : 5);
+}
+function tree(c: Ctx, x: number, y: number, w: number, h: number, i: number) {
+  // each tree's place in the season: the late ones are bare or thin, the early ones carry the accent colour
+  const u = (i * 0.37 + 0.55) % 1;
+  const bare = u > 1 - SEA.bareK;
+  if (bare) branches(c, x, y, w, h, i);
+  if (SEA.bareK === 1) return;
+  const acc =
+    u < SEA.accentK && w <= SEA.accentMax
+      ? at(SEA.accents, i % SEA.accents.length)
+      : null;
+  const leaf = acc ? mix(acc, SEA.leaf, 0.22) : SEA.leaf;
+  const size = bare ? 0.6 : 1;
   const lobes: [number, number, number, number][] = [
     [-0.27, 0.16, 0.3, 0.3],
     [0.28, 0.2, 0.27, 0.27],
@@ -765,8 +871,8 @@ function tree(c: Ctx, x: number, y: number, w: number, h: number) {
       c.ellipse(
         x + ox * w + dx,
         y + oy * h + dy,
-        rx * w * k,
-        ry * h * k,
+        rx * w * k * size,
+        ry * h * k * size,
         0,
         0,
         6.3,
@@ -774,9 +880,9 @@ function tree(c: Ctx, x: number, y: number, w: number, h: number) {
       c.fill();
     }
   };
-  oval(1, 0, 0, C(MAT.beech2, "L"));
-  oval(0.94, -SUN * w * 0.035, h * 0.03, C(MAT.beech, "M"));
-  oval(0.6, -SUN * w * 0.12, h * 0.14, C(MAT.beech, "S"));
+  oval(1, 0, 0, C(acc ?? SEA.leafLit, "L"));
+  oval(0.94, -SUN * w * 0.035, h * 0.03, C(leaf, "M"));
+  oval(0.6, -SUN * w * 0.12, h * 0.14, C(leaf, "S"));
 }
 
 /* ---------- houses: a roof seen from above, eave to the viewer, gable end to the right unless flipped ---------- */
@@ -809,7 +915,7 @@ function house(c: Ctx, h: House) {
   const r = rng(h.seed);
   const gf = side(!!h.flip);
   const glass = () =>
-    r() < P.win * 0.7 ? "#ffc46b" : mix(C("#3d4654", "S"), P.skyM, 0.12);
+    r() < WIN * 0.7 ? "#ffc46b" : mix(C("#3d4654", "S"), P.skyM, 0.12);
   const beam = C(MAT.beam, "S");
   c.save();
   c.translate(h.flip ? h.x + w * h.k : h.x, h.y);
@@ -1009,13 +1115,27 @@ function town(c: Ctx) {
     [tx + 50, 660, tx + 92, 700, tx + 40, 700],
     C(MAT.slate, side(false)),
   );
+  // trees between the houses and at the edge of the roof field
+  const T: [number, number, number, number][] = [
+    [1262, 668, 56, 60],
+    [1375, 664, 56, 60],
+    [1570, 668, 64, 60],
+    [150, 668, 60, 60],
+    [395, 672, 66, 64],
+    [520, 690, 50, 56],
+  ];
+  T.forEach(([x, y, w, h], i) => {
+    tree(c, x, y, w, h, 10 + i);
+  });
   D = 0.12;
-  tree(c, 1282, 700, 140, 130);
+  tree(c, 1282, 700, 140, 130, 0);
+  tree(c, 1640, 716, 110, 110, 4);
   row(c, 732, 1200, 1700, 0.7, 7);
-  tree(c, 60, 722, 120, 90);
-  tree(c, 468, 740, 110, 120);
+  tree(c, 60, 722, 120, 90, 1);
+  tree(c, 468, 740, 110, 120, 2);
+  tree(c, 215, 716, 64, 66, 5);
   row(c, 742, -60, 390, 0.8, 8);
-  tree(c, 300, 760, 90, 80);
+  tree(c, 300, 760, 90, 80, 3);
 }
 
 /* ---------- foreground roofs, close and cut by the frame ---------- */
@@ -1237,7 +1357,8 @@ function near(c: Ctx) {
 }
 
 function mist(c: Ctx) {
-  if (P.mist < 0.02) return;
+  const k = P.mist * (AM ? SEA.mistAM : 1);
+  if (k < 0.02) return;
   const col = mix(P.haze, "#ffffff", 0.25);
   const M: [number, number, number][] = [
     [600, 660, 0.7],
@@ -1246,7 +1367,7 @@ function mist(c: Ctx) {
   for (const [y0, y1, a] of M) {
     const g = c.createLinearGradient(0, y0, 0, y1);
     g.addColorStop(0, rgba(col, 0));
-    g.addColorStop(0.5, rgba(col, a * P.mist * 0.75));
+    g.addColorStop(0.5, rgba(col, Math.min(1, a * k * 0.75)));
     g.addColorStop(1, rgba(col, 0));
     c.fillStyle = g;
     c.fillRect(-100, y0, 1900, y1 - y0);
@@ -1261,15 +1382,22 @@ interface Layer {
   f: (c: Ctx) => void;
   /** Opacity of the whole layer. */
   a?: () => number;
+  /** Warm outline when the low sun stands behind the layer. */
+  rim?: boolean;
   m?: () => Wash;
 }
 const LAYERS: Layer[] = [
-  { g: 0, f: deck, a: () => P.deckA },
+  { g: 0, f: deck, a: () => P.deckA * (AM ? 1 - sm(0, 4, ALT) : 1) },
   { g: 1, f: hills, m: () => [540, 630, 0, 0.5] },
   { g: 1, f: valley, m: () => [610, 700, 0.3, 0] },
   { g: 1, f: mist },
   { g: 1, f: nightGlow },
-  { g: 2, f: church, m: () => [900, 600, 0.4 * P.flood, 0, "#ffb46e"] },
+  {
+    g: 2,
+    f: church,
+    rim: true,
+    m: () => [900, 600, 0.4 * P.flood, 0, "#ffb46e"],
+  },
   { g: 2, f: town, m: () => [640, 760, 0.25, 0] },
   { g: 2, f: near },
 ];
@@ -1280,18 +1408,21 @@ function details(c: Ctx, t: number) {
   const col = mix(P.haze, "#ffffff", 0.35);
   for (let i = 0; i < 14; i++) {
     const a = (t * 0.09 + i / 14) % 1;
-    c.fillStyle = rgba(col, (1 - a) * (0.34 - P.dark * 0.2));
+    c.fillStyle = rgba(
+      col,
+      (1 - a) * (0.34 - P.dark * 0.2) * Math.min(2, SEA.smoke),
+    );
     c.beginPath();
     c.arc(
       sx + a * a * 70 + Math.sin(a * 7 + i) * 3,
       sy - a * 90,
-      2 + a * 10,
+      (2 + a * 10) * (0.75 + 0.25 * SEA.smoke),
       0,
       6.3,
     );
     c.fill();
   }
-  if (P.dark < 0.4) {
+  if (SEA.swifts && P.dark < 0.4) {
     c.strokeStyle = C("#22242a", "S");
     c.lineWidth = 1.3;
     for (let i = 0; i < 6; i++) {
@@ -1311,7 +1442,8 @@ function details(c: Ctx, t: number) {
 
 /* ---------- mounting ---------- */
 export interface SceneOptions {
-  hour: number;
+  /** The instant to draw: sun, light and season all follow from it. */
+  at: Date;
   /** Scene x that stays in view when the frame is narrower than the drawing. */
   focusX?: number;
   /** Where focusX sits across the visible width, 0 left to 1 right. */
@@ -1322,7 +1454,7 @@ export interface SceneOptions {
 }
 
 export interface Scene {
-  setHour(h: number): void;
+  setTime(d: Date): void;
   /** Starts or stops the animation loop, e.g. when the scene scrolls out of view. */
   setRunning(on: boolean): void;
   destroy(): void;
@@ -1378,9 +1510,10 @@ export function createGelnhausenScene(
     grain.style.backgroundImage = `url(${n.toDataURL()})`;
   }
   const tmp = document.createElement("canvas");
+  const edge = document.createElement("canvas");
   let W = 1;
   let XF: [number, number, number] | null = null;
-  let hour = o.hour;
+  let when = o.at;
 
   function layout() {
     W = el.clientWidth || 1;
@@ -1398,13 +1531,14 @@ export function createGelnhausenScene(
     }
     tmp.width = canvas(0).width;
     tmp.height = canvas(0).height;
+    edge.width = tmp.width;
+    edge.height = tmp.height;
     XF = [DPR * s, DPR * (-left * s), DPR * top];
   }
   function xf(c: Ctx) {
     if (XF) c.setTransform(XF[0], 0, 0, XF[0], XF[1], XF[2]);
   }
   function renderTo(targets: Ctx[], T: HTMLCanvasElement) {
-    SUN = P.sunX < 800 ? -1 : 1;
     for (const c of targets) {
       c.setTransform(1, 0, 0, 1, 0, 0);
       c.clearRect(0, 0, c.canvas.width, c.canvas.height);
@@ -1435,6 +1569,24 @@ export function createGelnhausenScene(
       }
       const T2 = at(targets, L.g);
       T2.setTransform(1, 0, 0, 1, 0, 0);
+      // backlight: the layer's silhouette in sun colour, peeking out a pixel or two on each side
+      const rim = L.rim ? RIM : 0;
+      if (rim > 0.02) {
+        const e = edge.getContext("2d") as Ctx;
+        e.globalCompositeOperation = "copy";
+        e.drawImage(T, 0, 0);
+        e.globalCompositeOperation = "source-in";
+        e.fillStyle = mix(P.sun, "#ff9a3c", 0.4);
+        e.fillRect(0, 0, edge.width, edge.height);
+        const px = (XF?.[0] ?? 1) * 1.4;
+        T2.globalAlpha = rim * 0.85;
+        for (const [dx, dy] of [
+          [-px, 0],
+          [px, 0],
+          [0, -px],
+        ] as const)
+          T2.drawImage(edge, dx, dy);
+      }
       T2.globalAlpha = L.a ? L.a() : 1;
       T2.drawImage(T, 0, 0);
       T2.globalAlpha = 1;
@@ -1442,7 +1594,7 @@ export function createGelnhausenScene(
     D = 0;
   }
   function render() {
-    P = paletteAt(hour);
+    setLight(when);
     renderTo([ctx(0), ctx(2), ctx(3)], tmp);
     // depth of field: the distance slightly soft
     canvas(2).style.filter = `blur(${(W / 2600).toFixed(2)}px)`;
@@ -1492,9 +1644,9 @@ export function createGelnhausenScene(
   render();
   setRunning(true);
   return {
-    setHour(h) {
-      if (h === hour) return;
-      hour = h;
+    setTime(d) {
+      if (d.getTime() === when.getTime()) return;
+      when = d;
       render();
     },
     setRunning,
