@@ -1,7 +1,7 @@
 {
   "home": {
     "metaDescription": "AI engineer in Gelnhausen, Kinzigtal. I build LLM agents and the tools around them.",
-    "sceneLabel": "Drawn view of Gelnhausen from the Kinzig: Marienkirche over the old town, Hexenturm, Büdinger Wald, the Palas ruin in front",
+    "sceneLabel": "Drawn view over the roofs of Gelnhausen from the upper town: the slate spires of the Marienkirche, the valley and wooded hills behind",
     "eyebrow": "AI engineer, Gelnhausen",
     "role": "AI engineer",
     "lede": "I build <b>LLM agents and the tools around them</b>. Freelance and open to roles. I live in the Kinzigtal; the readouts around this frame show what I am working on.",
@@ -109,7 +109,7 @@
     },
     "sample": "SAMPLE DATA",
     "cap1": "ILLUSTRATION, NOT A PHOTO",
-    "cap2": "GELNHAUSEN FROM THE KINZIG",
+    "cap2": "GELNHAUSEN FROM THE UPPER TOWN",
     "peek": {
       "playback": "Playback",
       "mapped": "Work, mapped",
