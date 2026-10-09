@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { MenuAction, MenuTabDef } from "@/lib/viewfinder/menu";
 import { PROJECTS } from "@/lib/viewfinder/projects";
 import { berlinInstant } from "@/lib/viewfinder/time";
+import { PRESETS, type SceneWeather } from "@/lib/weather/weather";
 import { cls } from "./cx";
 import s from "./viewfinder.module.css";
 
@@ -26,6 +27,9 @@ export function useViewfinder() {
   const pathname = usePathname();
 
   const [at, setAt] = useState<Date | null>(null);
+  const [weatherOverride, setWeatherOverride] = useState<SceneWeather | null>(
+    null,
+  );
   const [onlyMap, setOnlyMap] = useState(false);
   const [mode, setMode] = useState<DisplayMode>(0);
   const [shots, setShots] = useState(1284);
@@ -36,12 +40,15 @@ export function useViewfinder() {
   const [mapReady, setMapReady] = useState(false);
   const curtainRef = useRef<HTMLDivElement | null>(null);
 
-  // light follows the real sun now; ?time=HH[:MM] and ?date=YYYY-MM-DD (Berlin local) pin it, ?state= opens a view for review
+  // light follows the real sun now; ?time=HH[:MM] and ?date=YYYY-MM-DD (Berlin local) pin it, ?weather= fixes the weather, ?state= opens a view for review
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
     const time = q.get("time");
     const date = q.get("date");
     setAt(berlinInstant(date, time, new Date()));
+    const w = q.get("weather");
+    if (w && w in PRESETS)
+      setWeatherOverride(PRESETS[w as keyof typeof PRESETS]);
     const timers: number[] = [];
     if (!time && !date)
       timers.push(window.setInterval(() => setAt(new Date()), 60000));
@@ -174,6 +181,7 @@ export function useViewfinder() {
 
   return {
     at,
+    weatherOverride,
     onlyMap,
     mode,
     cycleMode,

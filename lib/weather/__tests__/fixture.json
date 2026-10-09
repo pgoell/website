@@ -1,0 +1,35 @@
+{
+  "latitude": 50.19868,
+  "longitude": 9.182948,
+  "generationtime_ms": 0.69,
+  "utc_offset_seconds": 7200,
+  "timezone": "Europe/Berlin",
+  "timezone_abbreviation": "GMT+2",
+  "elevation": 137.0,
+  "current_units": {
+    "time": "iso8601",
+    "interval": "seconds",
+    "temperature_2m": "°C",
+    "cloud_cover": "%",
+    "weather_code": "wmo code",
+    "precipitation": "mm",
+    "rain": "mm",
+    "snowfall": "cm",
+    "snow_depth": "m",
+    "wind_speed_10m": "km/h",
+    "wind_direction_10m": "°"
+  },
+  "current": {
+    "time": "2026-10-09T16:45",
+    "interval": 900,
+    "temperature_2m": 11.0,
+    "cloud_cover": 100,
+    "weather_code": 61,
+    "precipitation": 0.3,
+    "rain": 0.3,
+    "snowfall": 0.0,
+    "snow_depth": 0.0,
+    "wind_speed_10m": 16.6,
+    "wind_direction_10m": 222
+  }
+}

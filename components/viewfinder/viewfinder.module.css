@@ -225,18 +225,6 @@
 .bat b.o {
   background: transparent;
 }
-.sample {
-  position: absolute;
-  top: 46px;
-  left: 50%;
-  transform: translateX(-50%);
-  font: 600 10px / 1 var(--semi);
-  letter-spacing: 0.16em;
-  color: #111;
-  background: var(--sony);
-  padding: 3px 7px;
-  text-shadow: none;
-}
 .corner {
   position: absolute;
   width: 22px;
@@ -1525,11 +1513,6 @@ a.trk {
   }
   .ro.big .v {
     font-size: 21px;
-  }
-  .sample {
-    top: 44px;
-    left: 0;
-    transform: none;
   }
   .ticks {
     width: 120px;

@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { GithubStats } from "@/lib/stats/github";
 import { berlinZoneName, sinceLabel, TIME_ZONE } from "@/lib/viewfinder/time";
+import { conditionOf, type SceneWeather } from "@/lib/weather/weather";
 import { cls, cx } from "./cx";
 import { GelnhausenScene } from "./gelnhausen-scene";
 import {
@@ -17,6 +18,9 @@ import s from "./viewfinder.module.css";
 
 interface Props {
   at: Date | null;
+  /** Degrees Celsius, null when the weather is unavailable. */
+  temperature: number | null;
+  weather: SceneWeather | null;
   mode: DisplayMode;
   shots: number;
   onShoot: (target: string) => void;
@@ -32,6 +36,8 @@ type Guide = { text: string; key: string } | null;
 /** The viewfinder: the Gelnhausen scene with the camera's on-screen display over it. */
 export function Evf({
   at,
+  temperature,
+  weather,
   mode,
   shots,
   onShoot,
@@ -249,6 +255,7 @@ export function Evf({
     >
       <GelnhausenScene
         at={at}
+        weather={weather}
         hostRef={sceneRef}
         className={s.scene}
         label={t("sceneLabel")}
@@ -302,9 +309,15 @@ export function Evf({
                 <svg className={s.i} viewBox="0 0 16 16" aria-hidden="true">
                   <path d="M4.5 12.5h7.2a2.8 2.8 0 0 0 .3-5.6 3.8 3.8 0 0 0-7.3.8 2.4 2.4 0 0 0-.2 4.8z" />
                 </svg>
-                13°
+                {temperature === null ? "--" : `${Math.round(temperature)}°`}
               </div>
-              <div className={s.l}>{t("ro.weather.l")}</div>
+              <div className={s.l}>
+                {t("ro.weather.l", {
+                  cond: weather
+                    ? t(`ro.weather.c.${conditionOf(weather)}`)
+                    : "--",
+                })}
+              </div>
             </div>
             <div className={s.ro} {...ro("pomodoro")}>
               <div className={s.v}>
@@ -324,7 +337,6 @@ export function Evf({
             </div>
           </div>
         </div>
-        <div className={s.sample}>{t("sample")}</div>
         <div className={cx(s.corner, s.c1)} />
         <div className={cx(s.corner, s.c2)} />
         <div className={cx(s.corner, s.c3)} />
