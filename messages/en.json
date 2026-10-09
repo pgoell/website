@@ -68,10 +68,10 @@
         "l": "{zone} local"
       },
       "commits": {
-        "g": "GitHub contributions over the last 64 days, one bar per day. Live.",
+        "g": "GitHub contributions over the last 52 weeks, one bar per week. Live.",
         "k": "Commits",
         "hd": "COMMITS",
-        "span": "64D"
+        "span": "52W"
       },
       "playing": {
         "g": "Music corner and bookshelf: what plays on Spotify right now, or played last, and what I am reading. The book is a sample.",
@@ -409,7 +409,7 @@
         },
         "histogram": {
           "t": "Histogram",
-          "v": "commits, 64 days"
+          "v": "commits, 52 weeks"
         },
         "language": {
           "t": "Language",

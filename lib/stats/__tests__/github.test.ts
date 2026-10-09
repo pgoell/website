@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { contributionDays, languageShares } from "../github";
+import { contributionWeeks, languageShares } from "../github";
 
 const repo = (language: string | null, size: number, fork = false) => ({
   language,
@@ -28,13 +28,13 @@ describe("languageShares", () => {
   });
 });
 
-describe("contributionDays", () => {
+describe("contributionWeeks", () => {
   const cell = (date: string, id: string) =>
     `<td tabindex="0" data-date="${date}" id="${id}" data-level="2" class="ContributionCalendar-day"></td>`;
   const tip = (id: string, text: string) =>
     `<tool-tip id="tooltip-${id}" for="${id}" class="sr-only">${text}</tool-tip>`;
 
-  it("pairs cells with their tooltips and orders by date", () => {
+  it("pairs cells with their tooltips and sums a week", () => {
     const html = [
       cell("2026-10-09", "c-5-52"),
       tip("c-5-52", "171 contributions on October 9th."),
@@ -43,11 +43,11 @@ describe("contributionDays", () => {
       cell("2026-10-08", "c-4-52"),
       tip("c-4-52", "1 contribution on October 8th."),
     ].join("\n");
-    expect(contributionDays(html)).toEqual([0, 1, 171]);
+    expect(contributionWeeks(html)).toEqual([172]);
   });
 
-  it("keeps the last 64 days", () => {
-    const html = Array.from({ length: 70 }, (_, i) => {
+  it("keeps the last 52 weeks, the last one ending on the last day", () => {
+    const html = Array.from({ length: 370 }, (_, i) => {
       const date = new Date(Date.UTC(2026, 0, 1 + i))
         .toISOString()
         .slice(0, 10);
@@ -55,13 +55,13 @@ describe("contributionDays", () => {
         cell(date, `c-${i}`) + tip(`c-${i}`, `${i} contributions on a day.`)
       );
     }).join("");
-    const days = contributionDays(html);
-    expect(days).toHaveLength(64);
-    expect(days[0]).toBe(6);
-    expect(days[63]).toBe(69);
+    const weeks = contributionWeeks(html);
+    expect(weeks).toHaveLength(52);
+    expect(weeks[0]).toBe(6 + 7 + 8 + 9 + 10 + 11 + 12);
+    expect(weeks[51]).toBe(363 + 364 + 365 + 366 + 367 + 368 + 369);
   });
 
   it("returns nothing for a page without a calendar", () => {
-    expect(contributionDays("<html></html>")).toEqual([]);
+    expect(contributionWeeks("<html></html>")).toEqual([]);
   });
 });
