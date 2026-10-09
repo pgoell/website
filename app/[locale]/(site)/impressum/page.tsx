@@ -10,10 +10,7 @@ export default async function ImpressumPage() {
         <p className="text-muted-foreground">{t("basis")}</p>
       </div>
 
-      <address className="whitespace-pre-line not-italic">
-        Pascal Göllner{"\n"}
-        {t("address")}
-      </address>
+      <p>Pascal Göllner</p>
 
       <div className="space-y-2">
         <h2 className="text-xl font-semibold">{t("contact")}</h2>
