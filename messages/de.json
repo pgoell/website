@@ -178,6 +178,7 @@
       "games": "Spiele",
       "tools": "Tools",
       "impressum": "Impressum",
+      "datenschutz": "Datenschutz",
       "place": "Gelnhausen, Kinzigtal",
       "language": "English"
     },
@@ -587,5 +588,75 @@
     "email": "E-Mail",
     "responsible": "Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV: Pascal Göllner, Anschrift wie oben",
     "private": "Dies ist eine private Website ohne kommerzielle Absicht."
+  },
+  "datenschutz": {
+    "link": "Datenschutz",
+    "title": "Datenschutzerklärung",
+    "date": "Stand: Oktober 2026",
+    "controller": "1. Verantwortlicher",
+    "private": "pgoell.com ist eine private Website ohne kommerzielle Absicht. Ein Datenschutzbeauftragter ist nicht benannt und nicht vorgeschrieben.",
+    "sections": [
+      {
+        "title": "2. Was diese Website ist",
+        "text": [
+          "pgoell.com zeigt Texte, kleine Spiele und Werkzeuge. Es gibt kein Benutzerkonto, kein Kontaktformular und keine Kommentare. Es gibt keine Analyse- oder Tracking-Werkzeuge und keine Werbung.",
+          "Wenn Sie mir eine E-Mail schreiben, nutze ich Ihre Angaben nur, um Ihnen zu antworten (Art. 6 Abs. 1 lit. f DSGVO)."
+        ]
+      },
+      {
+        "title": "3. Aufruf der Website",
+        "text": [
+          "Beim Aufruf jeder Seite verarbeitet der Server technisch notwendige Daten: IP-Adresse, Datum und Uhrzeit, aufgerufene Adresse und Browser-Kennung (User-Agent). Ohne diese Daten kann er die Seite nicht ausliefern. Der Server führt kein Zugriffsprotokoll.",
+          "Fehlermeldungen des Servers können die IP-Adresse enthalten. Sie dienen allein der Fehlersuche und der Sicherheit des Servers. Ich werte sie nicht aus, um Personen zu erkennen, und führe sie nicht mit anderen Daten zusammen.",
+          "Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Das berechtigte Interesse liegt darin, die Seite sicher und fehlerfrei auszuliefern."
+        ]
+      },
+      {
+        "title": "4. Cookie",
+        "text": [
+          "Die Website setzt ein Cookie namens „NEXT_LOCALE“. Es merkt sich die gewählte Sprache und verfällt, wenn Sie den Browser schließen. Es ist technisch notwendig und braucht nach § 25 Abs. 2 Nr. 2 TDDDG keine Einwilligung. Weitere Cookies setzt die Website nicht."
+        ]
+      },
+      {
+        "title": "5. Speicher in Ihrem Browser",
+        "text": [
+          "Einige Seiten legen Daten im lokalen Speicher Ihres Browsers (localStorage) ab: das gewählte Farbschema, Spielstand und Tastatur-Einstellung von Wordle, die Tastatur-Einstellung des Wordle-Lösers, den Spielstand von Kniffel sowie Stand und Statistik des Pomodoro-Timers.",
+          "Diese Daten bleiben auf Ihrem Gerät und gehen nie an den Server. Sie sind nötig, damit die Funktion arbeitet, die Sie aufrufen (§ 25 Abs. 2 Nr. 2 TDDDG). Sie können sie jederzeit in den Einstellungen Ihres Browsers löschen."
+        ]
+      },
+      {
+        "title": "6. Hosting",
+        "text": [
+          "Die Website läuft auf einem Server der Hetzner Online GmbH, Industriestr. 25, 91710 Gunzenhausen, in einem Rechenzentrum in Deutschland. Mit Hetzner besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO."
+        ]
+      },
+      {
+        "title": "7. Cloudflare",
+        "text": [
+          "Alle Anfragen an pgoell.com laufen über das Netzwerk der Cloudflare, Inc., 101 Townsend St., San Francisco, CA 94107, USA. Cloudflare leitet die Anfragen an den Server weiter, schützt ihn vor Angriffen und verschlüsselt die Verbindung. Dabei verarbeitet Cloudflare die unter Punkt 3 genannten Verbindungsdaten. Scheitert eine Verbindung, kann Ihr Browser einen Fehlerbericht an Cloudflare senden.",
+          "Cloudflare verschleiert außerdem E-Mail-Adressen im Seitentext zum Schutz vor Spam und fügt dafür ein kleines Skript ein. Es kommt von pgoell.com und speichert nichts auf Ihrem Gerät.",
+          "Cloudflare ist unter dem EU-US Data Privacy Framework zertifiziert. Eine Übermittlung in die USA ist damit nach Art. 45 DSGVO zulässig. Mit Cloudflare besteht ein Vertrag zur Auftragsverarbeitung. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Das berechtigte Interesse liegt im Schutz und in der Erreichbarkeit der Seite."
+        ]
+      },
+      {
+        "title": "8. Schriften und externe Inhalte",
+        "text": [
+          "Die Website lädt keine Schriften, Skripte oder Bilder von fremden Servern. Verweise auf andere Websites, zum Beispiel GitHub, LinkedIn und X, sind einfache Links. Die andere Seite erfährt erst von Ihnen, wenn Sie den Link anklicken."
+        ]
+      },
+      {
+        "title": "9. Ihre Rechte",
+        "text": [
+          "Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch gegen Verarbeitungen auf Grundlage von Art. 6 Abs. 1 lit. f (Art. 21). Eine E-Mail an die oben genannte Adresse genügt.",
+          "Sie können sich außerdem bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel beim Hessischen Beauftragten für Datenschutz und Informationsfreiheit, Postfach 3163, 65021 Wiesbaden, datenschutz.hessen.de."
+        ]
+      },
+      {
+        "title": "10. Änderungen",
+        "text": [
+          "Wenn die Website etwas Neues mit Daten tut, passe ich diese Erklärung vorher an."
+        ]
+      }
+    ]
   }
 }

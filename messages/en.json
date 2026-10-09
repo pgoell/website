@@ -178,6 +178,7 @@
       "games": "Games",
       "tools": "Tools",
       "impressum": "Legal notice",
+      "datenschutz": "Privacy",
       "place": "Gelnhausen, Kinzigtal",
       "language": "Deutsch"
     },
@@ -587,5 +588,75 @@
     "email": "Email",
     "responsible": "Responsible for the content under § 18 Abs. 2 MStV: Pascal Göllner, address as above",
     "private": "This is a private, non-commercial website."
+  },
+  "datenschutz": {
+    "link": "Privacy",
+    "title": "Privacy notice",
+    "date": "Last updated: October 2026",
+    "controller": "1. Controller",
+    "private": "pgoell.com is a private, non-commercial website. There is no data protection officer, and the law does not require one.",
+    "sections": [
+      {
+        "title": "2. What this website is",
+        "text": [
+          "pgoell.com shows writing, small games and tools. There are no user accounts, no contact form and no comments. There are no analytics or tracking tools and no ads.",
+          "If you send me an email, I use what you write only to answer you (Art. 6(1)(f) GDPR)."
+        ]
+      },
+      {
+        "title": "3. Visiting the website",
+        "text": [
+          "Each time you open a page, the server handles the data it needs to answer: IP address, date and time, the address you asked for and your browser's user agent. Without this data it cannot send the page. The server keeps no access log.",
+          "Server error messages may contain the IP address. I use them only to find faults and keep the server safe. I do not use them to identify people and do not combine them with other data.",
+          "The legal basis is Art. 6(1)(f) GDPR. The legitimate interest is to deliver the site safely and without faults."
+        ]
+      },
+      {
+        "title": "4. Cookie",
+        "text": [
+          "The website sets one cookie named \"NEXT_LOCALE\". It remembers the language you chose and expires when you close the browser. It is technically necessary and needs no consent under § 25(2) no. 2 TDDDG. The website sets no other cookies."
+        ]
+      },
+      {
+        "title": "5. Storage in your browser",
+        "text": [
+          "Some pages keep data in your browser's local storage (localStorage): the colour theme you chose, the game state and keyboard setting of Wordle, the keyboard setting of the Wordle solver, the game state of Kniffel, and the state and statistics of the Pomodoro timer.",
+          "This data stays on your device and never goes to the server. The feature you open needs it to work (§ 25(2) no. 2 TDDDG). You can delete it at any time in your browser settings."
+        ]
+      },
+      {
+        "title": "6. Hosting",
+        "text": [
+          "The website runs on a server of Hetzner Online GmbH, Industriestr. 25, 91710 Gunzenhausen, Germany, in a data centre in Germany. A data processing agreement under Art. 28 GDPR is in place with Hetzner."
+        ]
+      },
+      {
+        "title": "7. Cloudflare",
+        "text": [
+          "All requests to pgoell.com pass through the network of Cloudflare, Inc., 101 Townsend St., San Francisco, CA 94107, USA. Cloudflare forwards the requests to the server, shields it from attacks and encrypts the connection. In doing so, Cloudflare handles the connection data named in section 3. If a connection fails, your browser may send an error report to Cloudflare.",
+          "Cloudflare also hides email addresses in the page text from spam robots and adds a small script to do so. The script comes from pgoell.com and stores nothing on your device.",
+          "Cloudflare is certified under the EU-US Data Privacy Framework, so a transfer to the USA is allowed under Art. 45 GDPR. A data processing agreement is in place with Cloudflare. The legal basis is Art. 6(1)(f) GDPR. The legitimate interest is to keep the site safe and reachable."
+        ]
+      },
+      {
+        "title": "8. Fonts and external content",
+        "text": [
+          "The website loads no fonts, scripts or images from other servers. References to other websites, such as GitHub, LinkedIn and X, are plain links. The other site learns of you only when you click the link."
+        ]
+      },
+      {
+        "title": "9. Your rights",
+        "text": [
+          "You have the right of access (Art. 15 GDPR), to rectification (Art. 16), to erasure (Art. 17), to restriction of processing (Art. 18), to data portability (Art. 20) and to object to processing based on Art. 6(1)(f) (Art. 21). An email to the address above is enough.",
+          "You can also complain to a data protection supervisory authority, for example Der Hessische Beauftragte für Datenschutz und Informationsfreiheit, Postfach 3163, 65021 Wiesbaden, Germany, datenschutz.hessen.de."
+        ]
+      },
+      {
+        "title": "10. Changes",
+        "text": [
+          "Before the website does anything new with data, I will update this notice."
+        ]
+      }
+    ]
   }
 }
