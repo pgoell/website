@@ -348,7 +348,7 @@ export function Evf({
               <span>{t("ro.commits.hd")}</span>
               <span>{t("ro.commits.span")}</span>
             </div>
-            <CommitHistogram days={github?.days} />
+            <CommitHistogram weeks={github?.weeks} />
           </div>
           <div className={cx(s.box, s.ro)} {...ro("playing")}>
             <div className={s.hd}>

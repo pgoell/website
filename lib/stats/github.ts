@@ -1,12 +1,12 @@
-/** GitHub stats for the home page: contributions per day, last push, languages. */
+/** GitHub stats for the home page: contributions per week, last push, languages. */
 
 const LOGIN = "pgoell";
-const DAYS = 64;
+const WEEKS = 52;
 const HOUR = 3600;
 
 export interface GithubStats {
-  /** Contributions per day, oldest first, the last 64 days. */
-  days: number[];
+  /** Contributions per week, oldest first, the last 52 weeks. */
+  weeks: number[];
   lastPush: { repo: string; sha: string; at: string } | null;
   /** Share of public code by language, largest first, top five. */
   languages: { name: string; share: number }[];
@@ -29,8 +29,9 @@ interface PushEvent {
 /**
  * Reads the public profile calendar: each day is a cell with a date and an id,
  * and a tooltip for that id carries the count ("12 contributions on …").
+ * Returns sums over seven days, the last week ending today.
  */
-export function contributionDays(html: string): number[] {
+export function contributionWeeks(html: string): number[] {
   const counts = new Map<string, number>();
   for (const m of html.matchAll(/<tool-tip[^>]*\bfor="([^"]+)"[^>]*>(\d*)/g))
     counts.set(m[1] as string, Number(m[2]));
@@ -40,10 +41,14 @@ export function contributionDays(html: string): number[] {
     const id = /\bid="([^"]+)"/.exec(cell)?.[1];
     if (date && id) days.push([date, counts.get(id) ?? 0]);
   }
-  return days
+  const last = days
     .sort((a, b) => a[0].localeCompare(b[0]))
-    .slice(-DAYS)
+    .slice(-WEEKS * 7)
     .map((d) => d[1]);
+  const weeks: number[] = [];
+  for (let i = last.length; i > 0; i -= 7)
+    weeks.unshift(last.slice(Math.max(0, i - 7), i).reduce((a, b) => a + b, 0));
+  return weeks;
 }
 
 /** Weighs each repo's main language by repo size and returns the top five shares. */
@@ -79,11 +84,11 @@ export async function getGithubStats(): Promise<GithubStats | null> {
         `https://api.github.com/users/${LOGIN}/repos?type=owner&per_page=100`,
       ).then((r) => r.json() as Promise<Repo[]>),
     ]);
-    const days = contributionDays(html);
-    if (!days.length) return null;
+    const weeks = contributionWeeks(html);
+    if (!weeks.length) return null;
     const push = events.find((e) => e.type === "PushEvent");
     return {
-      days,
+      weeks,
       lastPush: push?.payload.head
         ? {
             repo: push.repo.name.replace(`${LOGIN}/`, ""),

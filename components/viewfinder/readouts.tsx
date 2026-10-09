@@ -8,8 +8,8 @@ import s from "./viewfinder.module.css";
 const reducedMotion = () =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/** Commit histogram: 64 days, one bar per day. A sample shape until real days arrive. */
-export function CommitHistogram({ days }: { days?: number[] }) {
+/** Commit histogram: 52 weeks, one bar per week. A sample shape until real weeks arrive. */
+export function CommitHistogram({ weeks }: { weeks?: number[] }) {
   const ref = useRef<HTMLCanvasElement | null>(null);
   useEffect(() => {
     const c = ref.current;
@@ -21,19 +21,19 @@ export function CommitHistogram({ days }: { days?: number[] }) {
     x.fillStyle = "rgba(255,255,255,.16)";
     for (const k of [1, 2, 3]) x.fillRect(Math.round((W * k) / 4), 0, 1, H);
     x.fillStyle = "rgba(255,255,255,.9)";
-    const max = days ? Math.max(1, ...days) : 1;
-    for (let i = 0; i < 64; i++) {
+    const max = weeks ? Math.max(1, ...weeks) : 1;
+    for (let i = 0; i < 52; i++) {
       const wk = i % 7 > 4 ? 0.25 : 1;
-      const v = days
-        ? Math.sqrt((days[i] ?? 0) / max)
+      const v = weeks
+        ? Math.sqrt((weeks[i] ?? 0) / max)
         : Math.max(
             0,
-            (Math.sin(i / 6) + 1.2) * r() * wk * 0.5 + (i > 52 ? 0.35 : 0),
+            (Math.sin(i / 6) + 1.2) * r() * wk * 0.5 + (i > 42 ? 0.35 : 0),
           );
       const bh = Math.min(1, v) * (H - 6);
-      x.fillRect(2 + i * 5.08, H - bh, 3.6, bh);
+      x.fillRect(2 + i * 6.25, H - bh, 4.4, bh);
     }
-  }, [days]);
+  }, [weeks]);
   return <canvas ref={ref} className={s.hist} width={328} height={100} />;
 }
 

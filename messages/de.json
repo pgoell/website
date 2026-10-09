@@ -68,10 +68,10 @@
         "l": "{zone} Ortszeit"
       },
       "commits": {
-        "g": "GitHub-Beiträge der letzten 64 Tage, ein Balken pro Tag. Live.",
+        "g": "GitHub-Beiträge der letzten 52 Wochen, ein Balken pro Woche. Live.",
         "k": "Commits",
         "hd": "COMMITS",
-        "span": "64T"
+        "span": "52W"
       },
       "playing": {
         "g": "Musikecke und Bücherregal: was gerade auf Spotify läuft oder zuletzt lief, und was ich lese. Das Buch ist ein Beispiel.",
@@ -409,7 +409,7 @@
         },
         "histogram": {
           "t": "Histogramm",
-          "v": "Commits, 64 Tage"
+          "v": "Commits, 52 Wochen"
         },
         "language": {
           "t": "Sprache",
