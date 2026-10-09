@@ -199,32 +199,6 @@
   stroke-width: 1.6;
   flex: none;
 }
-.bat {
-  display: inline-flex;
-  gap: 1.5px;
-  border: 1.5px solid var(--ink);
-  padding: 1.5px;
-  border-radius: 1.5px;
-  position: relative;
-  margin-right: 4px;
-}
-.bat::after {
-  content: "";
-  position: absolute;
-  right: -4.5px;
-  top: 3px;
-  width: 2.5px;
-  height: 5px;
-  background: var(--ink);
-}
-.bat b {
-  width: 4px;
-  height: 7px;
-  background: var(--ink);
-}
-.bat b.o {
-  background: transparent;
-}
 .corner {
   position: absolute;
   width: 22px;
