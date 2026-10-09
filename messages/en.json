@@ -177,6 +177,7 @@
       "blog": "Blog",
       "games": "Games",
       "tools": "Tools",
+      "impressum": "Legal notice",
       "place": "Gelnhausen, Kinzigtal",
       "language": "Deutsch"
     },
@@ -577,5 +578,14 @@
       "breakRatio": "Optimal Work-Break Ratios (Bailey, 2017)",
       "breakRatioDesc": "Most productive people spend 20\u201325% of their workday on breaks. Break quality matters as much as duration."
     }
+  },
+  "impressum": {
+    "title": "Legal notice",
+    "basis": "Information required by § 5 DDG",
+    "address": "__ADDRESS__",
+    "contact": "Contact",
+    "email": "Email",
+    "responsible": "Responsible for the content under § 18 Abs. 2 MStV: Pascal Göllner, address as above",
+    "private": "This is a private, non-commercial website."
   }
 }
