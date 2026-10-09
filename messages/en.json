@@ -599,7 +599,7 @@
         "title": "2. What this website is",
         "text": [
           "pgoell.com shows writing, small games and tools. There are no user accounts, no contact form and no comments. There are no analytics or tracking tools and no ads.",
-          "If you send me an email, I use what you write only to answer you (Art. 6(1)(f) GDPR)."
+          "If you send me an email, I use what you write only to answer you (Art. 6(1)(f) GDPR). Cloudflare receives the email and forwards it to my mailbox (see section 7)."
         ]
       },
       {
