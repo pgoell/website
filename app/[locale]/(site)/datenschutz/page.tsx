@@ -16,8 +16,6 @@ export default async function DatenschutzPage() {
         <h2 className="text-xl font-semibold">{t("controller")}</h2>
         <address className="whitespace-pre-line not-italic">
           Pascal Göllner{"\n"}
-          {ti("address")}
-          {"\n"}
           {ti("email")}:{" "}
           <a href="mailto:hello@pgoell.com" className="hover:underline">
             hello@pgoell.com

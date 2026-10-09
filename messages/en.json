@@ -583,10 +583,9 @@
   "impressum": {
     "title": "Legal notice",
     "basis": "Information required by § 5 DDG",
-    "address": "__ADDRESS__",
     "contact": "Contact",
     "email": "Email",
-    "responsible": "Responsible for the content under § 18 Abs. 2 MStV: Pascal Göllner, address as above",
+    "responsible": "Responsible for the content under § 18 Abs. 2 MStV: Pascal Göllner",
     "private": "This is a private, non-commercial website."
   },
   "datenschutz": {

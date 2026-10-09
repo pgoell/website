@@ -583,10 +583,9 @@
   "impressum": {
     "title": "Impressum",
     "basis": "Angaben gemäß § 5 DDG",
-    "address": "__ADDRESS__",
     "contact": "Kontakt",
     "email": "E-Mail",
-    "responsible": "Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV: Pascal Göllner, Anschrift wie oben",
+    "responsible": "Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV: Pascal Göllner",
     "private": "Dies ist eine private Website ohne kommerzielle Absicht."
   },
   "datenschutz": {
