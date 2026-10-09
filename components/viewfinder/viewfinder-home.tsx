@@ -69,8 +69,7 @@ export function ViewfinderHome({
         {t("peek.map").replace(" ▾", "")}
       </a>
       <Evf
-        hour={vf.hour}
-        timeOverride={vf.timeOverride}
+        at={vf.at}
         mode={vf.mode}
         shots={vf.shots}
         onShoot={vf.shoot}

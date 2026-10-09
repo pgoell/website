@@ -1,22 +1,34 @@
 import { describe, expect, it } from "vitest";
-import {
-  berlinHour,
-  berlinZoneName,
-  formatHour,
-  parseTimeOverride,
-  sinceLabel,
-} from "../time";
+import { berlinHour, berlinInstant, berlinZoneName, sinceLabel } from "../time";
 
-describe("parseTimeOverride", () => {
-  it("returns null without a value", () => {
-    expect(parseTimeOverride(null)).toBeNull();
+describe("berlinInstant", () => {
+  const now = new Date("2026-07-01T10:15:00Z");
+  it("keeps now when nothing is given", () => {
+    expect(berlinInstant(null, null, now).toISOString()).toBe(
+      "2026-07-01T10:15:00.000Z",
+    );
   });
-  it("parses hours and minutes", () => {
-    expect(parseTimeOverride("21")).toBe(21);
-    expect(parseTimeOverride("6:30")).toBe(6.5);
+  it("reads the time as Berlin local on today's date", () => {
+    expect(berlinInstant(null, "21", now).toISOString()).toBe(
+      "2026-07-01T19:00:00.000Z",
+    );
+    expect(berlinInstant(null, "6:30", now).toISOString()).toBe(
+      "2026-07-01T04:30:00.000Z",
+    );
   });
-  it("treats junk as midnight", () => {
-    expect(parseTimeOverride("abc")).toBe(0);
+  it("uses CET for a winter date even when now is in summer", () => {
+    expect(berlinInstant("2026-12-21", "16:00", now).toISOString()).toBe(
+      "2026-12-21T15:00:00.000Z",
+    );
+    expect(berlinInstant("2026-12-21", null, now).toISOString()).toBe(
+      "2026-12-21T11:15:00.000Z",
+    );
+  });
+  it("uses CEST for a summer date when now is in winter", () => {
+    const winter = new Date("2026-01-15T08:00:00Z");
+    expect(berlinInstant("2026-06-21", "23:00", winter).toISOString()).toBe(
+      "2026-06-21T21:00:00.000Z",
+    );
   });
 });
 
@@ -28,14 +40,6 @@ describe("berlinHour", () => {
   it("uses CET in winter", () => {
     expect(berlinHour(new Date("2026-01-15T23:30:00Z"))).toBe(0.5);
     expect(berlinZoneName(new Date("2026-01-15T23:30:00Z"))).toBe("CET");
-  });
-});
-
-describe("formatHour", () => {
-  it("pads and rounds", () => {
-    expect(formatHour(6.5)).toBe("06:30");
-    expect(formatHour(21)).toBe("21:00");
-    expect(formatHour(12.9999)).toBe("13:00");
   });
 });
 

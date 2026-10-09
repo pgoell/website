@@ -3,12 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { GithubStats } from "@/lib/stats/github";
-import {
-  berlinZoneName,
-  formatHour,
-  sinceLabel,
-  TIME_ZONE,
-} from "@/lib/viewfinder/time";
+import { berlinZoneName, sinceLabel, TIME_ZONE } from "@/lib/viewfinder/time";
 import { cls, cx } from "./cx";
 import { GelnhausenScene } from "./gelnhausen-scene";
 import {
@@ -21,8 +16,7 @@ import type { DisplayMode } from "./use-viewfinder";
 import s from "./viewfinder.module.css";
 
 interface Props {
-  hour: number | null;
-  timeOverride: number | null;
+  at: Date | null;
   mode: DisplayMode;
   shots: number;
   onShoot: (target: string) => void;
@@ -37,8 +31,7 @@ type Guide = { text: string; key: string } | null;
 
 /** The viewfinder: the Gelnhausen scene with the camera's on-screen display over it. */
 export function Evf({
-  hour,
-  timeOverride,
+  at,
   mode,
   shots,
   onShoot,
@@ -64,20 +57,16 @@ export function Evf({
 
   // clock readout
   useEffect(() => {
-    if (hour === null) return;
-    const now = new Date();
+    if (at === null) return;
     setClock({
-      time:
-        timeOverride !== null
-          ? formatHour(timeOverride)
-          : now.toLocaleTimeString("de-DE", {
-              hour: "2-digit",
-              minute: "2-digit",
-              timeZone: TIME_ZONE,
-            }),
-      zone: berlinZoneName(now),
+      time: at.toLocaleTimeString("de-DE", {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: TIME_ZONE,
+      }),
+      zone: berlinZoneName(at),
     });
-  }, [hour, timeOverride]);
+  }, [at]);
 
   // last push readout, set on the client so the server render cannot go stale
   useEffect(() => {
@@ -259,7 +248,7 @@ export function Evf({
       onFocus={onFocus}
     >
       <GelnhausenScene
-        hour={hour}
+        at={at}
         hostRef={sceneRef}
         className={s.scene}
         label={t("sceneLabel")}
