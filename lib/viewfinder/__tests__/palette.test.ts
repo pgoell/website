@@ -27,9 +27,9 @@ describe("paletteAt", () => {
     expect(paletteAt(6.6).skyT).toBe(PALETTES.dawn.skyT);
     expect(paletteAt(19.1).sunX).toBe(PALETTES.gold.sunX);
   });
-  it("puts the sun in the east in the morning and the west in the evening", () => {
-    expect(paletteAt(10).sunX).toBeGreaterThan(800);
-    expect(paletteAt(18).sunX).toBeLessThan(800);
+  it("puts the sun on the left in the morning and on the right in the evening", () => {
+    expect(paletteAt(10).sunX).toBeLessThan(800);
+    expect(paletteAt(18).sunX).toBeGreaterThan(800);
   });
   it("floodlights the church only after dark", () => {
     expect(paletteAt(12).flood).toBe(0);

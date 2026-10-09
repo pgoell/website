@@ -25,6 +25,10 @@ export interface Palette {
   hazeK: number;
   cloud: string;
   rays: number;
+  /** Cloud deck over the glow band: body, underside lit by the low sun, opacity. */
+  deck: string;
+  deckLit: string;
+  deckA: number;
 }
 
 export const PALETTES = {
@@ -52,6 +56,9 @@ export const PALETTES = {
     hazeK: 1,
     cloud: "#18203a",
     rays: 0,
+    deck: "#0b1124",
+    deckLit: "#1b2444",
+    deckA: 0.55,
   },
   dawn: {
     skyT: "#262f5a",
@@ -60,8 +67,8 @@ export const PALETTES = {
     sun: "#fff0cc",
     glowA: 0.95,
     disc: 1,
-    sunX: 1505,
-    sunY: 392,
+    sunX: 110,
+    sunY: 556,
     haze: "#d6b8ba",
     light: "#ffcf9c",
     shadow: "#4a4f7c",
@@ -77,6 +84,9 @@ export const PALETTES = {
     hazeK: 1,
     cloud: "#f0c0b0",
     rays: 0.8,
+    deck: "#5d5682",
+    deckLit: "#f2a58c",
+    deckA: 0.7,
   },
   day9: {
     skyT: "#2e66a8",
@@ -85,7 +95,7 @@ export const PALETTES = {
     sun: "#fffbe8",
     glowA: 0.3,
     disc: 0,
-    sunX: 1450,
+    sunX: 250,
     sunY: -200,
     haze: "#c3d3dc",
     light: "#fff3d8",
@@ -102,6 +112,9 @@ export const PALETTES = {
     hazeK: 0.9,
     cloud: "#ffffff",
     rays: 0,
+    deck: "#b9c9da",
+    deckLit: "#ffffff",
+    deckA: 0,
   },
   day17: {
     skyT: "#3067a6",
@@ -110,7 +123,7 @@ export const PALETTES = {
     sun: "#fff6de",
     glowA: 0.35,
     disc: 0,
-    sunX: 200,
+    sunX: 1400,
     sunY: -150,
     haze: "#cdd6d6",
     light: "#fff0d0",
@@ -127,31 +140,37 @@ export const PALETTES = {
     hazeK: 0.9,
     cloud: "#ffffff",
     rays: 0,
+    deck: "#b9c9da",
+    deckLit: "#ffe9c8",
+    deckA: 0,
   },
   gold: {
-    skyT: "#2b3565",
-    skyM: "#9a7a96",
-    skyH: "#f7c27e",
-    sun: "#ffe4a0",
+    skyT: "#56607a",
+    skyM: "#f9c050",
+    skyH: "#ef8226",
+    sun: "#ffe27a",
     glowA: 1,
     disc: 1,
-    sunX: 340,
-    sunY: 548,
-    haze: "#e6b08a",
-    light: "#ffa850",
-    shadow: "#4d3f6a",
-    litMix: 0.55,
-    shadeMix: 0.52,
-    front: 0.48,
-    dark: 0.05,
+    sunX: 1525,
+    sunY: 580,
+    haze: "#a2664a",
+    light: "#ff7c2c",
+    shadow: "#2a1e30",
+    litMix: 0.5,
+    shadeMix: 0.72,
+    front: 0.85,
+    dark: 0.44,
     flood: 0,
-    win: 0.2,
+    win: 0.4,
     stars: 0,
     moon: 0,
-    mist: 0.45,
+    mist: 0.5,
     hazeK: 1,
-    cloud: "#ffbe96",
-    rays: 1,
+    cloud: "#5a3c44",
+    rays: 0.15,
+    deck: "#3a2e38",
+    deckLit: "#d85c34",
+    deckA: 1,
   },
   blue: {
     skyT: "#0f1636",
@@ -160,8 +179,8 @@ export const PALETTES = {
     sun: "#ffc0a0",
     glowA: 0.4,
     disc: 0,
-    sunX: 260,
-    sunY: 640,
+    sunX: 1560,
+    sunY: 690,
     haze: "#535c8c",
     light: "#b598b8",
     shadow: "#1a2046",
@@ -177,12 +196,15 @@ export const PALETTES = {
     hazeK: 1,
     cloud: "#645a84",
     rays: 0,
+    deck: "#171a36",
+    deckLit: "#6e4668",
+    deckA: 0.9,
   },
 } satisfies Record<string, Palette>;
 
 export type PaletteName = keyof typeof PALETTES;
 
-/** Keyframes: hour of day to palette. Sunset sits between the Heiligenkopf domes. */
+/** Keyframes: hour of day to palette. Sunrise is behind the hills at far left, sunset on the horizon at far right. */
 export const KEYFRAMES: ReadonlyArray<readonly [number, PaletteName]> = [
   [0, "night"],
   [5.2, "night"],

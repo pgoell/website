@@ -1,12 +1,10 @@
-/* Gelnhausen from the Kinzig: layered poster illustration on canvas.
-   Scene space is 1600 x 1000, bottom anchored, cropped like "cover".
-   The drawing code below is ported from the design mock as is; only types were added. */
+/* Gelnhausen from the upper town at the Marienkirche: layered poster illustration on canvas.
+   Scene space is 1600 x 1000, cropped like "cover". */
 
 import { mix, rgba, rng, smoothstep as sm } from "@/lib/viewfinder/color";
 import { type Palette, paletteAt } from "@/lib/viewfinder/palette";
 
 type Ctx = CanvasRenderingContext2D;
-type Blob3 = [number, number, number];
 type Face = "L" | "M" | "S";
 
 const at = <T>(a: ArrayLike<T>, i: number): T => a[i] as T;
@@ -14,48 +12,43 @@ const at = <T>(a: ArrayLike<T>, i: number): T => a[i] as T;
 const SW = 1600;
 const SH = 1000;
 
-/* ---------- materials (from the reference: red sandstone, slate, clay, plaster) ---------- */
+/* ---------- materials (from the reference: red sandstone, slate, clay, plaster; foliage is June) ---------- */
 const MAT = {
-  sand: "#b0614a",
-  sandP: "#c99078",
-  slate: "#3a3e4b",
-  clay: "#ad5230",
+  sand: "#a9523f",
+  slate: "#363c4e",
+  clay: "#b5502c",
   clay2: "#843d27",
   clay3: "#9c6049",
   plaster: "#e6dccb",
+  cream: "#e2d3b4",
   ochre: "#d7c29c",
   pink: "#d2b0a4",
-  greyR: "#bdb8b0",
   beam: "#5b3a2a",
-  stone: "#98857a",
   beech: "#52703d",
   beech2: "#6f8a46",
   spruce: "#2b4030",
   meadow: "#8d9a52",
-  meadowD: "#5d6c38",
-  willow: "#4b6137",
   win: "#2a2522",
 };
 
 /* ---------- light: one source, shared state while a frame is drawn ---------- */
 let P: Palette = paletteAt(12);
 let D = 0;
-let FGK = 0;
 let SUN = 1;
 const INK = "#04060c";
 function C(base: string, f: Face): string {
   const L = mix(base, P.light, P.litMix);
   const S = mix(base, P.shadow, P.shadeMix);
-  let c = f === "L" ? L : f === "S" ? S : mix(L, S, P.front);
-  if (FGK) c = mix(c, mix(P.shadow, INK, 0.45), f === "L" ? FGK * 0.4 : FGK);
-  c = mix(c, INK, P.dark);
+  const c0 = f === "L" ? L : f === "S" ? S : mix(L, S, P.front);
+  const c = mix(c0, INK, P.dark);
   return D ? mix(c, P.haze, Math.min(1, D * P.hazeK)) : c;
 }
 const side = (left: boolean): Face => (left === SUN < 0 ? "L" : "S");
 // floodlit church at night
 function CH(base: string, f: Face, k = 1): string {
   const c = C(base, f);
-  const fl = P.flood * k;
+  // a few warm lamps from below: weak overall, and slate takes little of it
+  const fl = P.flood * k * (base === MAT.slate ? 0.12 : 0.42);
   if (fl <= 0) return c;
   const F =
     f === "L"
@@ -115,28 +108,6 @@ function crown(
   if (mid) circ(c, x + SUN * r * 0.12, y - r * 0.12, r * 0.86, mid);
   circ(c, x + SUN * r * 0.26, y - r * 0.26, r * 0.64, li);
 }
-function mass(c: Ctx, blobs: Blob3[], sh: string, md: string, li: string) {
-  const B = blobs.slice().sort((a, b) => a[1] - b[1]);
-  for (const [x, y, r] of B) circ(c, x, y, r, sh);
-  for (const [x, y, r] of B) {
-    c.save();
-    c.beginPath();
-    c.arc(x, y, r, 0, 6.3);
-    c.clip();
-    circ(c, x + SUN * r * 0.3, y - r * 0.42, r * 0.95, li);
-    circ(c, x + SUN * r * 0.12, y - r * 0.2, r * 0.9, md);
-    c.restore();
-  }
-  B.forEach(([x, y, r], i) => {
-    if (i % 3) return;
-    c.save();
-    c.beginPath();
-    c.arc(x, y, r, 0, 6.3);
-    c.clip();
-    circ(c, x - SUN * r * 0.25, y + r * 0.5, r * 0.7, sh);
-    c.restore();
-  });
-}
 function line(
   c: Ctx,
   x0: number,
@@ -154,31 +125,12 @@ function line(
   c.stroke();
 }
 
-/* ---------- terrain profiles ---------- */
-const ridgeY = (x: number) =>
-  392 +
-  236 * (1 - sm(330, 1260, x)) +
-  8 * Math.sin(x / 118) +
-  4 * Math.sin(x / 37 + 2) -
-  (10 * x) / 1600;
-const slopeY = (x: number) =>
-  x < 470
-    ? 640 - (x - 380) * 0.7
-    : 572 - (x - 470) * 0.078 + 5 * Math.sin(x / 70) + 3 * Math.sin(x / 23);
-const railY = (x: number) => 786 - x * 0.004;
-const riverT = (x: number) =>
-  850 + 5 * Math.sin(x / 170 + 1) + (800 - x) * 0.008;
-const riverB = (x: number) => riverT(x) + 13 + 5 * Math.sin(x / 110 + 0.4);
-const bankY = (x: number) => 952 - 9 * Math.sin(x / 230 + 0.5) - x * 0.012;
-const ROWB = [584, 626, 668, 708];
-const rowB = (k: number, x: number) => at(ROWB, k) + (1130 - x) * 0.05;
-const wallY = (x: number) => 724 + (1130 - x) * 0.02;
-
 /* ---------- sky ---------- */
+const HZ = 600;
 function sky(c: Ctx) {
-  const g = c.createLinearGradient(0, -320, 0, 660);
+  const g = c.createLinearGradient(0, 0, 0, HZ);
   g.addColorStop(0, P.skyT);
-  g.addColorStop(0.6, P.skyM);
+  g.addColorStop(0.62, P.skyM);
   g.addColorStop(1, P.skyH);
   c.fillStyle = g;
   c.fillRect(-3000, -5000, 8000, 7000);
@@ -186,23 +138,28 @@ function sky(c: Ctx) {
   if (P.stars > 0.01) {
     for (let i = 0; i < 260; i++) {
       const x = r() * 1800 - 100;
-      const y = r() * 900 - 420;
+      const y = r() * 800 - 200;
       const s = r();
       c.fillStyle = rgba(
         "#fff8ee",
-        P.stars * (0.25 + 0.75 * s) * (y < 300 ? 1 : 0.5),
+        P.stars * (0.25 + 0.75 * s) * (y < 380 ? 1 : 0.5),
       );
       c.fillRect(x, y, s < 0.93 ? 1.1 : 2, s < 0.93 ? 1.1 : 2);
     }
   }
+  // glow: a wide flat band along the horizon, brightest at the sun
   if (P.glowA > 0.01) {
-    const R = c.createRadialGradient(P.sunX, P.sunY, 0, P.sunX, P.sunY, 760);
-    R.addColorStop(0, rgba(P.sun, 0.9 * P.glowA));
-    R.addColorStop(0.08, rgba(P.sun, 0.5 * P.glowA));
-    R.addColorStop(0.3, rgba(P.skyH, 0.22 * P.glowA));
-    R.addColorStop(1, rgba(P.skyH, 0));
+    c.save();
+    c.translate(P.sunX, P.sunY);
+    c.scale(1.8, 0.6);
+    const R = c.createRadialGradient(0, 0, 0, 0, 0, 640);
+    R.addColorStop(0, rgba(mix(P.sun, "#ffffff", 0.4), P.glowA));
+    R.addColorStop(0.12, rgba(P.sun, 0.75 * P.glowA));
+    R.addColorStop(0.45, rgba(P.sun, 0.25 * P.glowA));
+    R.addColorStop(1, rgba(P.sun, 0));
     c.fillStyle = R;
-    c.fillRect(-3000, -5000, 8000, 7000);
+    c.fillRect(-4000, -9000, 8000, 12000);
+    c.restore();
   }
   if (P.rays > 0.01) {
     c.save();
@@ -219,26 +176,151 @@ function sky(c: Ctx) {
     }
     c.restore();
   }
-  // clouds: long flat poster bands, lit on the sun side
-  const CL: [number, number, number, number][] = [
-    [1150, 128, 300, 15],
-    [1330, 172, 170, 10],
-    [1480, 214, 100, 7],
-    [60, 446, 230, 12],
-    [330, 478, 130, 8],
-    [720, 88, 150, 8],
-  ];
-  CL.forEach(([x, y, w, h], i) => {
-    const body = mix(P.cloud, P.skyM, 0.25);
-    const lit = mix(P.cloud, P.sun, P.disc * 0.7);
-    const shd = mix(P.cloud, P.skyM, 0.55);
+  if (P.disc > 0.01) {
+    // thin bright streaks of cloud close to the sun
+    const S: [number, number, number][] = [
+      [-190, -46, 150],
+      [-60, -92, 210],
+      [-260, -124, 120],
+      [-120, -22, 90],
+    ];
+    for (const [dx, dy, w] of S) {
+      c.fillStyle = rgba(mix(P.sun, "#ffffff", 0.25), 0.8 * P.disc);
+      c.beginPath();
+      c.ellipse(P.sunX + dx, P.sunY + dy, w, 3.2, 0, 0, 6.3);
+      c.fill();
+    }
+    circ(c, P.sunX, P.sunY, 64, rgba(P.sun, 0.3 * P.disc));
+    circ(
+      c,
+      P.sunX,
+      P.sunY,
+      34,
+      rgba(mix(P.sun, "#ffffff", 0.4), 0.55 * P.disc),
+    );
+    circ(c, P.sunX, P.sunY, 17, rgba(mix(P.sun, "#ffffff", 0.6), P.disc));
+  }
+  if (P.moon > 0.01) {
+    const mx = 1290;
+    const my = 452;
+    circ(c, mx, my, 40, rgba("#dfe6ff", 0.06 * P.moon));
+    c.save();
+    c.beginPath();
+    c.arc(mx, my, 15, 0, 6.3);
+    c.clip();
+    c.beginPath();
+    c.arc(mx, my, 15, 0, 6.3);
+    c.arc(mx + 6, my - 4, 13.5, 0, 6.3);
+    c.fillStyle = rgba("#f3efe2", P.moon);
+    c.fill("evenodd");
+    c.restore();
+  }
+}
+
+/* ---------- cloud deck: a heavy ceiling over the glow band, its underside lit by the low sun ---------- */
+const deckY = (x: number) =>
+  358 + 32 * Math.sin(x / 240 + 0.4) + 16 * Math.sin(x / 77) - x * 0.02;
+// how strongly the low sun reaches a spot under the deck: more low down and toward the sun
+const deckK = (x: number, y: number) =>
+  sm(0, 320, y) ** 1.5 * (0.2 + 0.8 * sm(-100, 1300, x));
+function deck(c: Ctx) {
+  const r = rng(77);
+  const oval = (x: number, y: number, rx: number, ry: number, col: string) => {
+    c.fillStyle = col;
+    c.beginPath();
+    c.ellipse(x, y, rx, ry, 0, 0, 6.3);
+    c.fill();
+  };
+  const lumps: [number, number, number, number][] = [];
+  for (let x = -200; x < 1800; x += 40 + r() * 60)
+    lumps.push([x, deckY(x) - 14, 55 + r() * 90, 10 + r() ** 2 * 44]);
+  // scraps hanging under the edge
+  for (let i = 0; i < 7; i++) {
+    const x = r() * 1700;
+    lumps.push([x, deckY(x) + 14 + r() * 26, 40 + r() * 60, 6 + r() * 8]);
+  }
+  const lit = mix(P.deckLit, P.sun, 0.35 * P.disc);
+  for (const [x, y, rx, ry] of lumps)
+    oval(
+      x,
+      y + 9 + ry * 0.4,
+      rx,
+      ry,
+      mix(P.deck, lit, 0.25 + 0.75 * deckK(x, 320)),
+    );
+  for (const [x, y, rx, ry] of lumps)
+    oval(
+      x,
+      y + 4 + ry * 0.2,
+      rx,
+      ry,
+      mix(P.deck, P.deckLit, 0.15 + 0.5 * deckK(x, 320)),
+    );
+  c.fillStyle = P.deck;
+  c.beginPath();
+  c.moveTo(-200, -5000);
+  for (let x = -200; x <= 1800; x += 20) c.lineTo(x, deckY(x) - 14);
+  c.lineTo(1800, -5000);
+  c.fill();
+  for (const [x, y, rx, ry] of lumps) oval(x, y, rx, ry, P.deck);
+  // a cool break in the deck, top right
+  const gap = mix(P.deck, P.skyT, 0.75);
+  oval(1420, 70, 230, 60, mix(P.deck, gap, 0.5));
+  oval(1470, 60, 170, 40, gap);
+  oval(1290, 110, 120, 22, mix(P.deck, gap, 0.6));
+  oval(1560, 120, 110, 24, gap);
+  // rolls inside the deck: each a dark back with a lit belly, redder low down and toward the sun
+  const rolls: [number, number, number, number][] = [];
+  for (let i = 0; i < 46; i++) {
+    const x = r() * 2000 - 200;
+    const y = 10 + r() ** 0.7 * (deckY(x) - 70);
+    rolls.push([x, y, 60 + r() ** 2 * 420, 8 + r() ** 2 * 46]);
+  }
+  const top = mix(P.deck, P.skyT, 0.6);
+  for (const [x, y, w, h] of rolls.sort((a, b) => a[1] - b[1])) {
+    const k = deckK(x, y);
+    oval(x, y + 5 + h * 0.3, w, h, mix(P.deck, P.deckLit, 0.1 + 0.8 * k));
+    oval(
+      x - SUN * 8,
+      y + h * 0.12,
+      w * 1.02,
+      h,
+      mix(P.deck, P.deckLit, 0.05 + 0.4 * k),
+    );
+    oval(
+      x - SUN * 16,
+      y - h * 0.25,
+      w * 0.96,
+      h * 0.8,
+      mix(P.deck, top, 0.75 - 0.6 * k),
+    );
+  }
+}
+
+/* ---------- drifting clouds: flat poster bands in the glow band, lit from below at sunset ---------- */
+const CL: [number, number, number, number][] = [
+  [1010, 386, 110, 9],
+  [1180, 380, 70, 7],
+  [40, 392, 150, 11],
+  [1330, 478, 190, 6],
+  [1480, 432, 120, 8],
+  [610, 440, 90, 6],
+  [300, 470, 120, 6],
+];
+function clouds(c: Ctx, t: number) {
+  const body = mix(P.cloud, P.skyM, 0.2);
+  const lit = mix(P.cloud, P.sun, P.disc * 0.8);
+  const shd = mix(P.cloud, P.skyM, 0.5);
+  CL.forEach(([x0, y, w, h], i) => {
+    const x = ((x0 + t * (2 + (i % 3)) + 300) % 2200) - 300;
     const rr = rng(40 + i);
     const puffs: [number, number][] = [];
     for (let k = 0; k < 7; k++) {
-      const t = (k + 0.5) / 7;
-      const px = x + w * t;
-      const ph = h * (0.7 + 1.3 * Math.sin(Math.PI * t)) * (0.7 + rr() * 0.5);
-      puffs.push([px, ph]);
+      const f = (k + 0.5) / 7;
+      puffs.push([
+        x + w * f,
+        h * (0.7 + 1.3 * Math.sin(Math.PI * f)) * (0.7 + rr() * 0.5),
+      ]);
     }
     c.save();
     c.beginPath();
@@ -258,825 +340,167 @@ function sky(c: Ctx) {
     }
     c.restore();
     c.fillStyle = rgba(lit, 0.9);
-    c.fillRect(x + w * 0.08, y + h - 1.8, w * 0.84, 1.8);
+    c.fillRect(x + w * 0.08, y + h - 2.2, w * 0.84, 2.2);
   });
-  if (P.disc > 0.01) {
-    circ(c, P.sunX, P.sunY, 30, rgba(P.sun, 0.35 * P.disc));
-    circ(c, P.sunX, P.sunY, 23, rgba(mix(P.sun, "#ffffff", 0.5), P.disc));
-  }
-  if (P.moon > 0.01) {
-    const mx = 1420;
-    const my = 150;
-    circ(c, mx, my, 40, rgba("#dfe6ff", 0.06 * P.moon));
-    c.save();
-    c.beginPath();
-    c.arc(mx, my, 15, 0, 6.3);
-    c.clip();
-    c.beginPath();
-    c.arc(mx, my, 15, 0, 6.3);
-    c.arc(mx + 6, my - 4, 13.5, 0, 6.3);
-    c.fillStyle = rgba("#f3efe2", P.moon);
-    c.fill("evenodd");
-    c.restore();
-  }
 }
 
-/* ---------- layer 1: Spessart line, far and pale ---------- */
-function far(c: Ctx) {
-  c.fillStyle = C(MAT.beech, "M");
+/* ---------- hills: three wooded ranges, a village on the far slope ---------- */
+const hillA = (x: number) =>
+  554 +
+  8 * Math.sin(x / 230 + 1) +
+  3 * Math.sin(x / 53) +
+  30 * sm(1100, 1500, x);
+const hillB = (x: number) =>
+  548 +
+  18 * Math.sin(x / 109 - 0.48) +
+  5 * Math.sin(x / 43) +
+  56 * sm(1290, 1520, x);
+const hillC = (x: number) =>
+  606 + 5 * Math.sin(x / 90 + 1) + 3 * Math.sin(x / 31);
+function range(c: Ctx, f: (x: number) => number, seed: number, bump: number) {
+  const r = rng(seed);
   c.beginPath();
-  c.moveTo(-300, 1100);
-  for (let x = -300; x <= 1900; x += 8)
-    c.lineTo(
-      x,
-      588 +
-        14 * Math.sin(x / 210 + 1) +
-        6 * Math.sin(x / 71) -
-        (x > 900 ? (x - 900) * 0.05 : 0),
-    );
-  c.lineTo(1900, 1100);
+  c.moveTo(-100, 1100);
+  for (let x = -100; x <= 1700; x += 8) c.lineTo(x, f(x));
+  c.lineTo(1700, 1100);
   c.fill();
-}
-
-/* ---------- layer 2: Heiligenkopf and Rauenberg, soft wooded domes to the west ---------- */
-function domes(c: Ctx) {
-  const r = rng(9);
-  const D3: [number, number, number, number][] = [
-    [140, 498, 250, 720],
-    [430, 548, 190, 720],
-    [700, 590, 160, 720],
-  ];
-  for (const [cx, top, hw, base] of D3) {
-    const g = c.createLinearGradient(cx - hw, 0, cx + hw, 0);
-    const a = C(MAT.beech, SUN < 0 ? "L" : "S");
-    const b = C(MAT.beech, SUN < 0 ? "S" : "L");
-    g.addColorStop(0, a);
-    g.addColorStop(0.5, C(MAT.beech, "M"));
-    g.addColorStop(1, b);
-    c.fillStyle = g;
+  // treeline: small crowns breaking the edge
+  for (let x = -100; x < 1700; x += bump * (0.8 + r())) {
     c.beginPath();
-    c.moveTo(cx - hw, base);
-    const pts: [number, number][] = [];
-    for (let i = 0; i <= 80; i++) {
-      const t = (i / 80) * 2 - 1;
-      const x = cx + t * hw;
-      const y = base - (base - top) * Math.max(0, 1 - t * t) ** 0.62;
-      pts.push([x, y]);
-      c.lineTo(x, y);
-    }
-    c.closePath();
+    c.arc(x, f(x) + bump * 0.3, bump * (0.6 + r() * 0.6), 0, 6.3);
     c.fill();
-    for (let i = 2; i < pts.length - 2; i += 2) {
-      const [x, y] = at(pts, i);
-      c.beginPath();
-      c.arc(x, y + 2.4, 3 + r() * 2.6, 0, 6.3);
-      c.fill();
-    }
   }
 }
+function hills(c: Ctx) {
+  D = 0.86;
+  c.fillStyle = C(MAT.beech, "M");
+  range(c, hillA, 9, 3);
+  D = 0.3;
+  c.fillStyle = C(mix(MAT.beech, MAT.spruce, 0.5), "S");
+  range(c, hillB, 11, 4.5);
+  // village on the slope: pale specks, lit after dark
+  const r = rng(13);
+  for (let i = 0; i < 170; i++) {
+    const x = i < 110 ? 1190 + r() * 400 : r() * 540;
+    const top = hillB(x) + 12;
+    const y = top + r() * Math.max(4, 612 - top);
+    const on = r() < P.win * 0.8;
+    c.fillStyle = on ? "#ffc46b" : C(r() < 0.7 ? MAT.plaster : MAT.clay, "L");
+    c.fillRect(x, y, 2 + r() * 3, 1.6 + r());
+  }
+  D = 0.2;
+  c.fillStyle = C(mix(MAT.beech, MAT.spruce, 0.5), "S");
+  range(c, hillC, 12, 5);
+}
 
-/* ---------- layer 3: Büdinger Wald, long flat-topped ridge of beech with spruce ---------- */
-function ridge(c: Ctx) {
-  const r = rng(21);
-  const body = C(mix(MAT.beech, MAT.spruce, 0.35), "M");
-  const sh = C(MAT.beech, "S");
-  const li = mix(C(MAT.beech2, "L"), C(MAT.beech, "M"), 0.3);
-  const md = C(MAT.beech, "M");
-  const sp = C(MAT.spruce, "M");
-  const spS = C(MAT.spruce, "S");
-  c.fillStyle = body;
-  c.beginPath();
-  c.moveTo(-60, 1100);
-  for (let x = -60; x <= 1680; x += 6) c.lineTo(x, ridgeY(x) + 7);
-  c.lineTo(1680, 1100);
-  c.fill();
-  // spruce groups as dark vertical bands (planted stands), under the crowns
-  for (let k = 0; k < 16; k++) {
-    const x = r() * 1650;
-    const w = 24 + r() * 60;
-    const y0 = ridgeY(x) + 10;
-    c.fillStyle = spS;
-    for (let j = 0; j < w / 5; j++) {
-      const sx = x + j * 5 + r() * 2;
-      const h = 16 + r() * 10;
-      const yy = y0 + r() * 40;
-      poly(c, [sx - 4, yy + h * 1.6, sx, yy, sx + 4, yy + h * 1.6], spS);
-    }
+/* ---------- valley floor: fields, tree clumps and the lower town, small and hazy ---------- */
+function valley(c: Ctx) {
+  const r = rng(51);
+  D = 0.42;
+  const g = c.createLinearGradient(0, 610, 0, 760);
+  g.addColorStop(0, C(MAT.meadow, "M"));
+  g.addColorStop(1, C(MAT.beech, "S"));
+  c.fillStyle = g;
+  c.fillRect(-100, 612, 1900, 500);
+  for (let i = 0; i < 9; i++) {
+    const x = 1200 + r() * 450;
+    const y = 616 + r() * 22;
+    const w = 80 + r() * 200;
+    poly(
+      c,
+      [x, y, x + w, y - 2, x + w + 12, y + 4, x + 8, y + 6],
+      C(i % 2 ? MAT.meadow : MAT.beech2, "L"),
+    );
   }
-  // inner crowns, sorted back to front
-  const inner: Blob3[] = [];
-  for (let i = 0; i < 520; i++) {
-    const x = r() * 1700 - 50;
-    const y = ridgeY(x) + 16 + r() ** 1.6 * 170;
-    if (y < 760) inner.push([x, y, 5 + r() * 7]);
-  }
-  for (const [x, y, rr] of inner.sort((a, b) => a[1] - b[1]))
-    crown(c, x, y, rr, sh, mix(md, li, 0.35));
-  // skyline crowns and spruce tips poking up
-  let x = -50;
-  while (x < 1680) {
-    const rr = 8 + r() * 7;
-    const y = ridgeY(x) + rr * 0.5;
-    if (r() < 0.13) {
-      const n = 2 + ((r() * 3) | 0);
-      for (let k = 0; k < n; k++) {
-        const sx = x + k * 6.5 + r() * 2;
-        const h = 22 + r() * 16;
-        const b = ridgeY(sx) + 10;
-        poly(c, [sx - 5.5, b, sx, b - h, sx + 5.5, b], sp);
-        poly(c, [sx, b - h, sx + SUN * 5.5, b, sx, b], spS);
-      }
-      x += n * 6.5 + 5;
+  const items: [number, number, number][] = [];
+  for (let i = 0; i < 330; i++)
+    items.push([r() * 1700 - 50, 614 + r() ** 1.3 * 130, r()]);
+  for (const [x, y, q] of items.sort((a, b) => a[1] - b[1])) {
+    const k = (y - 610) / 130;
+    D = 0.42 - k * 0.22;
+    if (q < 0.55) {
+      crown(c, x, y, 3 + k * 10, C(MAT.beech, "S"), C(MAT.beech2, "L"));
       continue;
     }
-    crown(c, x, y, rr, sh, li, md);
-    x += rr * 1.15 + r() * 4;
-  }
-  // red sandstone quarry scars above the town
-  const Q: [number, number, number, number][] = [
-    [1398, 452, 58, 30],
-    [1462, 440, 38, 22],
-  ];
-  for (const [qx, qy, w, h] of Q) {
-    poly(
-      c,
-      [
-        qx,
-        qy + h,
-        qx + 4,
-        qy + 4,
-        qx + w * 0.4,
-        qy,
-        qx + w * 0.8,
-        qy + 3,
-        qx + w,
-        qy + h * 0.8,
-        qx + w * 0.6,
-        qy + h + 4,
-      ],
-      C("#c4887a", "L"),
-    );
-    poly(
-      c,
-      [
-        qx + w * 0.4,
-        qy,
-        qx + w * 0.5,
-        qy + h + 3,
-        qx + w * 0.6,
-        qy + h + 4,
-        qx + w,
-        qy + h * 0.8,
-        qx + w * 0.8,
-        qy + 3,
-      ],
-      C("#a86a60", "S"),
-    );
-    c.fillStyle = rgba(C("#8a5a52", "S"), 0.5);
-    for (let k = 0; k < 6; k++)
-      c.fillRect(qx + 6 + (k * w) / 7, qy + 5, 1.2, h - 4);
-    for (let k = 0; k < 5; k++)
-      crown(c, qx + (k * w) / 4, qy + h + 5 + r() * 3, 5 + r() * 3, sh, li, md);
-  }
-}
-
-/* ---------- layer 4: plain to the west with Meerholz, orchards ---------- */
-function plainW(c: Ctx) {
-  const r = rng(31);
-  c.fillStyle = C(MAT.meadow, "M");
-  c.beginPath();
-  c.moveTo(-60, 1100);
-  for (let x = -60; x <= 640; x += 10)
-    c.lineTo(x, 690 + 4 * Math.sin(x / 40) + (x > 480 ? (x - 480) * 0.3 : 0));
-  c.lineTo(640, 1100);
-  c.fill();
-  // field strips
-  for (let k = 0; k < 6; k++) {
-    const y = 700 + k * 7;
-    c.fillStyle = C(k % 2 ? MAT.meadowD : MAT.beech2, "M");
-    c.fillRect(-60 + r() * 40, y, 160 + r() * 260, 3);
-  }
-  // Meerholz village: tiny roofs, one steeple
-  for (let i = 0; i < 22; i++) {
-    const x = 40 + r() * 300;
-    const y = 688 + r() * 10;
-    const w = 8 + r() * 8;
-    rect(c, x, y, x + w, y + 6, C(MAT.plaster, "M"));
-    poly(
-      c,
-      [x - 1, y, x + w / 2, y - 5 - r() * 3, x + w + 1, y],
-      C(r() < 0.7 ? MAT.clay : MAT.slate, side(true)),
-    );
-  }
-  rect(c, 196, 666, 203, 692, C(MAT.plaster, "M"));
-  poly(c, [195, 667, 199.5, 648, 204, 667], C(MAT.slate, "M"));
-  for (let i = 0; i < 40; i++) {
-    const x = r() * 560;
-    const y = 700 + r() * 34;
-    crown(c, x, y, 3.5 + r() * 4, C(MAT.beech, "S"), C(MAT.beech2, "L"));
-  }
-}
-
-/* ---------- layer 5: slope above the old town, old vineyard terraces, villas ---------- */
-function slope(c: Ctx) {
-  const r = rng(41);
-  const base = mix(MAT.beech2, MAT.meadow, 0.55);
-  c.fillStyle = C(base, "M");
-  c.beginPath();
-  c.moveTo(380, 1100);
-  for (let x = 380; x <= 1680; x += 6) c.lineTo(x, slopeY(x));
-  c.lineTo(1680, 1100);
-  c.fill();
-  // terraces: thin darker walls following the slope, vine rows as dotted lines
-  for (let k = 1; k < 7; k++) {
-    c.strokeStyle = C(MAT.meadowD, "S");
-    c.lineWidth = 1.1;
-    c.beginPath();
-    let on = false;
-    for (let x = 560; x <= 1660; x += 8) {
-      const y = slopeY(x) + k * 12 + 2 * Math.sin(x / 90 + k);
-      if (r() < 0.06) on = !on;
-      if (!on) c.moveTo(x, y);
-      else c.lineTo(x, y);
-    }
-    c.stroke();
-    c.fillStyle = C(MAT.beech, "S");
-    for (let x = 600 + k * 9; x < 1640; x += 6) {
-      if (Math.sin(x / 53 + k * 2) > 0.2)
-        c.fillRect(x, slopeY(x) + k * 12 - 3, 1.3, 2.4);
-    }
-  }
-  // treeline along the top of the slope and clumps
-  const sh = C(MAT.beech, "S");
-  const li = C(MAT.beech2, "L");
-  const md = C(MAT.beech2, "M");
-  for (let x = 380; x < 1680; x += 7 + r() * 8) {
-    if (r() < 0.25) continue;
-    const rr = 5 + r() * 8;
-    crown(c, x, slopeY(x) + rr * 0.3, rr, sh, li, md);
-  }
-  for (let i = 0; i < 60; i++) {
-    const x = 520 + r() * 1150;
-    const y = slopeY(x) + 14 + r() * 70;
-    crown(c, x, y, 4 + r() * 7, sh, li, md);
-  }
-  // villas on the Panoramaweg
-  for (let i = 0; i < 14; i++) {
-    const x = 640 + r() * 1000;
-    const y = slopeY(x) + 18 + r() * 52;
-    const w = 13 + r() * 10;
-    const h = 8 + r() * 4;
-    rect(c, x, y - h, x + w, y, C(r() < 0.6 ? MAT.plaster : MAT.ochre, "M"));
+    const w = (8 + k * 20) * (q > 0.95 ? 3 : 1);
+    const h = 4 + k * 9;
+    rect(c, x, y - h, x + w, y, C(q > 0.8 ? MAT.plaster : MAT.cream, "M"));
     rect(
       c,
-      x + (SUN < 0 ? 0 : w - 3),
+      SUN < 0 ? x : x + w * 0.75,
       y - h,
-      x + (SUN < 0 ? 3 : w),
+      SUN < 0 ? x + w * 0.25 : x + w,
       y,
       C(MAT.plaster, "L"),
     );
-    const rc = r() < 0.6 ? MAT.clay : MAT.slate;
-    poly(c, [x - 2, y - h, x + w / 2, y - h - 7, x + w + 2, y - h], C(rc, "M"));
-    poly(
-      c,
-      [
-        x + w / 2,
-        y - h - 7,
-        x + (SUN < 0 ? -2 : w + 2),
-        y - h,
-        x + w / 2,
-        y - h,
-      ],
-      C(rc, "L"),
-    );
-    c.fillStyle = mix(C(MAT.win, "S"), "#ffc46b", P.win * 0.9);
-    c.fillRect(x + 3, y - h + 3, 2.5, 3);
-    if (w > 18) c.fillRect(x + w - 6, y - h + 3, 2.5, 3);
+    if (q <= 0.95)
+      poly(
+        c,
+        [x - 1, y - h, x + w / 2, y - h * 1.9, x + w + 1, y - h],
+        C(q < 0.72 ? MAT.clay : MAT.slate, "M"),
+      );
+    if (q * 7 - 4 < P.win) {
+      c.fillStyle = "#ffc46b";
+      c.fillRect(x + w * 0.3, y - h * 0.7, 1.4 + k * 2, 1.4 + k * 2);
+    }
   }
 }
 
-/* ---------- church glow at night, behind the town ---------- */
+/* ---------- church glow at night, behind the towers ---------- */
 function nightGlow(c: Ctx) {
   if (P.flood < 0.02) return;
-  const R = c.createRadialGradient(1120, 420, 10, 1120, 420, 360);
-  R.addColorStop(0, rgba("#ff9d55", 0.3 * P.flood));
+  const R = c.createRadialGradient(830, 780, 10, 830, 780, 260);
+  R.addColorStop(0, rgba("#ff9d55", 0.12 * P.flood));
   R.addColorStop(1, rgba("#ff9d55", 0));
   c.fillStyle = R;
-  c.fillRect(600, 0, 1100, 900);
+  c.fillRect(200, 0, 1200, 1000);
 }
 
-/* ---------- valley floor: meadows, railway, alders, the Kinzig, a heron ---------- */
-function valley(c: Ctx) {
-  const r = rng(51);
-  const g = c.createLinearGradient(0, 738, 0, 960);
-  g.addColorStop(0, C(mix(MAT.meadow, MAT.beech2, 0.3), "M"));
-  g.addColorStop(1, C(MAT.meadowD, "M"));
-  c.fillStyle = g;
-  c.fillRect(-100, 736, 1900, 400);
-  // meadow patches (flat colour fields)
-  for (let i = 0; i < 14; i++) {
-    const x = r() * 1700 - 80;
-    const y = 744 + r() * 26;
-    const w = 90 + r() * 260;
-    poly(
-      c,
-      [x, y, x + w, y - 2, x + w + 14, y + 5, x + 8, y + 7],
-      C(r() < 0.5 ? MAT.meadow : mix(MAT.meadow, "#c4b25c", 0.35), "L"),
-    );
-  }
-  // Kinzigtalbahn on its embankment
-  c.fillStyle = C(mix(MAT.meadowD, MAT.stone, 0.45), "M");
-  c.beginPath();
-  c.moveTo(-100, railY(-100) + 1);
-  for (let x = -100; x <= 1800; x += 50) c.lineTo(x, railY(x) + 1);
-  for (let x = 1800; x >= -100; x -= 50) c.lineTo(x, railY(x) + 13);
-  c.fill();
-  c.fillStyle = C(mix(MAT.meadowD, MAT.stone, 0.45), "S");
-  c.beginPath();
-  for (let x = -100; x <= 1800; x += 50) c.lineTo(x, railY(x) + 8);
-  for (let x = 1800; x >= -100; x -= 50) c.lineTo(x, railY(x) + 13);
-  c.fill();
-  line(c, -100, railY(-100), 1800, railY(1800), C("#8a8278", "L"), 1.8);
-  line(
-    c,
-    -100,
-    railY(-100) - 0.4,
-    1800,
-    railY(1800) - 0.4,
-    C("#3a3632", "S"),
-    0.8,
-  );
-  c.strokeStyle = C("#3a3632", "M");
-  c.lineWidth = 1.1;
-  c.beginPath();
-  for (let x = -40; x < 1760; x += 74) {
-    const y = railY(x);
-    c.moveTo(x, y);
-    c.lineTo(x, y - 20);
-    c.moveTo(x, y - 18);
-    c.lineTo(x + 7, y - 18);
-  }
-  c.stroke();
-  c.lineWidth = 0.6;
-  c.beginPath();
-  for (let x = -40; x < 1760; x += 74) {
-    c.moveTo(x + 7, railY(x) - 17);
-    c.quadraticCurveTo(x + 40, railY(x + 37) - 15, x + 81, railY(x + 74) - 17);
-  }
-  c.stroke();
-  // alders along the far bank
-  const sh = C(MAT.willow, "S");
-  const li = C(MAT.beech2, "L");
-  const md = C(MAT.willow, "M");
-  const al: Blob3[] = [];
-  for (let i = 0; i < 22; i++) {
-    const x = r() * 1700 - 60;
-    if (x > 880 && x < 1060) continue;
-    const n = 3 + ((r() * 6) | 0);
-    const hh = 18 + r() * 26;
-    for (let j = 0; j < n; j++) {
-      const dx = (r() - 0.5) * n * 9;
-      al.push([x + dx, riverT(x + dx) - 2 - r() ** 0.7 * hh, 5 + r() * 9]);
-    }
-  }
-  for (const [x, y, rr] of al.sort((a, b) => a[1] - b[1]))
-    crown(c, x, y, rr, sh, li, md);
-  // the Kinzig: a ribbon that reflects the sky
-  const rg = c.createLinearGradient(0, 842, 0, 878);
-  rg.addColorStop(0, mix(P.skyH, P.skyM, 0.15));
-  rg.addColorStop(1, mix(P.skyM, P.skyT, 0.45));
-  c.fillStyle = rg;
-  c.beginPath();
-  for (let x = -100; x <= 1800; x += 10) c.lineTo(x, riverT(x));
-  for (let x = 1800; x >= -100; x -= 10) c.lineTo(x, riverB(x));
-  c.fill();
-  // tree reflections along the far edge
-  c.fillStyle = rgba(C(MAT.willow, "S"), 0.5);
-  for (const [x, y, rr] of al) {
-    if (y > riverT(x) - 14)
-      c.fillRect(x - rr * 0.8, riverT(x), rr * 1.6, Math.min(6, rr * 0.5));
-  }
-  c.fillStyle = rgba(mix(P.skyH, "#ffffff", 0.4), 0.55);
-  for (let i = 0; i < 40; i++) {
-    const x = r() * 1700;
-    const y = riverT(x) + 4 + r() * (riverB(x) - riverT(x) - 6);
-    c.fillRect(x, y, 8 + r() * 26, 0.9);
-  }
-  // near meadow
-  c.fillStyle = C(MAT.meadowD, "M");
-  c.beginPath();
-  for (let x = -100; x <= 1800; x += 10) c.lineTo(x, riverB(x) - 1);
-  c.lineTo(1800, 1100);
-  c.lineTo(-100, 1100);
-  c.fill();
-  c.fillStyle = C(MAT.meadow, "L");
-  for (let x = -100; x < 1800; x += 3) {
-    if (Math.sin(x * 0.7) + Math.sin(x * 0.13) > 0.9)
-      c.fillRect(x, riverB(x) - 1, 1.2, -3 - r() * 3);
-  }
-  // mown stripes in the near meadow
-  c.fillStyle = rgba(C(MAT.meadow, "L"), 0.35);
-  for (let k = 0; k < 7; k++) {
-    const y = riverB(600) + 10 + k * 11;
-    c.beginPath();
-    c.moveTo(460, y);
-    c.lineTo(1420, y - 8);
-    c.lineTo(1420, y - 4);
-    c.lineTo(460, y + 4);
-    c.fill();
-  }
-  // footpath from the ruin to a small wooden footbridge over the Kinzig
-  const pth = C(mix(MAT.meadow, "#d8c89a", 0.6), "L");
-  c.fillStyle = pth;
-  c.beginPath();
-  c.moveTo(430, 1000);
-  c.bezierCurveTo(560, 930, 640, 900, 716, riverB(716) + 1);
-  c.lineTo(728, riverB(728) + 1);
-  c.bezierCurveTo(660, 905, 600, 940, 480, 1000);
-  c.fill();
-  c.beginPath();
-  c.moveTo(740, riverT(740) - 1);
-  c.bezierCurveTo(790, 820, 860, 800, 900, railY(900) + 12);
-  c.lineTo(906, railY(906) + 12);
-  c.bezierCurveTo(870, 806, 800, 822, 748, riverT(748) - 1);
-  c.fill();
-  const wd = C("#6a4a34", "M");
-  const wdL = C("#8a6a4a", "L");
-  rect(c, 708, riverT(716) - 4, 752, riverT(716) - 1.5, wdL);
-  rect(c, 708, riverT(716) - 1.5, 752, riverT(716), wd);
-  for (const x of [712, 730, 748])
-    line(c, x, riverT(716) - 1, x, riverB(716) + 2, wd, 1.4);
-  line(c, 708, riverT(716) - 9, 752, riverT(716) - 9, wd, 1);
-  for (const x of [708, 730, 752])
-    line(c, x, riverT(716) - 9, x, riverT(716) - 4, wd, 1);
-  heron(c, 968, riverB(968) - 4);
-}
-function heron(c: Ctx, x: number, y: number) {
+/* ---------- the Marienkirche and the lighter tower beside it, drawn in the reference photo's pixel space ---------- */
+function church(c: Ctx) {
   c.save();
-  c.translate(x, y);
-  c.scale(1.5, 1.5);
-  c.translate(-x, -y);
-  const g = C("#8e979e", "M");
-  const gl = C("#b9c0c4", "L");
-  const dk = C("#2e3136", "S");
-  const bk = C("#d8b04a", "M");
-  c.lineCap = "round";
-  line(c, x - 1, y, x - 2, y - 8, dk, 0.9);
-  line(c, x + 2, y, x + 2, y - 8, dk, 0.9);
-  c.fillStyle = g;
-  c.beginPath();
-  c.ellipse(x, y - 11, 7.5, 3.6, -0.35, 0, 6.3);
-  c.fill();
-  c.fillStyle = gl;
-  c.beginPath();
-  c.ellipse(x + 1, y - 12, 5, 2.2, -0.35, 0, 6.3);
-  c.fill();
-  c.strokeStyle = gl;
-  c.lineWidth = 2;
-  c.beginPath();
-  c.moveTo(x + 5, y - 13);
-  c.quadraticCurveTo(x + 4, y - 19, x + 7, y - 21);
-  c.quadraticCurveTo(x + 10, y - 23, x + 8, y - 25);
-  c.stroke();
-  circ(c, x + 8.5, y - 25.5, 1.8, gl);
-  line(c, x + 10, y - 25.5, x + 15, y - 24.5, bk, 1);
-  line(c, x + 8, y - 26.5, x + 4, y - 27, dk, 0.7);
-  line(c, x - 6, y - 9, x - 9, y - 7, dk, 1.3);
-  c.lineCap = "butt";
-  c.restore();
-}
-
-/* ---------- town: generated once, drawn per palette ---------- */
-interface House {
-  x: number;
-  w: number;
-  base: number;
-  wall: number;
-  typ: "g" | "h" | "e";
-  rh: number;
-  rc: string;
-  wc: string;
-  tim: boolean;
-  chim: boolean;
-  dorm: boolean;
-  s: number;
-  row: number;
-  smoke?: boolean;
-}
-interface Town {
-  rows: House[][];
-  gar: [number, number, number, number][];
-  smoke: [number, number] | null;
-}
-let TOWN: Town | null = null;
-function genTown(): Town {
-  const r = rng(77);
-  const rows: House[][] = [];
-  const RX: [number, number][] = [
-    [540, 1600],
-    [490, 1610],
-    [462, 1615],
-    [446, 1600],
-  ];
-  const WALLS = [
-    MAT.plaster,
-    MAT.plaster,
-    MAT.ochre,
-    MAT.ochre,
-    MAT.pink,
-    MAT.greyR,
-    MAT.greyR,
-    "#d8cdb8",
-  ];
-  for (let k = 0; k < 4; k++) {
-    const hs: House[] = [];
-    const [x0, x1] = at(RX, k);
-    let x = x0 + r() * 12;
-    while (x < x1) {
-      const w = 40 + r() * 38;
-      const cx = x + w / 2;
-      if (k === 0 && ((cx > 960 && cx < 1250) || (cx > 712 && cx < 842))) {
-        x += w * 0.7;
-        continue;
-      }
-      if (k === 1 && cx > 985 && cx < 1250 && r() < 0.6) {
-        x += w * 0.6;
-        continue;
-      }
-      if (k >= 2 && cx > 1300 && cx < 1405) {
-        x += w * 0.8;
-        continue;
-      }
-      const wall = 30 + r() * 20 + (k >= 2 ? 6 : 0);
-      const typ = r() < 0.34 ? "g" : r() < 0.25 ? "h" : "e";
-      const rc =
-        r() < 0.5
-          ? MAT.clay
-          : r() < 0.5
-            ? MAT.clay2
-            : r() < 0.55
-              ? MAT.slate
-              : MAT.clay3;
-      const wc = at(WALLS, (r() * WALLS.length) | 0);
-      hs.push({
-        x,
-        w,
-        base: rowB(k, cx) + r() * 6,
-        wall,
-        typ,
-        rh: typ === "g" ? w * (0.6 + r() * 0.28) : 22 + r() * 16,
-        rc,
-        wc,
-        tim: wc === MAT.plaster && r() < 0.75,
-        chim: r() < 0.4,
-        dorm: r() < 0.35,
-        s: (r() * 1e6) | 0,
-        row: k,
-      });
-      x += w * (0.74 + r() * 0.22) + (r() < 0.12 ? 18 : 0);
-    }
-    hs.sort((a, b) => a.base - b.base);
-    rows.push(hs);
-  }
-  // chimney for the smoke: a row-2 house near x 800
-  let best: House | null = null;
-  for (const h of at(rows, 2))
-    if (!best || Math.abs(h.x - 800) < Math.abs(best.x - 800)) best = h;
-  if (best) {
-    best.chim = true;
-    best.smoke = true;
-  }
-  const gar: [number, number, number, number][] = [];
-  for (let i = 0; i < 34; i++) {
-    const k = 1 + ((r() * 3) | 0);
-    const x = 470 + r() * 1140;
-    if (x > 975 && x < 1255 && k < 2) continue;
-    const n = 2 + ((r() * 3) | 0);
-    const bx = x;
-    const by = rowB(k, x) - 14 - r() * 12;
-    for (let j = 0; j < n; j++)
-      gar.push([bx + (r() - 0.5) * 22, by + (r() - 0.5) * 10, 8 + r() * 9, k]);
-  }
-  return { rows, gar, smoke: null };
-}
-function house(c: Ctx, h: House, town: Town) {
-  const r = rng(h.s);
-  const { x, w, base, wall } = h;
-  const top = base - wall;
-  const cx = x + w / 2;
-  const wM = C(h.wc, "M");
-  rect(c, x, top, x + w, base + 22, wM);
-  const beam = C(MAT.beam, "M");
-  const win = C(MAT.win, "S");
-  const lit = mix(win, "#ffc66e", P.win);
-  // windows
-  const nr = Math.max(1, Math.floor(wall / 15));
-  const nc = Math.max(2, Math.floor(w / 15));
-  for (let i = 0; i < nr; i++)
-    for (let j = 0; j < nc; j++) {
-      const wx = x + ((j + 0.5) * w) / nc - 2.5;
-      const wy = top + 6 + i * 15;
-      c.fillStyle = r() < 0.42 ? lit : win;
-      c.fillRect(wx, wy, 5, 6.5);
-    }
-  if (h.tim) {
-    c.strokeStyle = beam;
-    c.lineWidth = 1.3;
-    c.beginPath();
-    for (let i = 0; i <= nr; i++) {
-      const y = top + 1.5 + i * 15;
-      c.moveTo(x, y);
-      c.lineTo(x + w, y);
-    }
-    const cols = nc;
-    for (let j = 0; j <= cols; j++) {
-      const X = x + 1 + (j * (w - 2)) / cols;
-      c.moveTo(X, top);
-      c.lineTo(X, top + wall);
-    }
-    for (let j = 0; j < cols; j += 2) {
-      const X = x + 1 + (j * (w - 2)) / cols;
-      const X2 = x + 1 + ((j + 1) * (w - 2)) / cols;
-      c.moveTo(X, top + wall);
-      c.lineTo(X2, top + wall - 12);
-    }
-    c.stroke();
-  }
-  // eave shadow
-  rect(c, x, top, x + w, top + 2.5, rgba(C(h.wc, "S"), 0.9));
-  const rL = C(h.rc, side(true));
-  const rR = C(h.rc, side(false));
-  const rM = C(h.rc, "M");
-  if (h.typ === "g") {
-    const ap = top - h.rh;
-    poly(c, [x - 3, top + 1.5, cx, ap - 3.5, cx, top + 1.5], rL);
-    poly(c, [cx, ap - 3.5, x + w + 3, top + 1.5, cx, top + 1.5], rR);
-    poly(c, [x + 1.2, top, cx, ap + 1.2, x + w - 1.2, top], wM);
-    if (h.tim) {
-      c.strokeStyle = beam;
-      c.lineWidth = 1.3;
-      c.beginPath();
-      const y1 = top - h.rh * 0.45;
-      const hw = (w / 2 - 1.2) * 0.45;
-      c.moveTo(cx - (w / 2 - 1.2) + hw, y1);
-      c.lineTo(cx + (w / 2 - 1.2) - hw, y1);
-      c.moveTo(cx, ap + 2);
-      c.lineTo(cx, top);
-      c.moveTo(x + 1, top);
-      c.lineTo(cx - (w / 2 - 1.2) + hw, y1);
-      c.moveTo(x + w - 1, top);
-      c.lineTo(cx + (w / 2 - 1.2) - hw, y1);
-      c.stroke();
-    }
-    c.fillStyle = r() < 0.5 ? lit : win;
-    c.fillRect(cx - 2, top - h.rh * 0.35, 4, 5);
-    if (h.chim)
-      rect(
-        c,
-        cx + w * 0.18,
-        ap + h.rh * 0.3 - 9,
-        cx + w * 0.18 + 4,
-        ap + h.rh * 0.3 + 2,
-        C("#6d4a3a", "M"),
-      );
-  } else {
-    const rt = top - h.rh;
-    const ins = h.typ === "h" ? w * 0.28 : 4;
-    poly(
-      c,
-      [x - 3, top + 1.5, x + ins, rt, x + w - ins, rt, x + w + 3, top + 1.5],
-      rM,
-    );
-    if (h.typ === "h") {
-      poly(c, [x - 3, top + 1.5, x + ins, rt, x + ins, top + 1.5], rL);
-      poly(
-        c,
-        [x + w - ins, rt, x + w + 3, top + 1.5, x + w - ins, top + 1.5],
-        rR,
-      );
-    }
-    line(c, x + ins, rt + 0.6, x + w - ins, rt + 0.6, C(h.rc, "L"), 1.1);
-    // tile courses
-    c.strokeStyle = rgba(C(h.rc, "S"), 0.5);
-    c.lineWidth = 0.7;
-    c.beginPath();
-    for (let y = rt + 5; y < top; y += 4.5) {
-      c.moveTo(x, y);
-      c.lineTo(x + w, y);
-    }
-    c.stroke();
-    if (h.dorm) {
-      const dx = x + w * (0.3 + r() * 0.3);
-      rect(c, dx, rt + h.rh * 0.35, dx + 7, rt + h.rh * 0.8, C(h.wc, "M"));
-      poly(
-        c,
-        [
-          dx - 1.5,
-          rt + h.rh * 0.38,
-          dx + 3.5,
-          rt + h.rh * 0.12,
-          dx + 8.5,
-          rt + h.rh * 0.38,
-        ],
-        C(h.rc, side(true)),
-      );
-      c.fillStyle = r() < 0.5 ? lit : win;
-      c.fillRect(dx + 2, rt + h.rh * 0.5, 3, 3.5);
-    }
-    if (h.chim)
-      rect(c, x + w * 0.7, rt - 8, x + w * 0.7 + 4, rt + 3, C("#6d4a3a", "M"));
-    if (h.smoke) town.smoke = [x + w * 0.7 + 2, rt - 8];
-  }
-}
-function garden(c: Ctx, town: Town, k: number) {
-  const sh = C(MAT.beech, "S");
-  const li = C(MAT.beech2, "L");
-  const md = C(MAT.beech2, "M");
-  for (const [x, y, rr, kk] of town.gar)
-    if (kk === k + 1) crown(c, x, y, rr, sh, li, md);
-}
-function lime(c: Ctx, x: number, b: number) {
-  const r = rng(8);
-  const cr: Blob3[] = [];
-  for (let i = 0; i < 10; i++) {
-    const a = r() * 6.3;
-    const d = Math.sqrt(r());
-    cr.push([
-      x + Math.cos(a) * d * 26,
-      b - 70 + Math.sin(a) * d * 30,
-      14 + r() * 8,
-    ]);
-  }
-  mass(c, cr, C(MAT.beech, "S"), C(MAT.beech, "M"), C(MAT.beech2, "L"));
-}
-
-function peterskirche(c: Ctx) {
-  const b = rowB(0, 780) + 6;
-  const x0 = 730;
-  const x1 = 838;
-  const eave = b - 62;
-  const ridgeT = b - 86;
-  const wM = CH("#ece6da", "M", 0.4);
-  const wL = CH("#ece6da", side(true), 0.4);
-  const sl = C(MAT.slate, "M");
-  rect(c, x0, eave, x1, b + 20, wM);
-  poly(
-    c,
-    [x0 - 3, eave + 1, x0 + 10, ridgeT, x1 - 10, ridgeT, x1 + 3, eave + 1],
-    sl,
-  );
-  line(c, x0 + 10, ridgeT + 0.5, x1 - 10, ridgeT + 0.5, C(MAT.slate, "L"), 1.2);
-  for (let i = 0; i < 4; i++)
-    arch(c, x0 + 18 + i * 22, eave + 14, 6, 16, C(MAT.win, "S"));
-  // two short square towers with small pyramid caps, like rooks
-  const T2: [number, number][] = [
-    [744, 764],
-    [778, 798],
-  ];
-  for (const [a, z] of T2) {
-    const top = b - 104;
-    rect(c, a, top, z, eave + 2, wM);
-    rect(c, SUN < 0 ? a : z - 5, top, SUN < 0 ? a + 5 : z, eave + 2, wL);
-    arch(c, a + 7, top + 10, 4, 9, C(MAT.win, "S"));
-    arch(c, a + 13, top + 10, 4, 9, C(MAT.win, "S"));
-    poly(c, [a - 2, top + 1, (a + z) / 2, top - 20, z + 2, top + 1], sl);
-    poly(
-      c,
-      [
-        (a + z) / 2,
-        top - 20,
-        SUN < 0 ? a - 2 : z + 2,
-        top + 1,
-        (a + z) / 2,
-        top + 1,
-      ],
-      C(MAT.slate, "L"),
-    );
-  }
-}
-
-/* ---------- the Marienkirche ---------- */
-function marienkirche(c: Ctx) {
-  const G = 590;
+  c.transform(0.97, 0, 0, 0.94, 450, 60);
   const sand = MAT.sand;
-  const sandP = MAT.sandP;
   const sl = MAT.slate;
+  const pink = MAT.pink;
   const win = CH(MAT.win, "S", 0.3);
+  const lit = (k: number, b = 0.9) => mix(win, "#ffc46b", P.win > k ? b : 0);
   const cross = (x: number, y: number, h: number) => {
-    line(c, x, y, x, y - h, CH(sl, "M"), 1.6);
-    line(c, x - 3.2, y - h * 0.62, x + 3.2, y - h * 0.62, CH(sl, "M"), 1.4);
-    circ(c, x, y - 1, 1.9, CH("#b8923e", "L"));
+    line(c, x, y, x, y - h, CH(sl, "S"), 3);
+    line(
+      c,
+      x - h * 0.28,
+      y - h * 0.62,
+      x + h * 0.28,
+      y - h * 0.62,
+      CH(sl, "S"),
+      2,
+    );
+    circ(c, x, y - 2, 3.2, CH("#c9a24a", "L"));
   };
   // octagonal spire as three facets meeting at the tip
-  const spire = (cx: number, base: number, tip: number, hw: number) => {
+  // `tw` and `top` give the skirt that widens to the tower's own width and top
+  const spire = (
+    cx: number,
+    base: number,
+    tip: number,
+    hw: number,
+    tw: number,
+    top: number,
+  ) => {
     const a = cx - hw;
-    const b = cx - hw * 0.4;
-    const d = cx + hw * 0.4;
+    const b = cx - hw * 0.36;
+    const d = cx + hw * 0.36;
     const e = cx + hw;
-    poly(c, [a, base, cx, tip, b, base], CH(sl, side(true)));
-    poly(c, [b, base, cx, tip, d, base], CH(sl, "M"));
-    poly(c, [d, base, cx, tip, e, base], CH(sl, side(false)));
-    line(c, cx, tip, SUN < 0 ? b : d, base, rgba(CH("#8a93a8", "L"), 0.55), 1);
+    // slate stays dark even on its sunny facet; the lit edge lines carry the light
+    const m = CH(sl, "M");
+    const sh = CH(sl, "S");
+    const mid = mix(m, sh, 0.5);
+    poly(c, [a, base, cx, tip, e, base, cx + tw, top, cx - tw, top], mid);
+    poly(c, [a, base, cx, tip, b, base], SUN < 0 ? m : sh);
+    poly(c, [d, base, cx, tip, e, base], SUN < 0 ? sh : m);
+    line(c, cx, tip, SUN < 0 ? b : d, base, rgba(CH("#8a93a8", "L"), 0.6), 1.4);
+    line(c, cx, tip, SUN < 0 ? a : e, base, rgba(CH("#8a93a8", "L"), 0.8), 1.6);
   };
   const octo = (
     x0: number,
@@ -1086,310 +510,738 @@ function marienkirche(c: Ctx) {
     base: string,
   ) => {
     const w = x1 - x0;
-    const a = x0 + w * 0.26;
-    const b = x1 - w * 0.26;
+    const a = x0 + w * 0.24;
+    const b = x1 - w * 0.24;
+    rect(c, x0, y0, x1, y1, CH(base, "M"));
     rect(c, x0, y0, a, y1, CH(base, side(true)));
-    rect(c, a, y0, b, y1, CH(base, "M"));
     rect(c, b, y0, x1, y1, CH(base, side(false)));
   };
-  const gables = (x0: number, x1: number, y: number, n: number, h: number) => {
+  // ring of steep gablets where a spire meets its tower, a pinnacle at each end
+  const gablets = (x0: number, x1: number, y: number, n: number, h: number) => {
     const w = (x1 - x0) / n;
     for (let i = 0; i < n; i++) {
       const a = x0 + i * w;
+      poly(c, [a, y, a + w / 2, y - h, a + w, y], CH(sand, "M"));
       poly(
         c,
-        [a, y, a + w / 2, y - h, a + w, y],
-        CH(sand, i < n / 2 ? side(true) : side(false)),
-      );
-      poly(
-        c,
-        [a + w * 0.5, y - h, a + w, y, a + w * 0.5, y],
+        [a + w / 2, y - h, a + w, y, a + w / 2, y],
         CH(sand, side(false)),
+      );
+      arch(c, a + w / 2 - 3, y - h * 0.55, 6, h * 0.4, win);
+    }
+    for (const x of [x0, x1]) {
+      rect(c, x - 2.5, y - h * 0.9, x + 2.5, y, CH(sand, "S"));
+      poly(
+        c,
+        [x - 4, y - h * 0.9, x, y - h * 1.5, x + 4, y - h * 0.9],
+        CH(sl, "S"),
       );
     }
   };
+  const course = (x0: number, x1: number, y: number, base: string) => {
+    rect(c, x0 - 3, y, x1 + 3, y + 5, CH(base, "S"));
+    rect(c, x0 - 3, y - 2, x1 + 3, y, CH(base, "L"));
+  };
 
-  // choir and apse (east end), behind the east towers
-  rect(c, 1206, 466, 1262, G, CH(sand, "M"));
-  rect(
-    c,
-    SUN < 0 ? 1206 : 1250,
-    466,
-    SUN < 0 ? 1216 : 1262,
-    G,
-    CH(sand, side(SUN < 0)),
-  );
-  poly(c, [1202, 470, 1234, 430, 1266, 470], CH(sl, "M"));
-  poly(c, [1234, 430, SUN < 0 ? 1202 : 1266, 470, 1234, 470], CH(sl, "L"));
-  for (let i = 0; i < 3; i++) arch(c, 1214 + i * 15, 488, 5, 26, win);
-  // north-east tower: slender octagon, needle spire (behind)
-  octo(1208, 1228, 430, G, sand);
-  gables(1206, 1230, 430, 2, 9);
-  spire(1218, 426, 250, 11);
-  cross(1218, 250, 12);
-  for (let i = 0; i < 2; i++) arch(c, 1211 + i * 9, 446, 4, 11, win);
-  // choir bay between crossing and towers
-  rect(c, 1164, 468, 1210, G, CH(sand, "M"));
-  poly(c, [1160, 470, 1166, 452, 1208, 452, 1212, 470], CH(sl, "M"));
-  // crossing tower: stone octagon ringed by small gables, fat steep slate spire (tallest point)
-  octo(1086, 1146, 398, G, sand);
-  gables(1084, 1148, 400, 4, 13);
-  for (let i = 0; i < 2; i++) arch(c, 1102 + i * 16, 408, 6, 16, win);
-  spire(1116, 392, 212, 26);
-  cross(1116, 212, 17);
-  // nave: long dark roof between west tower and transept
-  rect(c, 1040, 500, 1092, G, CH(sand, "M"));
-  poly(c, [1036, 504, 1044, 452, 1094, 452, 1094, 504], CH(sl, "M"));
-  line(c, 1044, 452.5, 1094, 452.5, CH("#6d7486", "L"), 1.2);
-  for (let i = 0; i < 3; i++) {
-    const dx = 1050 + i * 14;
-    poly(c, [dx, 480, dx + 4, 470, dx + 8, 480], CH(sl, side(true)));
-    c.fillStyle = win;
-    c.fillRect(dx + 3, 474, 2, 4);
+  // slim north tower, far left
+  octo(187, 281, 478, 700, sand);
+  for (let i = 0; i < 3; i++) arch(c, 199 + i * 27, 500, 12, 40, win);
+  course(187, 281, 548, sand);
+  spire(234, 458, 110, 38, 48, 492);
+  gablets(185, 283, 490, 3, 48);
+  cross(234, 110, 42);
+
+  // rear spire of the pair and the pink belfry stage under it
+  spire(404, 440, 130, 76, 89, 452);
+  cross(398, 130, 40);
+  octo(418, 492, 446, 620, pink);
+  rect(c, 486, 446, 492, 620, CH(sand, side(false)));
+  gablets(420, 492, 448, 2, 44);
+  arch(c, 436, 490, 40, 60, CH(sand, "S"));
+  arch(c, 440, 494, 14, 56, win);
+  arch(c, 458, 494, 14, 56, win);
+  course(418, 492, 555, sand);
+
+  // the lighter tower: cream plaster, two gabled faces, slate helm, lantern and vane
+  const cream = MAT.cream;
+  rect(c, 638, 535, 797, 1000, CH(cream, side(true), 0.6));
+  rect(c, 718, 535, 797, 1000, CH(cream, side(false), 0.6));
+  poly(c, [676, 445, 702, 400, 727, 400, 756, 445, 717, 534], CH(sl, "M", 0.6));
+  poly(c, [714, 400, 727, 400, 756, 445, 717, 534], CH(sl, side(false), 0.6));
+  poly(c, [632, 540, 676, 443, 720, 540], CH(cream, side(true), 0.6));
+  poly(c, [714, 540, 756, 443, 802, 540], CH(cream, side(false), 0.6));
+  line(c, 631, 541, 676, 441, CH(sl, "S", 0.6), 5);
+  line(c, 676, 441, 717, 534, CH(sl, "S", 0.6), 3);
+  line(c, 717, 534, 756, 441, CH(sl, "S", 0.6), 3);
+  line(c, 756, 441, 803, 541, CH(sl, "L", 0.6), 5);
+  rect(c, 703, 352, 727, 402, CH(sl, "M", 0.6));
+  rect(c, 720, 352, 727, 402, CH(sl, side(false), 0.6));
+  for (let i = 0; i < 3; i++) rect(c, 706 + i * 7, 358, 710 + i * 7, 374, win);
+  poly(c, [695, 354, 715, 300, 735, 354], CH(sl, "M", 0.6));
+  poly(c, [715, 300, 735, 354, 722, 354], CH(sl, side(false), 0.6));
+  line(c, 715, 302, 715, 272, CH(sl, "S"), 1.8);
+  circ(c, 715, 296, 3, CH("#c9a24a", "L"));
+  poly(c, [715, 274, 725, 271, 715, 280], CH(sl, "S"));
+  for (const y of [538, 600, 668]) {
+    rect(c, 638, y, 797, y + 4, CH(sand, "S", 0.6));
   }
-  for (let i = 0; i < 3; i++) arch(c, 1048 + i * 14, 518, 5, 22, win);
-  // south transept gable with rose window, in front of the crossing tower
-  rect(c, 1090, 470, 1142, G, CH(sand, "M"));
-  poly(c, [1086, 472, 1116, 430, 1146, 472], CH(sl, side(false)));
-  poly(c, [1090, 472, 1116, 436, 1142, 472], CH(sand, "M"));
-  poly(c, [1116, 436, 1142, 472, 1134, 472], CH(sand, side(false)));
-  circ(c, 1116, 480, 9, CH(sand, "S"));
-  circ(c, 1116, 480, 7, win);
+  for (let y = 546; y < 780; y += 16) {
+    rect(c, 714, y, 722, y + 9, CH(sand, "M", 0.6));
+    rect(c, 790, y, 797, y + 9, CH(sand, "M", 0.6));
+  }
+  circ(c, 753, 480, 12, CH("#c9a24a", "L", 0.6));
+  circ(c, 753, 480, 9.5, CH("#2a2622", "M", 0.3));
+  line(c, 753, 480, 753, 473, CH("#e8d9a8", "L"), 1.6);
+  line(c, 753, 480, 758, 483, CH("#e8d9a8", "L"), 1.6);
+  circ(c, 676, 482, 7, CH(sand, "S", 0.6));
+  circ(c, 676, 482, 4.5, win);
+  const pair = (x: number, y: number, w: number, h: number, k: number) => {
+    arch(c, x - 3, y - 3, w * 2 + 10, h + 5, CH(sand, "M", 0.6));
+    arch(c, x, y, w, h, lit(k));
+    arch(c, x + w + 4, y, w, h, lit(k));
+  };
+  pair(652, 503, 13, 28, 2);
+  pair(730, 503, 13, 28, 0.9);
+  pair(650, 558, 14, 34, 0.5);
+  pair(730, 558, 14, 34, 2);
+  arch(c, 742, 606, 22, 44, CH(sand, "M", 0.6));
+  arch(c, 746, 610, 14, 40, win);
+  rect(c, 750, 682, 758, 698, win);
+
+  // transept roof between the slim tower and the pair
+  poly(c, [248, 720, 248, 610, 298, 584, 316, 604, 316, 720], CH(sl, "M"));
+  cross(298, 584, 26);
+
+  // front tower of the pair: red sandstone octagon, belfry arches, string courses
+  octo(310, 420, 478, 1000, sand);
+  for (let i = 0; i < 3; i++) {
+    arch(c, 322 + i * 33, 492, 20, 50, CH(sand, "S"));
+    arch(c, 326 + i * 33, 497, 12, 45, win);
+  }
+  c.fillStyle = rgba(CH(sand, "S"), 0.45);
+  for (let y = 565; y < 1000; y += 13) c.fillRect(310, y, 110, 1.2);
+  for (const y of [478, 548, 628, 735]) course(310, 420, y, sand);
+  for (let i = 0; i < 7; i++) arch(c, 314 + i * 15, 742, 9, 12, CH(sand, "S"));
+  spire(366, 446, 65, 47, 56, 482);
+  gablets(310, 420, 478, 3, 50);
+  cross(366, 65, 50);
+
+  // choir: polygonal apse under a steep slate cone, gablets, two tiers of arched windows
+  poly(c, [84, 668, 205, 515, 306, 664, 306, 704, 84, 704], CH(sl, "S"));
+  poly(c, [84, 668, 205, 515, 148, 672], CH(sl, SUN < 0 ? "M" : "S"));
+  poly(c, [148, 672, 205, 515, 252, 672], mix(CH(sl, "M"), CH(sl, "S"), 0.5));
+  poly(c, [252, 672, 205, 515, 306, 664], CH(sl, SUN < 0 ? "S" : "M"));
+  line(c, 205, 515, 252, 672, rgba(CH("#8a93a8", "L"), 0.6), 1.4);
+  line(c, 205, 517, 205, 492, CH(sl, "S"), 2);
+  circ(c, 205, 492, 3, CH("#c9a24a", "L"));
+  const faces: [number, number, Face][] = [
+    [86, 150, side(true)],
+    [150, 250, "M"],
+    [250, 304, side(false)],
+  ];
+  // one wall behind the three faces, lapping onto the tower so no gap can open
+  rect(c, 86, 700, 312, 1000, CH(pink, "M"));
+  for (const [x0, x1, f] of faces) {
+    rect(c, x0, 700, x1, 1000, CH(pink, f));
+    const n = f === "M" ? 2 : 1;
+    const w = (x1 - x0) / n;
+    for (let i = 0; i < n; i++) {
+      const a = x0 + i * w;
+      // gablet with a slate cap over each bay
+      poly(c, [a, 702, a + w / 2, 640, a + w, 702], CH(sl, "S"));
+      poly(c, [a + 4, 702, a + w / 2, 650, a + w - 4, 702], CH(sand, f));
+      poly(c, [a + 11, 702, a + w / 2, 664, a + w - 11, 702], CH(pink, f));
+      // upper tier: paired lancets
+      for (let k = 0; k < 2; k++) {
+        arch(c, a + w / 2 - 15 + k * 17, 708, 13, 48, CH(sand, "S"));
+        arch(c, a + w / 2 - 12 + k * 17, 712, 7, 44, lit(0.6, 0.35));
+      }
+      // lower tier: one tall arch
+      arch(c, a + w / 2 - 17, 786, 34, 84, CH(sand, "M"));
+      arch(c, a + w / 2 - 11, 793, 22, 77, lit(0.75, f === "M" ? 0.75 : 0.4));
+    }
+  }
+  for (const y of [700, 764]) course(86, 304, y, sand);
+  for (const x of [84, 146, 248, 298]) {
+    rect(c, x - 2, 690, x + 10, 1000, CH(sand, x < 200 ? side(true) : "M"));
+    rect(c, x + 6, 690, x + 10, 1000, CH(sand, side(false)));
+  }
+
+  // nave roof and south aisle, running right to the lighter tower
+  poly(c, [430, 592, 700, 590, 738, 680, 430, 690], CH(sl, "M"));
+  poly(c, [700, 590, 738, 680, 692, 681], CH(sl, side(false)));
+  line(c, 440, 591, 700, 590, CH("#6d7486", "L"), 2);
+  rect(c, 600, 681, 736, 752, CH(pink, "M"));
+  rect(c, 728, 681, 737, 752, CH(sand, side(false)));
+  rect(c, 600, 681, 737, 688, CH(sand, "S"));
+  for (const x of [644, 684]) {
+    arch(c, x - 4, 696, 22, 50, CH(sand, "M"));
+    arch(c, x, 700, 14, 46, lit(0.75, 0.45));
+  }
+  poly(c, [596, 752, 738, 748, 770, 840, 596, 840], CH(sl, "S"));
+
+  // stair turret tucked between the tower and the gable
+  rect(c, 420, 600, 446, 1000, CH(pink, "M"));
+  poly(c, [418, 602, 433, 572, 448, 602], CH(sl, "S"));
+
+  // pink gabled front with the rose window
+  poly(c, [436, 708, 528, 592, 630, 708], CH(sl, "S"));
+  poly(c, [440, 708, 528, 598, 626, 708, 622, 1000, 444, 1000], CH(sand, "M"));
+  poly(c, [454, 708, 528, 616, 612, 708, 610, 1000, 456, 1000], CH(pink, "M"));
+  poly(c, [600, 720, 612, 708, 610, 1000, 600, 1000], CH(pink, side(false)));
+  // stepped trim under the slopes
+  for (let i = 0; i < 7; i++) {
+    const f = (i + 0.5) / 7;
+    rect(
+      c,
+      456 + f * 68,
+      704 - f * 86,
+      464 + f * 68,
+      712 - f * 86,
+      CH(sand, "S"),
+    );
+    rect(
+      c,
+      603 - f * 72,
+      704 - f * 86,
+      611 - f * 72,
+      712 - f * 86,
+      CH(sand, "S"),
+    );
+  }
+  cross(528, 594, 30);
+  arch(c, 508, 640, 40, 60, CH(sand, "M"));
+  arch(c, 513, 662, 13, 36, lit(0.6, 0.4));
+  arch(c, 530, 662, 13, 36, lit(0.6, 0.4));
+  circ(c, 528, 652, 6, win);
+  circ(c, 524, 740, 33, CH(sand, "M"));
+  circ(c, 524, 740, 27, lit(0.6, 0.6));
   for (let a = 0; a < 8; a++) {
     const t = (a * Math.PI) / 4;
     line(
       c,
-      1116,
-      480,
-      1116 + Math.cos(t) * 7,
-      480 + Math.sin(t) * 7,
+      524,
+      740,
+      524 + Math.cos(t) * 27,
+      740 + Math.sin(t) * 27,
       CH(sand, "M"),
-      0.9,
+      2.4,
+    );
+    circ(
+      c,
+      524 + Math.cos(t + 0.39) * 19,
+      740 + Math.sin(t + 0.39) * 19,
+      4.5,
+      lit(0.6, 0.6),
     );
   }
-  for (let i = 0; i < 2; i++) arch(c, 1105 + i * 16, 498, 6, 24, win);
-  line(c, 1090, 470, 1142, 470, CH(sand, "L"), 1.2);
-  // south-east tower in front
-  octo(1162, 1184, 428, G, sand);
-  gables(1160, 1186, 428, 2, 9);
-  spire(1173, 424, 236, 12);
-  cross(1173, 236, 12);
-  for (let i = 0; i < 2; i++) arch(c, 1165 + i * 9, 442, 4, 11, win);
-  for (let k = 0; k < 4; k++) arch(c, 1164 + k * 5, 470, 3, 7, win);
-  // west tower: broad square box of paler stone, Rhenish rhomb roof, lantern and spike
-  const x0 = 986;
-  const x1 = 1050;
-  const cxw = 1018;
-  const yTop = 406;
-  const yA = 372;
-  const yT = 348;
-  rect(c, x0, yTop, x1, G, CH(sandP, "M"));
-  rect(c, x0 - 8, yTop + 2, x0, G, CH(sandP, side(true)));
-  for (const y of [452, 498, 544])
-    rect(c, x0 - 8, y, x1, y + 2.4, CH(sandP, "S"));
-  const WIN: [number, number, number, number][] = [
-    [414, 2, 7, 17],
-    [462, 2, 6, 16],
-    [508, 2, 6, 15],
-    [552, 1, 8, 14],
+  circ(c, 524, 740, 8, CH(sand, "M"));
+  circ(c, 524, 740, 4.5, win);
+  for (const x of [482, 566]) {
+    circ(c, x, 792, 19, CH(sand, "M"));
+    circ(c, x, 792, 14, win);
+  }
+  // porch gable in front of the lower roses
+  poly(c, [472, 870, 522, 764, 576, 870], CH(sl, "S"));
+  poly(c, [484, 870, 522, 786, 564, 870], CH(sand, "M"));
+  for (let i = 0; i < 3; i++)
+    arch(c, 503 + i * 14, 822 - (i === 1 ? 14 : 0), 9, 60, win);
+  rect(c, 440, 700, 456, 1000, CH(sand, side(true)));
+  rect(c, 610, 700, 626, 1000, CH(sand, side(false)));
+  c.restore();
+}
+
+/* ---------- trees in leaf: three flat lobes, lit along the sun edge ---------- */
+function tree(c: Ctx, x: number, y: number, w: number, h: number) {
+  const lobes: [number, number, number, number][] = [
+    [-0.27, 0.16, 0.3, 0.3],
+    [0.28, 0.2, 0.27, 0.27],
+    [0.02, -0.12, 0.36, 0.4],
   ];
-  for (const [y, n, w, h] of WIN) {
-    for (let k = 0; k < n; k++)
-      arch(c, n === 1 ? cxw - w / 2 : cxw - 11 + k * 16, y, w, h, win);
-  }
-  // rhomb roof: two diamond faces, stone front gable with the clock
-  poly(c, [x0, yTop, cxw, yA, cxw, yT, x0, yA], CH(sl, side(true)));
-  poly(c, [x1, yTop, cxw, yA, cxw, yT, x1, yA], CH(sl, side(false)));
-  poly(
-    c,
-    [x0 - 8, yTop + 2, x0, yTop, x0, yA, x0 - 8, yA + 6],
-    CH(sandP, side(true)),
-  );
-  poly(c, [x0, yTop + 0.5, cxw, yA, x1, yTop + 0.5], CH(sandP, "M"));
-  poly(
-    c,
-    [cxw, yA, x1, yTop + 0.5, x1 - 6, yTop + 0.5],
-    CH(sandP, side(false)),
-  );
-  circ(c, cxw, 394, 6, CH("#efe3c4", "L"));
-  line(c, cxw, 394, cxw, 390, CH(sl, "S"), 1);
-  line(c, cxw, 394, cxw + 3, 395, CH(sl, "S"), 1);
-  // lantern and spike
-  rect(c, cxw - 5, yT - 12, cxw + 5, yT + 2, CH(sl, "M"));
-  rect(c, cxw - 5, yT - 12, cxw - 1, yT + 2, CH(sl, side(true)));
-  poly(c, [cxw - 6, yT - 11, cxw, yT - 34, cxw + 6, yT - 11], CH(sl, "M"));
-  poly(
-    c,
-    [cxw, yT - 34, SUN < 0 ? cxw - 6 : cxw + 6, yT - 11, cxw, yT - 11],
-    CH("#5a6070", "L"),
-  );
-  cross(cxw, yT - 34, 11);
-  // string course and plinth shadow
-  line(c, x0 - 8, G - 40, x1, G - 40, CH(sandP, "S"), 2);
-}
-
-function hexenturm(c: Ctx) {
-  const cx = 1352;
-  const st = mix(MAT.stone, "#6f6358", 0.35);
-  const r = rng(3);
-  const cyl = (w: number, y0: number, y1: number, base: string) => {
-    const x0 = cx - w / 2;
-    const a = x0 + w * 0.34;
-    const b = x0 + w * 0.7;
-    rect(c, x0, y0, a, y1, CH(base, side(true), 0.7));
-    rect(c, a, y0, b, y1, CH(base, "M", 0.7));
-    rect(c, b, y0, x0 + w, y1, CH(base, side(false), 0.7));
+  const oval = (k: number, dx: number, dy: number, col: string) => {
+    c.fillStyle = col;
+    for (const [ox, oy, rx, ry] of lobes) {
+      c.beginPath();
+      c.ellipse(
+        x + ox * w + dx,
+        y + oy * h + dy,
+        rx * w * k,
+        ry * h * k,
+        0,
+        0,
+        6.3,
+      );
+      c.fill();
+    }
   };
-  cyl(70, 622, 760, st);
-  // rough stone courses
-  c.fillStyle = rgba(CH(st, "S", 0.7), 0.45);
-  for (let i = 0; i < 70; i++) {
-    const y = 630 + r() * 120;
-    const x = cx - 33 + r() * 60;
-    c.fillRect(x, y, 4 + r() * 7, 1.5);
-  }
-  // corbel ring (machicolation)
-  cyl(78, 604, 626, st);
-  for (let x = cx - 37; x < cx + 35; x += 8) {
-    c.fillStyle = CH(st, "S", 0.7);
-    c.beginPath();
-    c.moveTo(x, 626);
-    c.lineTo(x, 619);
-    c.arc(x + 3.5, 619, 3.5, Math.PI, 0);
-    c.lineTo(x + 7, 626);
-    c.fill();
-  }
-  line(c, cx - 39, 604, cx + 39, 604, CH(st, "L", 0.7), 1.4);
-  // upper drum and narrow stone cone
-  cyl(72, 590, 605, st);
-  const tip = 500;
-  const hw = 21;
-  poly(c, [cx - hw, 592, cx, tip, cx - hw * 0.3, 592], CH(st, side(true), 0.7));
-  poly(c, [cx - hw * 0.3, 592, cx, tip, cx + hw * 0.4, 592], CH(st, "M", 0.7));
-  poly(
-    c,
-    [cx + hw * 0.4, 592, cx, tip, cx + hw, 592],
-    CH(st, side(false), 0.7),
-  );
-  line(c, cx, tip, cx, tip - 7, CH(MAT.slate, "M"), 1.3);
-  const win = C(MAT.win, "S");
-  const lit = mix(win, "#ffc66e", P.win);
-  c.fillStyle = win;
-  c.fillRect(cx - 12, 648, 4, 10);
-  c.fillRect(cx + 8, 690, 4, 9);
-  c.fillStyle = lit;
-  c.fillRect(cx - 4, 598, 4, 6);
+  oval(1, 0, 0, C(MAT.beech2, "L"));
+  oval(0.94, -SUN * w * 0.035, h * 0.03, C(MAT.beech, "M"));
+  oval(0.6, -SUN * w * 0.12, h * 0.14, C(MAT.beech, "S"));
 }
 
-function townWall(c: Ctx) {
-  const st = mix(MAT.stone, "#a07868", 0.2);
-  c.fillStyle = C(st, "M");
+/* ---------- houses: a roof seen from above, eave to the viewer, gable end to the right unless flipped ---------- */
+interface House {
+  x: number;
+  y: number;
+  /** Ridge length, roof face height, wall height, all before scale k. */
+  w: number;
+  rh: number;
+  wh: number;
+  /** Eave offset against the ridge and drop of the ridge along its length. */
+  sk: number;
+  dy: number;
+  /** Depth of the gable end; 0 hides it. */
+  gd: number;
+  k: number;
+  mat: string;
+  wall: string;
+  tim?: boolean;
+  sky?: number;
+  dorm?: number;
+  chim?: number[];
+  flip?: boolean;
+  smoke?: boolean;
+  seed: number;
+}
+let SMOKE: [number, number] = [0, 0];
+function house(c: Ctx, h: House) {
+  const { w, rh, wh, sk, dy, gd } = h;
+  const r = rng(h.seed);
+  const gf = side(!!h.flip);
+  const glass = () =>
+    r() < P.win * 0.7 ? "#ffc46b" : mix(C("#3d4654", "S"), P.skyM, 0.12);
+  const beam = C(MAT.beam, "S");
+  c.save();
+  c.translate(h.flip ? h.x + w * h.k : h.x, h.y);
+  c.scale(h.flip ? -h.k : h.k, h.k);
+  // a roof leaning toward the sun catches it
+  const roofM =
+    side(!h.flip) === "L"
+      ? mix(C(h.mat, "M"), C(h.mat, "L"), 0.55)
+      : C(h.mat, "M");
+  const roofS = C(h.mat, "S");
+  const ax = w + sk;
+  const ay = rh + dy;
+  if (gd) {
+    const bx = w + gd;
+    const by = dy + rh * 0.86;
+    poly(c, [ax, ay, w, dy, bx, by, bx, by + wh, ax, ay + wh], C(h.wall, gf));
+    if (h.tim) {
+      line(c, ax, ay, bx, by, beam, 3);
+      line(c, ax, ay + wh * 0.5, bx, by + wh * 0.5, beam, 3);
+      const mx = (ax + bx) / 2;
+      const my = (ay + by) / 2;
+      line(c, w, dy + 6, mx, my + wh, beam, 3);
+      line(c, w, dy + 6, ax + 4, ay, beam, 2.4);
+      line(c, w, dy + 6, bx - 4, by, beam, 2.4);
+      for (const f of [0.25, 0.75])
+        line(
+          c,
+          ax + (bx - ax) * f,
+          ay + (by - ay) * f - rh * 0.3,
+          ax + (bx - ax) * f,
+          ay + wh,
+          beam,
+          2.4,
+        );
+    }
+    const gx = (ax + bx) / 2;
+    c.fillStyle = glass();
+    c.fillRect(gx - 6, ay - rh * 0.32, 12, 16);
+    for (let y = ay + 14; y < ay + wh - 22; y += 44) {
+      for (const f of [0.3, 0.7]) {
+        c.fillStyle = glass();
+        c.fillRect(ax + (bx - ax) * f - 6, y, 12, 18);
+      }
+    }
+    line(c, w, dy, ax - 3, ay + 3, roofS, 5);
+    line(c, w, dy, bx + 3, by + 2, roofS, 4);
+  }
+  // wall under the eave
+  poly(c, [sk, rh, ax, ay, ax, ay + wh, sk, rh + wh], C(h.wall, "M"));
+  const n = Math.max(1, (w / 46) | 0);
+  for (let i = 0; i < n; i++) {
+    const f = (i + 0.5) / n;
+    for (let y = 12; y < wh - 20; y += 44) {
+      c.fillStyle = glass();
+      c.fillRect(sk + w * f - 6, rh + dy * f + y, 12, 18);
+    }
+  }
+  if (h.tim) {
+    for (let y = 4; y < wh; y += 44) line(c, sk, rh + y, ax, ay + y, beam, 3);
+    for (let i = 0; i <= n * 2; i++) {
+      const f = i / (n * 2);
+      line(c, sk + w * f, rh + dy * f, sk + w * f, rh + dy * f + wh, beam, 2.4);
+    }
+  }
+  poly(c, [sk, rh, ax, ay, ax, ay + 5, sk, rh + 5], mix(roofS, INK, 0.35));
+  // roof face with tile courses
+  poly(c, [0, 0, w, dy, ax, ay, sk, rh], roofM);
+  c.strokeStyle = mix(roofM, INK, 0.2);
+  c.lineWidth = 1;
   c.beginPath();
-  c.moveTo(430, wallY(430));
-  for (let x = 430; x <= 1640; x += 20) c.lineTo(x, wallY(x));
-  c.lineTo(1640, 760);
-  c.lineTo(430, 760);
+  for (let v = 8; v < rh; v += 8) {
+    const f = v / rh;
+    c.moveTo(sk * f, v);
+    c.lineTo(w + sk * f, dy + v);
+  }
+  c.stroke();
+  // weathered patches
+  for (let i = 0; i < w / 40; i++) {
+    const f = r();
+    const v = 0.1 + r() * 0.7;
+    const pw = 14 + r() * 30;
+    c.fillStyle = rgba(r() < 0.5 ? C(h.mat, "L") : roofS, 0.22);
+    c.fillRect(w * f * 0.9 + sk * v, dy * f + rh * v, pw, 7);
+  }
+  line(c, 0, 0, w, dy, C(h.mat, "L"), 3);
+  const sl = sk / rh;
+  for (let i = 0; i < (h.sky ?? 0); i++) {
+    const f = (i + 0.6 + r() * 0.3) / ((h.sky ?? 0) + 0.6);
+    const v = 0.22 + r() * 0.2;
+    const x = w * f + sk * v;
+    const y = dy * f + rh * v;
+    const q = [x, y, x + 22, y, x + 22 + sl * 24, y + 24, x + sl * 24, y + 24];
+    poly(c, q, glass());
+    c.strokeStyle = mix(roofS, INK, 0.4);
+    c.lineWidth = 3;
+    c.stroke();
+  }
+  for (let i = 0; i < (h.dorm ?? 0); i++) {
+    const f = (i + 0.5) / (h.dorm ?? 1);
+    const x = w * f + sk * 0.5 - 20;
+    const y = dy * f + rh * 0.5;
+    poly(c, [x - 5, y - 26, x + 20, y - 46, x + 45, y - 26], roofS);
+    poly(
+      c,
+      [x + 20, y - 46, x + 45, y - 26, x + 62, y - 44, x + 36, y - 58],
+      roofM,
+    );
+    rect(c, x, y - 26, x + 40, y + 4, C(h.wall, "M"));
+    c.fillStyle = glass();
+    c.fillRect(x + 6, y - 20, 12, 18);
+    c.fillStyle = glass();
+    c.fillRect(x + 22, y - 20, 12, 18);
+  }
+  for (const f of h.chim ?? []) {
+    const x = w * f;
+    const y = dy * f + 4;
+    rect(c, x - 8, y - 34, x + 8, y + 6, C("#8a5040", "M"));
+    rect(
+      c,
+      h.flip === SUN > 0 ? x - 8 : x + 3,
+      y - 34,
+      h.flip === SUN > 0 ? x - 3 : x + 8,
+      y + 6,
+      C("#8a5040", "L"),
+    );
+    rect(c, x - 10, y - 39, x + 10, y - 33, C(MAT.plaster, "S"));
+    if (h.smoke)
+      SMOKE = [h.x + (h.flip ? w - x : x) * h.k, h.y + (y - 40) * h.k];
+  }
+  c.restore();
+}
+
+/* a street of smaller houses, generated; `k` sets their size */
+function row(
+  c: Ctx,
+  y: number,
+  x0: number,
+  x1: number,
+  k: number,
+  seed: number,
+) {
+  const r = rng(seed);
+  const mats = [MAT.clay, MAT.clay2, MAT.slate, MAT.clay, MAT.clay3];
+  const walls = [MAT.plaster, MAT.cream, MAT.plaster, MAT.ochre];
+  for (let x = x0; x < x1; ) {
+    const w = 70 + r() * 90;
+    const sk = -18 - r() * 16;
+    const gd = r() < 0.7 ? -sk * (1.1 + r() * 0.4) : 0;
+    house(c, {
+      x,
+      y: y + (r() - 0.5) * 26 * k,
+      w,
+      rh: 46 + r() * 26,
+      wh: 70,
+      sk,
+      dy: (r() - 0.5) * 10,
+      gd,
+      k,
+      mat: at(mats, (r() * mats.length) | 0),
+      wall: at(walls, (r() * walls.length) | 0),
+      tim: r() < 0.25,
+      sky: r() < 0.5 ? 1 + ((r() * 2) | 0) : 0,
+      chim: r() < 0.6 ? [0.2 + r() * 0.6] : [],
+      flip: r() < 0.4,
+      seed: seed * 100 + x,
+    });
+    x += (w + gd) * k * (0.8 + r() * 0.25);
+  }
+}
+
+/* ---------- the upper town: streets stepping down toward the viewer ---------- */
+function town(c: Ctx) {
+  D = 0.22;
+  row(c, 668, 1220, 1700, 0.34, 3);
+  row(c, 676, -40, 450, 0.34, 4);
+  D = 0.17;
+  row(c, 694, 1210, 1700, 0.5, 5);
+  // hipped slate roof with the small onion turret
+  const tx = 1470;
+  rect(c, tx - 9, 626, tx + 9, 668, C(MAT.slate, "M"));
+  rect(c, tx + 3, 626, tx + 9, 668, C(MAT.slate, side(false)));
+  c.fillStyle = C(MAT.slate, "S");
+  c.beginPath();
+  c.moveTo(tx - 13, 628);
+  c.bezierCurveTo(tx - 20, 606, tx - 5, 606, tx, 590);
+  c.bezierCurveTo(tx + 5, 606, tx + 20, 606, tx + 13, 628);
   c.fill();
-  line(c, 430, wallY(430) + 1, 1640, wallY(1640) + 1, C(st, "L"), 1.6);
-  c.fillStyle = rgba(C(st, "S"), 0.6);
-  for (let x = 440; x < 1640; x += 58) c.fillRect(x, wallY(x) + 3, 5, 28);
-  // gate tower
-  const gx = 640;
-  const gy = wallY(gx);
-  rect(c, gx, gy - 78, gx + 34, gy + 30, C(st, "M"));
-  rect(
-    c,
-    SUN < 0 ? gx : gx + 28,
-    gy - 78,
-    SUN < 0 ? gx + 6 : gx + 34,
-    gy + 30,
-    C(st, side(SUN < 0)),
-  );
+  line(c, tx, 592, tx, 566, C(MAT.slate, "S"), 1.6);
+  circ(c, tx, 574, 2.2, C(MAT.slate, "S"));
   poly(
     c,
-    [gx - 3, gy - 77, gx + 17, gy - 108, gx + 37, gy - 77],
+    [tx - 80, 700, tx - 44, 660, tx + 50, 660, tx + 92, 700],
     C(MAT.slate, "M"),
   );
   poly(
     c,
-    [gx + 17, gy - 108, SUN < 0 ? gx - 3 : gx + 37, gy - 77, gx + 17, gy - 77],
-    C(MAT.slate, "L"),
+    [tx + 50, 660, tx + 92, 700, tx + 40, 700],
+    C(MAT.slate, side(false)),
   );
-  arch(c, gx + 10, gy + 6, 14, 24, C(MAT.win, "S"));
-  c.fillStyle = mix(C(MAT.win, "S"), "#ffc66e", P.win);
-  c.fillRect(gx + 15, gy - 60, 4, 6);
-  // street lamps at night
-  if (P.win > 0.05) {
-    for (let x = 470; x < 1620; x += 64) {
-      const y = wallY(x) - 4;
-      const R = c.createRadialGradient(x, y, 0, x, y, 12);
-      R.addColorStop(0, rgba("#ffd28a", 0.7 * P.win));
-      R.addColorStop(1, rgba("#ffd28a", 0));
-      c.fillStyle = R;
-      c.fillRect(x - 12, y - 12, 24, 24);
-    }
-  }
+  D = 0.12;
+  tree(c, 1282, 700, 140, 130);
+  row(c, 732, 1200, 1700, 0.7, 7);
+  tree(c, 60, 722, 120, 90);
+  tree(c, 468, 740, 110, 120);
+  row(c, 742, -60, 390, 0.8, 8);
+  tree(c, 300, 760, 90, 80);
 }
 
-function getTown(): Town {
-  if (!TOWN) TOWN = genTown();
-  return TOWN;
-}
-function town(c: Ctx) {
-  const t = getTown();
-  for (const h of at(t.rows, 0)) house(c, h, t);
-  peterskirche(c);
-  garden(c, t, 0);
-}
-function townFront(c: Ctx) {
-  const t = getTown();
-  for (let k = 1; k < 4; k++) {
-    garden(c, t, k);
-    for (const h of at(t.rows, k)) house(c, h, t);
-  }
-  lime(c, 952, rowB(1, 952) - 4);
-  const r = rng(17);
-  const sh = C(MAT.beech, "S");
-  const md = C(MAT.beech, "M");
-  const li = C(MAT.beech2, "L");
-  const bh: Blob3[] = [];
-  for (let i = 0; i < 16; i++)
-    bh.push([1300 + r() * 110, 600 + r() * 90, 14 + r() * 14]);
-  mass(c, bh, C(MAT.spruce, "S"), C(MAT.spruce, "M"), C(MAT.beech, "M"));
-  hexenturm(c);
-  townWall(c);
-  // gardens and trees between the wall and the railway
-  const G: [number, number][] = [
-    [470, 3],
-    [560, 4],
-    [760, 2],
-    [900, 5],
-    [1050, 3],
-    [1180, 2],
-    [1250, 4],
-    [1470, 3],
-    [1560, 5],
-  ];
-  for (const [x0, n] of G) {
-    const b: Blob3[] = [];
-    for (let i = 0; i < n * 3; i++)
-      b.push([x0 + r() * n * 22, 748 + r() * 14 - r() ** 2 * 28, 9 + r() * 12]);
-    mass(c, b, sh, md, li);
-  }
-  c.fillStyle = C(MAT.meadowD, "S");
-  for (let x = 440; x < 1620; x += 3) {
-    const h = 2 + Math.abs(Math.sin(x * 0.21) * 4);
-    c.fillRect(x, 766 - h, 3, h + 6);
-  }
+/* ---------- foreground roofs, close and cut by the frame ---------- */
+const NEAR: House[] = [
+  // slate roofs under the lighter tower, cream gable end
+  {
+    x: 1050,
+    y: 742,
+    w: 250,
+    rh: 80,
+    wh: 90,
+    sk: -40,
+    dy: -12,
+    gd: 52,
+    k: 1.3,
+    mat: MAT.slate,
+    wall: MAT.cream,
+    chim: [0.5],
+    sky: 2,
+    seed: 21,
+  },
+  // half-timbered gable and white walls at right
+  {
+    x: 1320,
+    y: 700,
+    w: 80,
+    rh: 60,
+    wh: 120,
+    sk: -40,
+    dy: 0,
+    gd: 52,
+    k: 1.4,
+    mat: MAT.clay2,
+    wall: MAT.plaster,
+    tim: true,
+    seed: 22,
+  },
+  {
+    x: 40,
+    y: 772,
+    w: 220,
+    rh: 80,
+    wh: 90,
+    sk: -38,
+    dy: 8,
+    gd: 50,
+    k: 1.3,
+    mat: MAT.slate,
+    wall: MAT.plaster,
+    chim: [0.3],
+    sky: 2,
+    seed: 23,
+  },
+  {
+    x: 1370,
+    y: 800,
+    w: 210,
+    rh: 100,
+    wh: 110,
+    sk: -30,
+    dy: -6,
+    gd: 0,
+    k: 1.5,
+    mat: MAT.slate,
+    wall: MAT.cream,
+    dorm: 2,
+    chim: [0.2],
+    flip: true,
+    seed: 25,
+  },
+  // the long red roof below the church
+  {
+    x: 730,
+    y: 802,
+    w: 320,
+    rh: 104,
+    wh: 80,
+    sk: -50,
+    dy: 16,
+    gd: 0,
+    k: 1.55,
+    mat: MAT.clay,
+    wall: MAT.plaster,
+    chim: [0.14, 0.86],
+    sky: 3,
+    smoke: true,
+    flip: true,
+    seed: 24,
+  },
+  // white gable house with a dark roof, left of the red roof
+  {
+    x: 400,
+    y: 806,
+    w: 120,
+    rh: 86,
+    wh: 150,
+    sk: -40,
+    dy: 6,
+    gd: 52,
+    k: 1.5,
+    mat: MAT.clay2,
+    wall: MAT.plaster,
+    sky: 1,
+    flip: true,
+    seed: 26,
+  },
+  {
+    x: 150,
+    y: 826,
+    w: 190,
+    rh: 100,
+    wh: 100,
+    sk: 26,
+    dy: -8,
+    gd: 0,
+    k: 1.6,
+    mat: MAT.clay,
+    wall: MAT.plaster,
+    dorm: 1,
+    chim: [0.7],
+    seed: 27,
+  },
+  {
+    x: -140,
+    y: 836,
+    w: 210,
+    rh: 96,
+    wh: 100,
+    sk: -20,
+    dy: 10,
+    gd: 0,
+    k: 1.6,
+    mat: MAT.clay,
+    wall: MAT.ochre,
+    sky: 2,
+    seed: 28,
+  },
+  {
+    x: 1200,
+    y: 832,
+    w: 170,
+    rh: 80,
+    wh: 100,
+    sk: -30,
+    dy: 10,
+    gd: 0,
+    k: 1.6,
+    mat: MAT.slate,
+    wall: MAT.plaster,
+    sky: 2,
+    chim: [0.5],
+    seed: 29,
+  },
+  {
+    x: 930,
+    y: 884,
+    w: 150,
+    rh: 80,
+    wh: 80,
+    sk: 30,
+    dy: 0,
+    gd: 0,
+    k: 1.9,
+    mat: MAT.clay2,
+    wall: MAT.plaster,
+    sky: 1,
+    flip: true,
+    seed: 31,
+  },
+  {
+    x: 1240,
+    y: 896,
+    w: 220,
+    rh: 70,
+    wh: 60,
+    sk: -14,
+    dy: 6,
+    gd: 0,
+    k: 1.9,
+    mat: MAT.clay,
+    wall: MAT.plaster,
+    sky: 2,
+    chim: [0.6],
+    seed: 32,
+  },
+  {
+    x: 520,
+    y: 894,
+    w: 210,
+    rh: 70,
+    wh: 60,
+    sk: -20,
+    dy: -6,
+    gd: 0,
+    k: 1.9,
+    mat: MAT.slate,
+    wall: MAT.plaster,
+    sky: 2,
+    seed: 33,
+  },
+  {
+    x: -20,
+    y: 902,
+    w: 260,
+    rh: 70,
+    wh: 60,
+    sk: 16,
+    dy: 4,
+    gd: 0,
+    k: 1.9,
+    mat: MAT.clay2,
+    wall: MAT.plaster,
+    chim: [0.5],
+    seed: 34,
+  },
+];
+function near(c: Ctx) {
+  for (const h of NEAR) house(c, h);
 }
 
 function mist(c: Ctx) {
   if (P.mist < 0.02) return;
   const col = mix(P.haze, "#ffffff", 0.25);
   const M: [number, number, number][] = [
-    [748, 806, 0.8],
-    [814, 850, 0.55],
-    [690, 740, 0.35],
+    [600, 660, 0.7],
+    [640, 720, 0.45],
   ];
   for (const [y0, y1, a] of M) {
     const g = c.createLinearGradient(0, y0, 0, y1);
@@ -1401,359 +1253,58 @@ function mist(c: Ctx) {
   }
 }
 
-/* ---------- foreground: Palas arcade, alders, reeds, a photographer ---------- */
-function fore(c: Ctx) {
-  const r = rng(61);
-  // bank
-  const bk = C(MAT.meadowD, "S");
-  c.fillStyle = bk;
-  c.beginPath();
-  c.moveTo(-100, 1200);
-  for (let x = -100; x <= 1800; x += 10) c.lineTo(x, bankY(x));
-  c.lineTo(1800, 1200);
-  c.fill();
-  c.fillStyle = C(MAT.meadowD, "M");
-  for (let x = -100; x < 1800; x += 4) {
-    const h = 3 + r() * 9;
-    poly(
-      c,
-      [x, bankY(x) + 2, x + 1.5 + r() * 2, bankY(x) - h, x + 3, bankY(x) + 2],
-      C(MAT.meadowD, r() < 0.3 ? "L" : "M"),
-    );
-  }
-  for (let i = 0; i < 120; i++) {
-    const x = r() * 1700 - 50;
-    const y = bankY(x) + 4 + r() * 40;
-    circ(c, x, y, 1.1, rgba(C(r() < 0.5 ? "#f2ede0" : "#e8c860", "L"), 0.8));
-  }
-  c.strokeStyle = C(MAT.meadowD, "S");
-  c.lineWidth = 1.4;
-  for (let i = 0; i < 160; i++) {
-    const x = r() * 1700 - 50;
-    const b = 1010;
-    const h = 30 + r() * 70;
-    c.beginPath();
-    c.moveTo(x, b);
-    c.quadraticCurveTo(x + 4, b - h * 0.6, x + (r() - 0.5) * 24, b - h);
-    c.stroke();
-  }
-  // reeds with a few bulrush heads
-  const rc = C(mix(MAT.meadowD, "#7a7440", 0.5), "S");
-  const rl = C(mix(MAT.meadow, "#b0a060", 0.4), "L");
-  const clumps: number[] = [];
-  for (let k = 0; k < 16; k++) clumps.push(470 + r() * 980);
-  for (let i = 0; i < 260; i++) {
-    const x = at(clumps, i % 16) + (r() - 0.5) * 50;
-    const b = bankY(x) + 6;
-    const h = 16 + r() * 46 * (1 - Math.abs(r() - 0.5));
-    const bend = (r() - 0.35) * 14;
-    c.strokeStyle = r() < 0.3 ? rl : rc;
-    c.lineWidth = 1 + r() * 0.8;
-    c.beginPath();
-    c.moveTo(x, b);
-    c.quadraticCurveTo(x + bend * 0.3, b - h * 0.6, x + bend, b - h);
-    c.stroke();
-    if (r() < 0.1) {
-      c.fillStyle = C("#5a3a24", "M");
-      c.beginPath();
-      c.ellipse(x + bend * 0.92, b - h * 0.93, 1.8, 5, bend * 0.02, 0, 6.3);
-      c.fill();
-    }
-  }
-  // Kaiserpfalz, the Palas: long red sandstone wall, arcade of round arches on paired columns
-  const s = MAT.sand;
-  const fM = C(s, "M");
-  const fL = C(s, "L");
-  const fS = C(s, "S");
-  {
-    const tb: Blob3[] = [];
-    for (let i = 0; i < 9; i++)
-      tb.push([10 + r() * 260, 752 + r() * 30, 22 + r() * 22]);
-    mass(c, tb, C(MAT.beech, "S"), C(MAT.beech, "M"), C(MAT.beech2, "L"));
-  }
-  const outer = [
-    -30, 1200, -30, 772, 6, 770, 8, 758, 40, 756, 42, 774, 120, 778, 166, 775,
-    170, 768, 236, 770, 238, 781, 318, 778, 322, 770, 390, 773, 394, 784, 418,
-    790, 424, 812, 436, 818, 440, 846, 452, 852, 458, 1200,
-  ];
-  const A = [
-    [54, 86, 118],
-    [180, 212, 244],
-    [306, 338, 370],
-  ];
-  c.beginPath();
-  c.moveTo(at(outer, 0), at(outer, 1));
-  for (let i = 2; i < outer.length; i += 2)
-    c.lineTo(at(outer, i), at(outer, i + 1));
-  c.closePath();
-  const hole = (x: number, w: number, sp: number, b: number) => {
-    c.moveTo(x, b);
-    c.lineTo(x, sp);
-    c.arc(x + w / 2, sp, w / 2, Math.PI, 0, false);
-    c.lineTo(x + w, b);
-    c.closePath();
-  };
-  for (const x of A.flat()) hole(x, 26, 846, 900);
-  hole(200, 50, 964, 1200);
-  c.fillStyle = fM;
-  c.fill("evenodd");
-  // arch reveals: wall thickness seen on the inner right jamb and soffit
-  const holeP = (
-    x: number,
-    w: number,
-    sp: number,
-    b: number,
-    dx: number,
-    dy: number,
-  ) => {
-    c.moveTo(x + dx, b + dy);
-    c.lineTo(x + dx, sp + dy);
-    c.arc(x + w / 2 + dx, sp + dy, w / 2, Math.PI, 0, false);
-    c.lineTo(x + w + dx, b + dy);
-    c.closePath();
-  };
-  for (const x of A.flat()) {
-    c.save();
-    c.beginPath();
-    holeP(x, 26, 846, 900, 0, 0);
-    c.clip();
-    c.beginPath();
-    holeP(x, 26, 846, 900, 0, 0);
-    holeP(x, 26, 846, 900, -6, 5);
-    c.fillStyle = SUN < 0 ? fL : fS;
-    c.fill("evenodd");
-    c.restore();
-  }
-  // paired columns with capitals
-  for (const g of A) {
-    for (let i = 0; i < g.length - 1; i++) {
-      const x = at(g, i) + 26;
-      rect(c, x - 1, 840, x + 7, 845, fL);
-      rect(c, x - 1, 896, x + 7, 901, fL);
-      line(c, x + 3, 845, x + 3, 896, fS, 1.2);
-    }
-  }
-  for (const g of A) {
-    const a = at(g, 0) - 8;
-    const z = at(g, g.length - 1) + 34;
-    c.strokeStyle = fL;
-    c.lineWidth = 1.3;
-    c.beginPath();
-    c.moveTo(a, 902);
-    c.lineTo(z, 902);
-    c.stroke();
-  }
-  // string courses, blocks, piers
-  line(c, -30, 818, 446, 818, fS, 2);
-  line(c, -30, 914, 446, 914, fS, 2.5);
-  line(c, -30, 912, 446, 912, fL, 1);
-  c.fillStyle = rgba(fS, 0.35);
-  for (let y = 790; y < 1000; y += 9) c.fillRect(-30, y, 476, 1);
-  c.fillStyle = rgba(fS, 0.5);
-  for (let i = 0; i < 120; i++) {
-    const x = r() * 470 - 20;
-    const y = 800 + r() * 170;
-    c.fillRect(x, y, 6 + r() * 10, 1.4);
-  }
-  poly(c, [452, 852, 462, 858, 468, 1200, 458, 1200], C(s, side(false)));
-  c.strokeStyle = fL;
-  c.lineWidth = 1.6;
-  c.beginPath();
-  c.moveTo(at(outer, 2), at(outer, 3));
-  for (let i = 4; i < outer.length - 2; i += 2)
-    c.lineTo(at(outer, i), at(outer, i + 1));
-  c.stroke();
-  // grass on the ruin top
-  for (let x = -30; x < 446; x += 4) {
-    if (r() < 0.35) continue;
-    let y = 800;
-    for (let i = 2; i < outer.length - 2; i += 2) {
-      if (at(outer, i) >= x) {
-        y = at(outer, i + 1);
-        break;
-      }
-    }
-    poly(
-      c,
-      [x, y + 3, x + 2, y - 3 - r() * 7, x + 4, y + 3],
-      C(MAT.meadow, r() < 0.3 ? "L" : "M"),
-    );
-  }
-  // alders and willows, right foreground
-  const sh = C(MAT.willow, "S");
-  const li = C(mix(MAT.willow, MAT.beech2, 0.6), "L");
-  const md = C(MAT.willow, "M");
-  const TR: [number, number, number, number][] = [
-    [1500, 960, 1486, 720],
-    [1580, 960, 1596, 700],
-    [1650, 960, 1640, 740],
-  ];
-  for (const [a, b, x2, y2] of TR) line(c, a, b, x2, y2, C(MAT.beam, "S"), 7);
-  const cr: Blob3[] = [];
-  for (let i = 0; i < 34; i++) {
-    const a = r();
-    const x = 1440 + a * 260;
-    const y = 700 + r() ** 0.9 * 230 + (1 - a) * 50;
-    cr.push([x, y, 22 + r() * 28]);
-  }
-  mass(c, cr, sh, md, li);
-  c.strokeStyle = md;
-  c.lineWidth = 1.2;
-  for (let i = 0; i < 70; i++) {
-    const x = 1440 + r() * 260;
-    const y = 760 + r() * 170;
-    const h = 16 + r() * 30;
-    c.beginPath();
-    c.moveTo(x, y);
-    c.quadraticCurveTo(x + SUN * -3, y + h * 0.6, x + SUN * -2, y + h);
-    c.stroke();
-  }
-  // a photographer on the bank with a tripod (a small nod)
-  const px = 530;
-  const py = bankY(530) + 2;
-  const fk = C("#2a2b31", "S");
-  line(c, px - 2, py, px - 1, py - 15, fk, 3);
-  line(c, px + 3, py, px + 2, py - 15, fk, 3);
-  poly(
-    c,
-    [px - 5, py - 14, px - 4, py - 31, px + 6, py - 31, px + 7, py - 14],
-    fk,
-  );
-  circ(c, px + 1, py - 35, 4.2, fk);
-  line(c, px + 4, py - 27, px + 12, py - 31, fk, 2.2);
-  rect(c, px + 10, py - 35, px + 17, py - 29, fk);
-  line(c, px + 13, py - 29, px + 9, py, fk, 1.1);
-  line(c, px + 14, py - 29, px + 19, py, fk, 1.1);
-  line(c, px + 13, py - 29, px + 14, py, fk, 1.1);
-}
-
 /* ---------- layers: back to front, each with an aerial haze wash at its base ---------- */
 type Wash = [number, number, number, number, string?];
 interface Layer {
-  g: 1 | 2 | 3;
-  d: number;
+  /** Target canvas: 0 sky, 1 back, 2 mid. */
+  g: 0 | 1 | 2;
   f: (c: Ctx) => void;
+  /** Opacity of the whole layer. */
+  a?: () => number;
   m?: () => Wash;
 }
 const LAYERS: Layer[] = [
-  { g: 1, d: 0.82, f: far, m: () => [570, 660, 0, 0.5] },
-  { g: 1, d: 0.6, f: domes, m: () => [500, 690, 0, 0.6] },
-  { g: 1, d: 0.4, f: ridge, m: () => [430, 700, 0, 0.6] },
-  { g: 1, d: 0.3, f: plainW, m: () => [660, 760, 0.1, 0.35] },
-  { g: 1, d: 0.24, f: slope, m: () => [520, 700, 0, 0.4] },
-  { g: 1, d: 0, f: nightGlow },
-  { g: 2, d: 0.1, f: valley, m: () => [736, 820, 0.35, 0] },
-  { g: 2, d: 0.12, f: town, m: () => [480, 640, 0, 0.18] },
-  {
-    g: 2,
-    d: 0.1,
-    f: marienkirche,
-    m: () => [590, 340, 0.5 * P.flood, 0, "#ffb46e"],
-  },
-  { g: 2, d: 0.07, f: townFront, m: () => [600, 760, 0, 0.14] },
-  { g: 2, d: 0, f: mist },
-  { g: 3, d: 0, f: fore },
+  { g: 0, f: deck, a: () => P.deckA },
+  { g: 1, f: hills, m: () => [540, 630, 0, 0.5] },
+  { g: 1, f: valley, m: () => [610, 700, 0.3, 0] },
+  { g: 1, f: mist },
+  { g: 1, f: nightGlow },
+  { g: 2, f: church, m: () => [900, 600, 0.4 * P.flood, 0, "#ffb46e"] },
+  { g: 2, f: town, m: () => [640, 760, 0.25, 0] },
+  { g: 2, f: near },
 ];
 
-/* ---------- living details: a train, chimney smoke, swifts round the spires, glints on the Kinzig ---------- */
-function train(c: Ctx, x0: number) {
-  const y = railY(x0 + 120);
-  const cars = 6;
-  const cl = 44;
-  const body = C("#eceae4", "L");
-  const bodyS = C("#c9c7c2", "M");
-  const red = C("#c8322e", "M");
-  const win = mix(C("#2d333b", "S"), "#ffe3a8", P.win * 0.9);
-  for (let i = 0; i < cars; i++) {
-    const x = x0 + i * (cl + 2);
-    const yy = railY(x + cl / 2);
-    rect(c, x, yy - 11, x + cl, yy - 1.5, body);
-    rect(c, x, yy - 4.5, x + cl, yy - 1.5, bodyS);
-    rect(c, x, yy - 4, x + cl, yy - 3, red);
-    rect(c, x + 3, yy - 9, x + cl - 3, yy - 6.8, win);
-    if (i === 0) {
-      c.fillStyle = body;
-      c.beginPath();
-      c.moveTo(x + 0.5, yy - 11);
-      c.quadraticCurveTo(x - 12, yy - 10, x - 13, yy - 2);
-      c.lineTo(x + 0.5, yy - 1.5);
-      c.fill();
-      rect(c, x - 11, yy - 4, x, yy - 3, red);
-    }
-    if (i === 2) {
-      line(c, x + 18, yy - 11, x + 24, yy - 15, C("#3a3a3a", "M"), 0.8);
-      line(c, x + 24, yy - 15, x + 30, yy - 15, C("#3a3a3a", "M"), 0.8);
-    }
-  }
-  if (P.win > 0.2) {
-    const R = c.createRadialGradient(x0 - 13, y - 5, 0, x0 - 13, y - 5, 26);
-    R.addColorStop(0, rgba("#fff2c8", 0.6 * P.win));
-    R.addColorStop(1, rgba("#fff2c8", 0));
-    c.fillStyle = R;
-    c.fillRect(x0 - 40, y - 30, 54, 50);
-  }
-}
-
+/* ---------- living details: chimney smoke and swifts round the spires ---------- */
 function details(c: Ctx, t: number) {
-  // train: Frankfurt bound, right to left, every ~40 s
-  const cyc = 42;
-  const tt = (t + 6.2) % cyc;
-  const x0 = 1780 - tt * 150;
-  if (x0 > -320 && x0 < 1800) train(c, x0);
-  // smoke
-  if (TOWN?.smoke) {
-    const [sx, sy] = TOWN.smoke;
-    const col = mix(P.haze, "#ffffff", 0.35);
-    for (let i = 0; i < 14; i++) {
-      const a = (t * 0.09 + i / 14) % 1;
-      c.fillStyle = rgba(col, (1 - a) * (0.34 - P.dark * 0.2));
-      c.beginPath();
-      c.arc(
-        sx + a * a * 70 + Math.sin(a * 7 + i) * 3,
-        sy - a * 80,
-        1.6 + a * 8,
-        0,
-        6.3,
-      );
-      c.fill();
-    }
+  const [sx, sy] = SMOKE;
+  const col = mix(P.haze, "#ffffff", 0.35);
+  for (let i = 0; i < 14; i++) {
+    const a = (t * 0.09 + i / 14) % 1;
+    c.fillStyle = rgba(col, (1 - a) * (0.34 - P.dark * 0.2));
+    c.beginPath();
+    c.arc(
+      sx + a * a * 70 + Math.sin(a * 7 + i) * 3,
+      sy - a * 90,
+      2 + a * 10,
+      0,
+      6.3,
+    );
+    c.fill();
   }
-  // swifts round the spires
   if (P.dark < 0.4) {
     c.strokeStyle = C("#22242a", "S");
-    c.lineWidth = 1.1;
-    for (let i = 0; i < 5; i++) {
+    c.lineWidth = 1.3;
+    for (let i = 0; i < 6; i++) {
       const w = 0.5 + i * 0.13;
       const a = t * w + i * 1.7;
-      const x = 1130 + Math.cos(a) * (70 + i * 22);
-      const y = 300 + Math.sin(a) * (26 + i * 6) + Math.sin(a * 3) * 6;
-      const f = Math.sin(t * 14 + i) * 1.3;
+      const x = 830 + Math.cos(a) * (90 + i * 30);
+      const y = 300 + Math.sin(a) * (40 + i * 9) + Math.sin(a * 3) * 8;
+      const f = Math.sin(t * 14 + i) * 1.6;
       c.beginPath();
-      c.moveTo(x - 4, y - 1.5 + f);
-      c.quadraticCurveTo(x - 1.5, y - 1, x, y + 0.6);
-      c.quadraticCurveTo(x + 1.5, y - 1, x + 4, y - 1.5 + f);
+      c.moveTo(x - 5, y - 2 + f);
+      c.quadraticCurveTo(x - 2, y - 1, x, y + 0.8);
+      c.quadraticCurveTo(x + 2, y - 1, x + 5, y - 2 + f);
       c.stroke();
-    }
-  }
-  // glints and, at night, the floodlit church drawn out on the water
-  const gl = mix(P.sun, "#ffffff", 0.5);
-  const r = rng(7);
-  for (let i = 0; i < 22; i++) {
-    const x = r() * 1600;
-    const y = riverT(x) + 3 + r() * 9;
-    const a = Math.max(0, Math.sin(t * (1 + r() * 2) + i * 2.1)) ** 10;
-    c.fillStyle = rgba(gl, a * (0.9 - P.dark * 0.6));
-    c.fillRect(x, y, 5 + r() * 9, 1.1);
-  }
-  if (P.flood > 0.05) {
-    for (let i = 0; i < 16; i++) {
-      const x = 990 + i * 16 + Math.sin(t * 2 + i) * 2;
-      const y = riverT(x) + 2 + (i % 3) * 3;
-      c.fillStyle = rgba(
-        "#ffb46e",
-        0.35 * P.flood * (0.6 + 0.4 * Math.sin(t * 3 + i)),
-      );
-      c.fillRect(x, y, 7, 1.4);
     }
   }
 }
@@ -1765,7 +1316,7 @@ export interface SceneOptions {
   focusX?: number;
   /** Where focusX sits across the visible width, 0 left to 1 right. */
   anchorX?: number;
-  /** Animate the train, smoke, swifts and glints. */
+  /** Animate the clouds, smoke and swifts. */
   motion?: boolean;
   portraitK?: number;
 }
@@ -1785,15 +1336,15 @@ export function createGelnhausenScene(
   opt: SceneOptions,
 ): Scene {
   const o = {
-    focusX: 1130,
-    anchorX: 0.66,
+    focusX: 860,
+    anchorX: 0.38,
     motion: true,
     portraitK: 0.62,
     ...opt,
   };
   el.style.overflow = "hidden";
   el.style.isolation = "isolate";
-  // sky, back, mid, anim, front
+  // sky, clouds, back, mid, anim
   const cv = [0, 1, 2, 3, 4].map(() => {
     const c = document.createElement("canvas");
     c.style.cssText = FILL;
@@ -1839,7 +1390,8 @@ export function createGelnhausenScene(
     const s = Math.max(W / SW, (H * (portrait ? o.portraitK : 1)) / SH);
     const vw = W / s;
     const left = Math.max(0, Math.min(SW - vw, o.focusX - vw * o.anchorX));
-    const top = H - SH * s;
+    // crop mostly off the bottom, so the spires keep their sky
+    const top = (H - SH * s) * 0.2;
     for (const c of cv) {
       c.width = Math.round(W * DPR);
       c.height = Math.round(H * DPR);
@@ -1860,15 +1412,13 @@ export function createGelnhausenScene(
     const s0 = at(targets, 0);
     xf(s0);
     D = 0;
-    FGK = 0;
     sky(s0);
     const t = T.getContext("2d") as Ctx;
     for (const L of LAYERS) {
       t.setTransform(1, 0, 0, 1, 0, 0);
       t.clearRect(0, 0, T.width, T.height);
       xf(t);
-      D = L.d;
-      FGK = L.g === 3 ? 0.58 : 0;
+      D = 0;
       L.f(t);
       if (L.m) {
         const m = L.m();
@@ -1885,21 +1435,21 @@ export function createGelnhausenScene(
       }
       const T2 = at(targets, L.g);
       T2.setTransform(1, 0, 0, 1, 0, 0);
+      T2.globalAlpha = L.a ? L.a() : 1;
       T2.drawImage(T, 0, 0);
+      T2.globalAlpha = 1;
     }
     D = 0;
-    FGK = 0;
   }
   function render() {
     P = paletteAt(hour);
-    renderTo([ctx(0), ctx(1), ctx(2), ctx(4)], tmp);
-    // depth of field: the frame's edges slightly soft
-    canvas(4).style.filter =
-      `blur(${Math.max(0.4, Math.min(1, W / 2000)).toFixed(2)}px)`;
-    canvas(1).style.filter = `blur(${(W / 2600).toFixed(2)}px)`;
+    renderTo([ctx(0), ctx(2), ctx(3)], tmp);
+    // depth of field: the distance slightly soft
+    canvas(2).style.filter = `blur(${(W / 2600).toFixed(2)}px)`;
     anim(performance.now());
   }
-  const ax = ctx(3);
+  const cx = ctx(1);
+  const ax = ctx(4);
   const t0 = performance.now();
   let raf = 0;
   let last = 0;
@@ -1907,13 +1457,13 @@ export function createGelnhausenScene(
   function anim(now: number) {
     if (!XF) return;
     const t = (now - t0) / 1000;
-    ax.setTransform(1, 0, 0, 1, 0, 0);
-    ax.clearRect(0, 0, canvas(3).width, canvas(3).height);
-    xf(ax);
-    D = 0.08;
-    FGK = 0;
+    for (const c of [cx, ax]) {
+      c.setTransform(1, 0, 0, 1, 0, 0);
+      c.clearRect(0, 0, c.canvas.width, c.canvas.height);
+      xf(c);
+    }
+    clouds(cx, t);
     details(ax, t);
-    D = 0;
   }
   function loop(now: number) {
     raf = requestAnimationFrame(loop);

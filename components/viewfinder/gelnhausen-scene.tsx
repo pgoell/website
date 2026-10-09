@@ -27,7 +27,6 @@ export function GelnhausenScene({ hour, className, label, hostRef }: Props) {
     ).matches;
     const s = createGelnhausenScene(el, {
       hour: hourRef.current ?? 12,
-      anchorX: 0.64,
       motion: !reduced,
     });
     scene.current = s;
