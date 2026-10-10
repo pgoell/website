@@ -734,7 +734,7 @@ function church(c: Ctx) {
 
   // rear spire of the pair and the pink belfry stage under it
   spire(404, 440, 130, 76, 89, 452);
-  cross(398, 130, 40);
+  cross(404, 130, 40);
   octo(418, 492, 446, 620, pink);
   rect(c, 486, 446, 492, 620, CH(sand, side(false)));
   gablets(420, 492, 448, 2, 44);
