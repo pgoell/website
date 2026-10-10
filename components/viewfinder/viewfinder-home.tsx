@@ -20,6 +20,7 @@ import { Evf } from "./evf";
 import { hudFont, monoFont, semiFont } from "./fonts";
 import { LocationMap } from "./location-map";
 import { PlaybackWindow } from "./playback-window";
+import { useWeather } from "./readouts";
 import { useViewfinder } from "./use-viewfinder";
 import s from "./viewfinder.module.css";
 
@@ -33,7 +34,7 @@ export function ViewfinderHome({
   posts,
   github,
   spotify,
-  weather,
+  weather: initialWeather,
 }: {
   posts: PostLink[];
   github: GithubStats | null;
@@ -43,6 +44,7 @@ export function ViewfinderHome({
   const t = useTranslations("home");
   const locale = useLocale();
   const vf = useViewfinder();
+  const weather = useWeather(initialWeather);
   const [powered, setPowered] = useState(false);
   const onPowerOn = useCallback(() => setPowered(true), []);
   const tabs = useMemo(
