@@ -5,6 +5,7 @@ import type { NowPlaying } from "@/lib/stats/spotify";
 import { lcg } from "@/lib/viewfinder/color";
 import { sunCrossings } from "@/lib/viewfinder/sun";
 import { TIME_ZONE } from "@/lib/viewfinder/time";
+import type { Weather } from "@/lib/weather/weather";
 import s from "./viewfinder.module.css";
 
 const reducedMotion = () =>
@@ -164,4 +165,31 @@ export function useNowPlaying() {
     };
   }, []);
   return track;
+}
+
+const HALF_HOUR = 30 * 60_000;
+
+/** The weather the page came with, fetched again every half hour and when a stale tab comes back into view. */
+export function useWeather(initial: Weather | null) {
+  const [weather, setWeather] = useState(initial);
+  useEffect(() => {
+    let on = true;
+    let at = Date.now();
+    const load = () => {
+      if (document.hidden || Date.now() - at < HALF_HOUR) return;
+      at = Date.now();
+      fetch("/api/weather")
+        .then((r) => r.json())
+        .then((w: Weather | null) => on && w && setWeather(w))
+        .catch(() => {});
+    };
+    const id = window.setInterval(load, 60_000);
+    document.addEventListener("visibilitychange", load);
+    return () => {
+      on = false;
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", load);
+    };
+  }, []);
+  return weather;
 }
