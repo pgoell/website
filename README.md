@@ -39,3 +39,5 @@ bun run build
 ## Deployment
 
 Deployed on Hetzner VPS via Docker with Caddy reverse proxy handling HTTPS.
+
+Publishing a release deploys it to production. The `Deploy` workflow builds the image on GitHub, pushes it to GHCR and sends the tag to the VPS over SSH. Run it by hand to deploy any ref to dev.
