@@ -2,7 +2,14 @@
   "home": {
     "metaDescription": "AI Engineer in Gelnhausen im Kinzigtal. Ich baue LLM-Agenten und die Werkzeuge drumherum.",
     "sceneLabel": "Gezeichneter Blick über die Dächer von Gelnhausen von der Oberstadt aus: die Schieferspitzen der Marienkirche, dahinter das Tal und bewaldete Hügel",
-    "role": "AI Engineer",
+    "roles": [
+      "AI Engineer",
+      "Platform Engineer",
+      "Data Engineer",
+      "Tüftler",
+      "Fotograf",
+      "Papa"
+    ],
     "mainNav": "Hauptmenü",
     "fn": {
       "work": "Arbeit",
