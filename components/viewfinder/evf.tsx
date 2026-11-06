@@ -467,9 +467,17 @@ export function Evf({
       <div className={s.copy}>
         <div>
           <h1 ref={nameRef} className={s.name} data-af="18">
-            <span>Pascal Goellner</span>
-            <span key={roleIdx} className={s.role}>
-              {roles[roleIdx]}
+            <span>Pascal</span> <span>Göllner</span>{" "}
+            <span className={s.role}>
+              {roles.map((r, i) => (
+                <span
+                  key={r}
+                  className={i === roleIdx ? s.roleOn : undefined}
+                  aria-hidden={i !== roleIdx}
+                >
+                  {r}
+                </span>
+              ))}
             </span>
           </h1>
         </div>

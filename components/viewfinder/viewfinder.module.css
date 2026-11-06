@@ -467,9 +467,18 @@ a.trk {
 .name .role {
   font-size: 0.6em;
   white-space: nowrap;
-  animation: role-in 0.45s ease-out;
+  display: grid;
   color: transparent;
   -webkit-text-stroke: 1.5px rgba(243, 244, 241, 0.95);
+}
+/* every role sits in one grid cell, so the name box keeps the widest role's width */
+.name .role > span {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+.name .role > .roleOn {
+  visibility: visible;
+  animation: role-in 0.45s ease-out;
 }
 .fn {
   margin-top: 24px;
