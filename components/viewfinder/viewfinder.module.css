@@ -494,7 +494,7 @@ a.box {
 .fn {
   margin-top: 24px;
   display: grid;
-  grid-template-columns: repeat(4, 74px);
+  grid-template-columns: repeat(3, 74px);
   gap: 4px;
 }
 .fn > * {
@@ -1642,7 +1642,7 @@ a.box {
     font-size: 46px;
   }
   .fn {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .fn > * {
     height: 54px;

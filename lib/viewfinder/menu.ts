@@ -85,10 +85,7 @@ export function buildMenu(
         },
         {
           id: "shortcuts",
-          items: [
-            { id: "hire", action: external(MAIL) },
-            { id: "github", action: external(GITHUB) },
-          ],
+          items: [{ id: "github", action: external(GITHUB) }],
         },
       ],
     },

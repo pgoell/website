@@ -259,7 +259,6 @@ export function Evf({
   }> = [
     { id: "work", href: "#work", target: "#work", work: true },
     { id: "writing", href: "#more", target: "#more" },
-    { id: "hire", href: "#contact", target: "#contact" },
   ];
   fnRef.current = fn.map((f) => () => onShoot(f.target));
   const shootLink = (targetId: string) => (e: React.MouseEvent) => {

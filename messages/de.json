@@ -14,7 +14,6 @@
     "fn": {
       "work": "Arbeit",
       "writing": "Texte",
-      "hire": "Anfragen",
       "menu": "MENÜ"
     },
     "hint": {
@@ -232,11 +231,6 @@
         "camera": {
           "t": "Kamera",
           "v": "Sony a7 IV"
-        },
-        "hire": {
-          "t": "Anfragen",
-          "v": "Mail",
-          "help": "Öffnet eine Mail an mich."
         },
         "cv": {
           "t": "Lebenslauf",

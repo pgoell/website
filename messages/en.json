@@ -14,7 +14,6 @@
     "fn": {
       "work": "Work",
       "writing": "Writing",
-      "hire": "Hire me",
       "menu": "MENU"
     },
     "hint": {
@@ -232,11 +231,6 @@
         "camera": {
           "t": "Camera",
           "v": "Sony a7 IV"
-        },
-        "hire": {
-          "t": "Hire me",
-          "v": "mail",
-          "help": "Opens a mail to me."
         },
         "cv": {
           "t": "CV",
