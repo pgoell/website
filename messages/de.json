@@ -43,7 +43,7 @@
         "l": "Bilder 2026"
       },
       "focus": {
-        "g": "Worauf der Autofokus diese Woche scharf stellt: das Projekt auf dem Schreibtisch. Beispielwert.",
+        "g": "Worauf der Autofokus scharf stellt: das Repo meines letzten Pushs auf GitHub. Live. Klicken öffnet es.",
         "k": "Fokus",
         "l": "aktuelles Projekt"
       },
@@ -90,14 +90,9 @@
         "k": "Lesen"
       },
       "lastCommit": {
-        "g": "Verschlusszeit: Zeit seit meinem letzten Push auf GitHub, mit Commit. Live.",
+        "g": "Verschlusszeit: Zeit seit meinem letzten Push auf GitHub, mit Commit. Live. Klicken öffnet den Commit.",
         "k": "Letzter Commit",
         "l": "letzter Commit"
-      },
-      "agents": {
-        "g": "Blende: heutige Läufe des Gmail-Brief-Agenten. Beispielwert.",
-        "k": "Agenten",
-        "l": "Agentenläufe"
       },
       "timer": {
         "g": "Belichtungsskala: wie weit der Tag zwischen Sonnenaufgang und Sonnenuntergang in Gelnhausen ist, oder die Nacht dazwischen. Die Uhrzeit ist der nächste der beiden. Live.",

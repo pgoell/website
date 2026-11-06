@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { GithubStats } from "@/lib/stats/github";
+import { GITHUB } from "@/lib/viewfinder/menu";
 import { berlinZoneName, sinceLabel, TIME_ZONE } from "@/lib/viewfinder/time";
 import { conditionOf, type SceneWeather } from "@/lib/weather/weather";
 import { cls, cx } from "./cx";
@@ -66,6 +67,7 @@ export function Evf({
   const [clock, setClock] = useState({ time: "--:--", zone: "CET" });
   const track = useNowPlaying();
   const lastPush = github?.lastPush;
+  const repo = lastPush?.repo ?? "Klassenzeit";
   const [since, setSince] = useState("2H");
 
   // clock readout
@@ -300,12 +302,16 @@ export function Evf({
               </div>
               <div className={s.l}>{t("ro.photos.l")}</div>
             </div>
-            <div className={cx(s.ro, s.hideM)} {...ro("focus")}>
-              <div className={s.v}>
-                AF-C <span style={{ fontWeight: 500 }}>Klassenzeit</span>
-              </div>
-              <div className={s.l}>{t("ro.focus.l")}</div>
-            </div>
+            <a
+              className={cx(s.ro, s.hideM)}
+              href={`${GITHUB}/${repo}`}
+              {...ro("focus")}
+            >
+              <span className={s.v}>
+                AF-C <span style={{ fontWeight: 500 }}>{repo}</span>
+              </span>
+              <span className={s.l}>{t("ro.focus.l")}</span>
+            </a>
           </div>
           <button
             type="button"
@@ -407,16 +413,20 @@ export function Evf({
         <div className={cx(s.bar, s.b)}>
           <div className={s.grp}>
             <span ref={dotRef} className={s.fdot} />
-            <div className={cx(s.ro, s.big)} {...ro("lastCommit")}>
-              <div className={s.v}>
-                {since} <small>{lastPush?.sha ?? "3f9c2e1"}</small>
-              </div>
-              <div className={s.l}>{t("ro.lastCommit.l")}</div>
-            </div>
-            <div className={cx(s.ro, s.big, s.hideM)} {...ro("agents")}>
-              <div className={s.v}>R 12</div>
-              <div className={s.l}>{t("ro.agents.l")}</div>
-            </div>
+            <a
+              className={cx(s.ro, s.big)}
+              href={
+                lastPush
+                  ? `${GITHUB}/${lastPush.repo}/commit/${lastPush.sha}`
+                  : GITHUB
+              }
+              {...ro("lastCommit")}
+            >
+              <span className={s.v}>
+                {since} <small>{lastPush?.sha.slice(0, 7) ?? "3f9c2e1"}</small>
+              </span>
+              <span className={s.l}>{t("ro.lastCommit.l")}</span>
+            </a>
           </div>
           <div className={cx(s.ro, s.scale)} {...ro("timer")}>
             <DayScale

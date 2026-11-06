@@ -7,6 +7,7 @@ const HOUR = 3600;
 export interface GithubStats {
   /** Contributions per week, oldest first, the last 52 weeks. */
   weeks: number[];
+  /** Repo name without the owner, full commit sha. */
   lastPush: { repo: string; sha: string; at: string } | null;
   /** Share of public code by language, largest first, top five. */
   languages: { name: string; share: number }[];
@@ -92,7 +93,7 @@ export async function getGithubStats(): Promise<GithubStats | null> {
       lastPush: push?.payload.head
         ? {
             repo: push.repo.name.replace(`${LOGIN}/`, ""),
-            sha: push.payload.head.slice(0, 7),
+            sha: push.payload.head,
             at: push.created_at,
           }
         : null,

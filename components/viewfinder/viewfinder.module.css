@@ -177,6 +177,11 @@
 .ro:hover .v {
   color: var(--sony);
 }
+a.ro {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
 .gps {
   align-items: center;
   cursor: pointer;

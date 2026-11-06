@@ -43,7 +43,7 @@
         "l": "frames 2026"
       },
       "focus": {
-        "g": "What the autofocus tracks this week: the project on the desk. Sample value.",
+        "g": "What the autofocus tracks: the repo of my last push to GitHub. Live. Click to open it.",
         "k": "Focus",
         "l": "current project"
       },
@@ -90,14 +90,9 @@
         "k": "Reading"
       },
       "lastCommit": {
-        "g": "Shutter slot: time since my last push to GitHub, with its commit. Live.",
+        "g": "Shutter slot: time since my last push to GitHub, with its commit. Live. Click to open the commit.",
         "k": "Last commit",
         "l": "last commit"
-      },
-      "agents": {
-        "g": "Aperture slot: agent runs today on the Gmail brief agent. Sample value.",
-        "k": "Agents",
-        "l": "agent runs"
       },
       "timer": {
         "g": "Exposure scale: how far the day has run between sunrise and sunset in Gelnhausen, or the night between sunset and sunrise. The time is the next of the two. Live.",
