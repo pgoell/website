@@ -83,6 +83,11 @@
         "k": "Body",
         "l": "a7 IV"
       },
+      "aperture": {
+        "g": "Aperture. Wide open at F2.8 the scene blurs most around the focus; from F11 on everything is sharp. Click to stop down, shift-click or scroll to go back.",
+        "k": "Aperture",
+        "l": "Aperture"
+      },
       "disp": {
         "g": "Cycle the display. Key D.",
         "k": "Display"

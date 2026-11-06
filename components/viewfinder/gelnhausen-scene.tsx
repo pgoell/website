@@ -17,6 +17,8 @@ interface Props {
   hostRef: React.RefObject<HTMLDivElement | null>;
   /** Filled with the mounted scene, so the page can pull focus. */
   sceneRef?: React.RefObject<Scene | null>;
+  /** The f-number for the depth of field. */
+  aperture: number;
 }
 
 /**
@@ -31,6 +33,7 @@ export function GelnhausenScene({
   label,
   hostRef,
   sceneRef,
+  aperture,
 }: Props) {
   const scene = useRef<Scene | null>(null);
   const hasTime = at !== null;
@@ -38,6 +41,8 @@ export function GelnhausenScene({
   atRef.current = at;
   const weatherRef = useRef(weather);
   weatherRef.current = weather;
+  const apertureRef = useRef(aperture);
+  apertureRef.current = aperture;
 
   // mount once the instant is known (it depends on the client clock)
   useEffect(() => {
@@ -50,6 +55,7 @@ export function GelnhausenScene({
       at: atRef.current ?? new Date(),
       weather: weatherRef.current,
       motion: !reduced,
+      aperture: apertureRef.current,
     });
     scene.current = s;
     if (sceneRef) sceneRef.current = s;
@@ -155,6 +161,10 @@ export function GelnhausenScene({
   useEffect(() => {
     scene.current?.setWeather(weather);
   }, [weather]);
+
+  useEffect(() => {
+    scene.current?.setAperture(aperture);
+  }, [aperture]);
 
   return (
     <div ref={hostRef} className={className} role="img" aria-label={label} />

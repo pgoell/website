@@ -6,13 +6,20 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { locales } from "@/i18n/config";
 import type { GithubStats } from "@/lib/stats/github";
 import type { Book } from "@/lib/stats/kasten";
+import {
+  DEFAULT_STOP,
+  STOPS,
+  type Stop,
+  stepStop,
+  toStop,
+} from "@/lib/viewfinder/focus";
 import { GITHUB, LINKEDIN, MAIL } from "@/lib/viewfinder/menu";
 import { berlinZoneName, sinceLabel, TIME_ZONE } from "@/lib/viewfinder/time";
 import { conditionOf, type SceneWeather } from "@/lib/weather/weather";
 import { cls, cx } from "./cx";
 import type { Scene } from "./gelnhausen-engine";
 import { GelnhausenScene } from "./gelnhausen-scene";
-import { ContactIcon } from "./icons";
+import { ApertureIcon, ContactIcon } from "./icons";
 import {
   CommitHistogram,
   DayScale,
@@ -42,6 +49,8 @@ interface Props {
   soundOn: boolean;
   onSound: () => void;
 }
+
+const STOP_KEY = "viewfinder-aperture";
 
 type Guide = { text: string; key: string } | null;
 
@@ -73,6 +82,7 @@ export function Evf({
   const nameRef = useRef<HTMLHeadingElement | null>(null);
   const sceneRef = useRef<HTMLDivElement | null>(null);
   const lensRef = useRef<Scene | null>(null);
+  const [stop, setStop] = useState<Stop>(DEFAULT_STOP);
   const poweredRef = useRef(false);
   const [guide, setGuide] = useState<Guide>(null);
   const [clock, setClock] = useState({ time: "--:--", zone: "CET" });
@@ -105,6 +115,19 @@ export function Evf({
       zone: berlinZoneName(at),
     });
   }, [at]);
+
+  // the chosen aperture survives a reload
+  useEffect(() => {
+    try {
+      setStop(toStop(localStorage.getItem(STOP_KEY)));
+    } catch {}
+  }, []);
+  const pickStop = (n: Stop) => {
+    setStop(n);
+    try {
+      localStorage.setItem(STOP_KEY, String(n));
+    } catch {}
+  };
 
   // last push readout, set on the client so the server render cannot go stale
   useEffect(() => {
@@ -166,7 +189,8 @@ export function Evf({
     if (el) {
       place(el, padFor(el));
       showGuide(el);
-      lensRef.current?.unfocus();
+      // over the aperture dial the last focus holds, so a new stop shows at once
+      if (el.dataset.keep === undefined) lensRef.current?.unfocus();
     } else {
       const v = evfRef.current?.getBoundingClientRect();
       if (v) {
@@ -280,6 +304,7 @@ export function Evf({
         weather={weather}
         hostRef={sceneRef}
         sceneRef={lensRef}
+        aperture={stop}
         className={s.scene}
         label={t("sceneLabel")}
       />
@@ -505,6 +530,26 @@ export function Evf({
               </div>
               <div className={s.l}>{t("ro.body.l")}</div>
             </div>
+            <button
+              type="button"
+              className={cx(s.ro, s.big)}
+              {...ro("aperture")}
+              data-keep=""
+              aria-label={`${t("ro.aperture.k")} F${stop}`}
+              onClick={(e) => {
+                const last = STOPS[STOPS.length - 1];
+                if (e.shiftKey) pickStop(stepStop(stop, -1));
+                else pickStop(stop === last ? STOPS[0] : stepStop(stop, 1));
+              }}
+              onWheel={(e) => {
+                if (e.deltaY) pickStop(stepStop(stop, e.deltaY > 0 ? 1 : -1));
+              }}
+            >
+              <span className={s.v}>
+                <ApertureIcon n={stop} />
+              </span>
+              <span className={s.l}>{t("ro.aperture.l")}</span>
+            </button>
             <button
               type="button"
               className={cx(s.disp, s.hideM)}
