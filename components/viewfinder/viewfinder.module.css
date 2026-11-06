@@ -1787,3 +1787,18 @@ a.box {
     transition: none !important;
   }
 }
+
+/* sound toggle: off until pressed, lit while it plays */
+.ro.snd {
+  cursor: pointer;
+}
+.ro.snd.on .v {
+  color: var(--sony);
+}
+/* on a phone the dial sits top centre, so the toggle keeps only its speaker */
+@media (max-width: 760px) {
+  .ro.snd .i {
+    width: 22px;
+    height: 22px;
+  }
+}

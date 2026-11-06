@@ -43,6 +43,11 @@
       "gps": {
         "l": "location"
       },
+      "sound": {
+        "g": "Ambient sound made live in your browser from the weather in the picture: wind, rain, thunder, birds by day. Click to turn it on or off.",
+        "k": "Sound",
+        "l": "sound"
+      },
       "weather": {
         "g": "Change your view.",
         "k": "Weather",

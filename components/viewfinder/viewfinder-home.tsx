@@ -24,6 +24,7 @@ import { LocationMap } from "./location-map";
 import { PlaybackWindow } from "./playback-window";
 import { useWeather } from "./readouts";
 import { ScenePanel } from "./scene-panel";
+import { useAmbience } from "./use-ambience";
 import { useViewfinder } from "./use-viewfinder";
 import s from "./viewfinder.module.css";
 
@@ -50,6 +51,8 @@ export function ViewfinderHome({
   const locale = useLocale();
   const vf = useViewfinder();
   const weather = useWeather(initialWeather);
+  const sky = vf.weatherOverride ?? weather?.scene ?? null;
+  const sound = useAmbience(sky, vf.at);
   const [powered, setPowered] = useState(false);
   const onPowerOn = useCallback(() => setPowered(true), []);
   const { setSceneOpen } = vf;
@@ -77,7 +80,7 @@ export function ViewfinderHome({
       <Evf
         at={vf.at}
         temperature={weather?.temperature ?? null}
-        weather={vf.weatherOverride ?? weather?.scene ?? null}
+        weather={sky}
         mode={vf.mode}
         onShoot={vf.shoot}
         onMenu={() => vf.openMenu({ tab: vf.lastTab })}
@@ -88,6 +91,8 @@ export function ViewfinderHome({
         book={book}
         onScene={() => vf.setSceneOpen((o) => !o)}
         sceneOpen={vf.sceneOpen}
+        soundOn={sound.on}
+        onSound={sound.toggle}
         scenePanel={
           vf.sceneOpen ? (
             <ScenePanel

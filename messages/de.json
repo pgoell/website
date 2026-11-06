@@ -43,6 +43,11 @@
       "gps": {
         "l": "Standort"
       },
+      "sound": {
+        "g": "Umgebungston, live im Browser aus dem Wetter im Bild erzeugt: Wind, Regen, Donner, tagsüber Vögel. Klick schaltet ihn an oder aus.",
+        "k": "Ton",
+        "l": "Ton"
+      },
       "weather": {
         "g": "Ändere deine Ansicht.",
         "k": "Wetter",
