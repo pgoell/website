@@ -79,7 +79,12 @@
         "k": "Now playing",
         "hd": "NOW PLAYING",
         "last": "LAST PLAYED",
-        "lvl": "REC LVL"
+        "lvl": "REC LVL",
+        "reading": "READING"
+      },
+      "reading": {
+        "g": "On the bookshelf: the book open in my notebook and how far in. Live.",
+        "k": "Reading"
       },
       "lastCommit": {
         "l": "last commit"

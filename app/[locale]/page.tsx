@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { ViewfinderHome } from "@/components/viewfinder/viewfinder-home";
 import { getAllPosts } from "@/lib/posts";
 import { getGithubStats } from "@/lib/stats/github";
+import { getReading } from "@/lib/stats/kasten";
 import { getSpotifyTop } from "@/lib/stats/spotify";
 import { getWeather } from "@/lib/weather/weather";
 
@@ -17,11 +18,12 @@ export default async function Home({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const [allPosts, github, spotify, weather] = await Promise.all([
+  const [allPosts, github, spotify, weather, book] = await Promise.all([
     getAllPosts(locale),
     getGithubStats(),
     getSpotifyTop(),
     getWeather(),
+    getReading(),
   ]);
   const posts = allPosts.map((p) => ({
     slug: p.slug,
@@ -35,6 +37,7 @@ export default async function Home({
       github={github}
       spotify={spotify}
       weather={weather}
+      book={book}
     />
   );
 }

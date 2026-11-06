@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
 import type { GithubStats } from "@/lib/stats/github";
+import type { Book } from "@/lib/stats/kasten";
 import type { SpotifyTop } from "@/lib/stats/spotify";
 import {
   buildMenu,
@@ -37,11 +38,13 @@ export function ViewfinderHome({
   github,
   spotify,
   weather: initialWeather,
+  book,
 }: {
   posts: PostLink[];
   github: GithubStats | null;
   spotify: SpotifyTop | null;
   weather: Weather | null;
+  book: Book | null;
 }) {
   const t = useTranslations("home");
   const locale = useLocale();
@@ -82,6 +85,7 @@ export function ViewfinderHome({
         fnRef={vf.fnRef}
         onPowerOn={onPowerOn}
         github={github}
+        book={book}
         onScene={() => vf.setSceneOpen((o) => !o)}
         sceneOpen={vf.sceneOpen}
         scenePanel={
