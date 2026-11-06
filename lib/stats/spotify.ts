@@ -44,7 +44,13 @@ async function accessToken(): Promise<string | null> {
     }),
     cache: "no-store",
   });
-  if (!res.ok) return null;
+  if (!res.ok) {
+    // Most often a revoked or mistyped refresh token, or a lapsed Premium plan
+    console.error(
+      `Spotify token refresh failed: ${res.status} ${await res.text()}`,
+    );
+    return null;
+  }
   const json = (await res.json()) as {
     access_token: string;
     expires_in: number;
@@ -64,7 +70,11 @@ async function api<T>(path: string, revalidate: number): Promise<T | null> {
     next: { revalidate },
   });
   // 204 means nothing is playing
-  if (res.status === 204 || !res.ok) return null;
+  if (res.status === 204) return null;
+  if (!res.ok) {
+    console.error(`Spotify ${path} failed: ${res.status}`);
+    return null;
+  }
   return res.json() as Promise<T>;
 }
 
