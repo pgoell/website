@@ -36,6 +36,9 @@ interface Props {
   onScene: () => void;
   sceneOpen: boolean;
   scenePanel: React.ReactNode;
+  /** Ambient sound that follows the weather; off until pressed. */
+  soundOn: boolean;
+  onSound: () => void;
 }
 
 type Guide = { text: string; key: string } | null;
@@ -56,6 +59,8 @@ export function Evf({
   onScene,
   sceneOpen,
   scenePanel,
+  soundOn,
+  onSound,
 }: Props) {
   const t = useTranslations("home");
   const roles = t.raw("roles") as string[];
@@ -320,6 +325,27 @@ export function Evf({
             <span className={s.l}>{t("ro.gps.l")}</span>
           </button>
           <div className={s.grp}>
+            <button
+              type="button"
+              className={cx(s.ro, s.snd, soundOn && s.on)}
+              {...ro("sound")}
+              aria-pressed={soundOn}
+              aria-label={t("ro.sound.k")}
+              onClick={onSound}
+            >
+              <span className={s.v}>
+                <svg className={s.i} viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M2.5 6h2.4L8.5 3v10L4.9 10H2.5z" />
+                  {soundOn ? (
+                    <path d="M10.6 5.6a3.4 3.4 0 0 1 0 4.8M12.6 3.8a6 6 0 0 1 0 8.4" />
+                  ) : (
+                    <path d="M10.8 6.2l3.6 3.6M14.4 6.2l-3.6 3.6" />
+                  )}
+                </svg>
+                <span className={s.hideM}>{soundOn ? "ON" : "OFF"}</span>
+              </span>
+              <span className={cx(s.l, s.hideM)}>{t("ro.sound.l")}</span>
+            </button>
             <button
               type="button"
               className={cx(s.ro, s.pick, s.hideM)}

@@ -49,6 +49,11 @@
         "k": "GPS",
         "l": "location"
       },
+      "sound": {
+        "g": "Ambient sound made live in your browser from the weather in the picture: wind, rain, thunder, birds by day. Click to turn it on or off.",
+        "k": "Sound",
+        "l": "sound"
+      },
       "weather": {
         "g": "White balance set by the live weather in the valley. The picture shows the same sky. Data from Open-Meteo. Click to pick another day, time or weather.",
         "k": "Weather",

@@ -49,6 +49,11 @@
         "k": "GPS",
         "l": "Standort"
       },
+      "sound": {
+        "g": "Umgebungston, live im Browser aus dem Wetter im Bild erzeugt: Wind, Regen, Donner, tagsüber Vögel. Klick schaltet ihn an oder aus.",
+        "k": "Ton",
+        "l": "Ton"
+      },
       "weather": {
         "g": "Weißabgleich nach dem aktuellen Wetter im Tal. Das Bild zeigt denselben Himmel. Daten von Open-Meteo. Klick, um Tag, Uhrzeit oder Wetter zu wählen.",
         "k": "Wetter",
