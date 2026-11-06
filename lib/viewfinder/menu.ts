@@ -54,6 +54,7 @@ export interface MenuStats {
 export const MAIL = "mailto:hello@pgoell.com";
 export const GITHUB = "https://github.com/pgoell";
 export const LINKEDIN = "https://www.linkedin.com/in/pascal7kraus/";
+export const X = "https://x.com/pagoell";
 
 const route = (path: string): MenuAction => ({ kind: "route", path });
 const external = (href: string): MenuAction => ({ kind: "external", href });
@@ -203,6 +204,7 @@ export function buildMenu(
             { id: "email", action: external(MAIL) },
             { id: "githubContact", action: external(GITHUB) },
             { id: "linkedin", action: external(LINKEDIN) },
+            { id: "x", action: external(X) },
           ],
         },
         {
