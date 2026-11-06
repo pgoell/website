@@ -9,6 +9,7 @@ import {
   rng,
   smoothstep as sm,
 } from "@/lib/viewfinder/color";
+import { blurFor, PLANES, type Plane, restBlur } from "@/lib/viewfinder/focus";
 import { type Palette, paletteFor } from "@/lib/viewfinder/palette";
 import { SEASONS, seasonOf } from "@/lib/viewfinder/season";
 import { sunAt } from "@/lib/viewfinder/sun";
@@ -1522,8 +1523,8 @@ function mist(c: Ctx) {
 /* ---------- layers: back to front, each with an aerial haze wash at its base ---------- */
 type Wash = [number, number, number, number, string?];
 interface Layer {
-  /** Target canvas: 0 sky, 1 back, 2 mid. */
-  g: 0 | 1 | 2;
+  /** Target plane: 0 sky, 1 hills, 2 church, 3 town, 4 near. */
+  g: 0 | 1 | 2 | 3 | 4;
   f: (c: Ctx) => void;
   /** Opacity of the whole layer. */
   a?: () => number;
@@ -1556,13 +1557,13 @@ const LAYERS: Layer[] = [
     rim: true,
     m: () => [900, 600, 0.4 * P.flood, 0, "#ffb46e"],
   },
-  { g: 2, f: (c) => fog(c, 0.55, 520) },
+  { g: 3, f: (c) => fog(c, 0.55, 520) },
   {
-    g: 2,
+    g: 3,
     f: town,
     m: () => [640, 760, 0.25 + 0.7 * FOG + 0.2 * WET, 0.4 * FOG],
   },
-  { g: 2, f: near, m: () => [760, 1000, 0.3 * FOG, 0.1 * FOG] },
+  { g: 4, f: near, m: () => [760, 1000, 0.3 * FOG, 0.1 * FOG] },
 ];
 
 /* ---------- living details: chimney smoke and swifts round the spires ---------- */
@@ -1670,11 +1671,15 @@ export interface Scene {
   setWeather(w: SceneWeather | null): void;
   /** Starts or stops the animation loop, e.g. when the scene scrolls out of view. */
   setRunning(on: boolean): void;
+  /** Focuses the lens on the plane under a point in the host's CSS px; null returns to the resting look. */
+  focusAt(x: number, y: number): void;
+  unfocus(): void;
   destroy(): void;
 }
 
-const FILL =
-  "position:absolute;left:0;top:0;width:100%;height:100%;display:block";
+// the canvases run past the frame on every side, so a blurred plane does not fade at the frame's edge
+const BLEED = 16;
+const FILL = `position:absolute;left:${-BLEED}px;top:${-BLEED}px;width:calc(100% + ${2 * BLEED}px);height:calc(100% + ${2 * BLEED}px);display:block`;
 
 export function createGelnhausenScene(
   el: HTMLElement,
@@ -1689,13 +1694,24 @@ export function createGelnhausenScene(
   };
   el.style.overflow = "hidden";
   el.style.isolation = "isolate";
-  // sky, clouds, back, mid, anim
-  const cv = [0, 1, 2, 3, 4].map(() => {
+  // sky, clouds, hills, church, town, near, anim
+  const cv = [0, 1, 2, 3, 4, 5, 6].map(() => {
     const c = document.createElement("canvas");
     c.style.cssText = FILL;
+    if (o.motion) c.style.transition = "filter .35s ease-out";
     el.appendChild(c);
     return c;
   });
+  // the plane each canvas stands in; the swifts and smoke fly round the church
+  const PLANE_OF: Plane[] = [
+    "sky",
+    "sky",
+    "hills",
+    "church",
+    "town",
+    "near",
+    "church",
+  ];
   const canvas = (i: number) => at(cv, i);
   const ctx = (i: number) => canvas(i).getContext("2d") as Ctx;
 
@@ -1726,6 +1742,13 @@ export function createGelnhausenScene(
   const edge = document.createElement("canvas");
   let W = 1;
   let XF: [number, number, number] | null = null;
+  // a coarse map of the nearest plane at each spot, one cell per DM css px
+  const DM = 8;
+  const probe = document.createElement("canvas");
+  let depth = new Uint8Array(0);
+  let DW = 0;
+  let dpr = 1;
+  let focus: Plane | null = null;
   let when = o.at;
   let weather = o.weather ?? null;
 
@@ -1741,14 +1764,15 @@ export function createGelnhausenScene(
     // crop mostly off the bottom, so the spires keep their sky
     const top = (H - SH * s) * 0.2;
     for (const c of cv) {
-      c.width = Math.round(W * DPR);
-      c.height = Math.round(H * DPR);
+      c.width = Math.round((W + 2 * BLEED) * DPR);
+      c.height = Math.round((H + 2 * BLEED) * DPR);
     }
     tmp.width = canvas(0).width;
     tmp.height = canvas(0).height;
     edge.width = tmp.width;
     edge.height = tmp.height;
-    XF = [DPR * s, DPR * (-left * s), DPR * top];
+    XF = [DPR * s, DPR * (BLEED - left * s), DPR * (top + BLEED)];
+    dpr = DPR;
   }
   function xf(c: Ctx) {
     if (XF) c.setTransform(XF[0], 0, 0, XF[0], XF[1], XF[2]);
@@ -1810,13 +1834,46 @@ export function createGelnhausenScene(
   }
   function render() {
     setLight(when, weather);
-    renderTo([ctx(0), ctx(2), ctx(3)], tmp);
-    // depth of field: the distance slightly soft
-    canvas(2).style.filter = `blur(${(W / 2600).toFixed(2)}px)`;
+    renderTo([ctx(0), ctx(2), ctx(3), ctx(4), ctx(5)], tmp);
+    mapDepth();
+    applyFocus();
     anim(performance.now());
   }
+  // read each plane's coverage at low resolution; later planes cover earlier ones
+  function mapDepth() {
+    const H = el.clientHeight || 1;
+    DW = Math.ceil(W / DM);
+    const DH = Math.ceil(H / DM);
+    probe.width = DW;
+    probe.height = DH;
+    const p = probe.getContext("2d", { willReadFrequently: true }) as Ctx;
+    depth = new Uint8Array(DW * DH);
+    for (let i = 2; i <= 5; i++) {
+      p.clearRect(0, 0, DW, DH);
+      const b = BLEED * dpr;
+      p.drawImage(canvas(i), b, b, W * dpr, H * dpr, 0, 0, DW, DH);
+      const a = p.getImageData(0, 0, DW, DH).data;
+      const k = PLANES.findIndex((q) => q.id === PLANE_OF[i]);
+      for (let j = 0; j < depth.length; j++)
+        if ((a[j * 4 + 3] ?? 0) > 150) depth[j] = k;
+    }
+  }
+  // depth of field: at rest the distance is slightly soft; focused, planes blur by their distance from the focus
+  function applyFocus() {
+    cv.forEach((c, i) => {
+      const p = at(PLANE_OF, i);
+      // blur follows the drawing's size on screen, which on a phone is wider than the frame
+      const b = focus ? blurFor(p, focus, SW * ZOOM) : restBlur(p, W);
+      c.style.filter = b < 0.15 ? "" : `blur(${b.toFixed(2)}px)`;
+    });
+  }
+  function setFocus(f: Plane | null) {
+    if (f === focus) return;
+    focus = f;
+    applyFocus();
+  }
   const cx = ctx(1);
-  const ax = ctx(4);
+  const ax = ctx(6);
   const t0 = performance.now();
   let raf = 0;
   let last = 0;
@@ -1872,6 +1929,15 @@ export function createGelnhausenScene(
       render();
     },
     setRunning,
+    focusAt(x, y) {
+      const H = el.clientHeight || 1;
+      if (x < 0 || y < 0 || x >= W || y >= H) return setFocus(null);
+      const k = depth[Math.floor(y / DM) * DW + Math.floor(x / DM)] ?? 0;
+      setFocus(at(PLANES, k).id);
+    },
+    unfocus() {
+      setFocus(null);
+    },
     destroy() {
       setRunning(false);
       cancelAnimationFrame(pending);

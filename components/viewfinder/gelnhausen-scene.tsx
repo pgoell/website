@@ -11,6 +11,8 @@ interface Props {
   label: string;
   /** The host element; the page fades and scales it on power-on. */
   hostRef: React.RefObject<HTMLDivElement | null>;
+  /** Filled with the mounted scene, so the page can pull focus. */
+  sceneRef?: React.RefObject<Scene | null>;
 }
 
 /** The Gelnhausen canvas illustration. Pauses its animation when off screen or when the tab is hidden. */
@@ -20,6 +22,7 @@ export function GelnhausenScene({
   className,
   label,
   hostRef,
+  sceneRef,
 }: Props) {
   const scene = useRef<Scene | null>(null);
   const hasTime = at !== null;
@@ -41,6 +44,7 @@ export function GelnhausenScene({
       motion: !reduced,
     });
     scene.current = s;
+    if (sceneRef) sceneRef.current = s;
     let visible = true;
     const sync = () => s.setRunning(visible && !document.hidden);
     const io = new IntersectionObserver((entries) => {
@@ -54,8 +58,9 @@ export function GelnhausenScene({
       document.removeEventListener("visibilitychange", sync);
       s.destroy();
       scene.current = null;
+      if (sceneRef) sceneRef.current = null;
     };
-  }, [hasTime, hostRef]);
+  }, [hasTime, hostRef, sceneRef]);
 
   useEffect(() => {
     if (at !== null) scene.current?.setTime(at);
