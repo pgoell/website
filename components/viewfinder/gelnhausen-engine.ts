@@ -9,7 +9,7 @@ import {
   rng,
   smoothstep as sm,
 } from "@/lib/viewfinder/color";
-import { blurFor, PLANES, type Plane, restBlur } from "@/lib/viewfinder/focus";
+import { blurFor, PLANES, type Plane } from "@/lib/viewfinder/focus";
 import { type Palette, paletteFor } from "@/lib/viewfinder/palette";
 import { SEASONS, seasonOf } from "@/lib/viewfinder/season";
 import { sunAt } from "@/lib/viewfinder/sun";
@@ -1671,7 +1671,7 @@ export interface Scene {
   setWeather(w: SceneWeather | null): void;
   /** Starts or stops the animation loop, e.g. when the scene scrolls out of view. */
   setRunning(on: boolean): void;
-  /** Focuses the lens on the plane under a point in the host's CSS px; null returns to the resting look. */
+  /** Focuses the lens on the plane under a point in the host's CSS px; unfocus() makes the whole frame sharp. */
   focusAt(x: number, y: number): void;
   unfocus(): void;
   destroy(): void;
@@ -1858,12 +1858,13 @@ export function createGelnhausenScene(
         if ((a[j * 4 + 3] ?? 0) > 150) depth[j] = k;
     }
   }
-  // depth of field: at rest the distance is slightly soft; focused, planes blur by their distance from the focus
+  // depth of field: with nothing focused (a readout or the name highlighted) the whole frame is sharp;
+  // focused, planes blur by their distance from the focus
   function applyFocus() {
     cv.forEach((c, i) => {
       const p = at(PLANE_OF, i);
       // blur follows the drawing's size on screen, which on a phone is wider than the frame
-      const b = focus ? blurFor(p, focus, SW * ZOOM) : restBlur(p, W);
+      const b = focus ? blurFor(p, focus, SW * ZOOM) : 0;
       c.style.filter = b < 0.15 ? "" : `blur(${b.toFixed(2)}px)`;
     });
   }
