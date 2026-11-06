@@ -22,6 +22,14 @@ export interface AmbienceMix {
   keys: number;
   /** Which chords the piano plays: major sevenths by a clear day, minor ninths otherwise. */
   mood: Mood;
+  /** Snow: how often high music-box notes drift over the chords, 0 to 1. */
+  sparkle: number;
+  /** Fog: loudness of a low, still drone under the chords, 0 to 1. */
+  drone: number;
+  /** Fog: mean seconds between tolls of a far-off church bell; 0 for none. */
+  bell: number;
+  /** How much echo the piano and weather get, 0 to 1: wide and distant in fog, close on a dry day. */
+  space: number;
 }
 
 /** The calm default the scene shows when it has no weather. */
@@ -71,5 +79,9 @@ export function ambienceMix(
             : 4200,
     keys: round((storm > 0 ? 0.35 : 0.6) * (0.75 + 0.25 * day)),
     mood: bright ? "bright" : "gray",
+    sparkle: w.kind === "snow" ? round(0.4 + 0.6 * w.intensity) : 0,
+    drone: w.kind === "fog" ? round(w.intensity) : 0,
+    bell: w.kind === "fog" ? 35 : 0,
+    space: w.kind === "fog" ? 0.7 : w.kind === "snow" ? 0.45 : 0.15,
   };
 }
