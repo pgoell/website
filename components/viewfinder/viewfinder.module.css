@@ -417,14 +417,20 @@ a.trk {
 }
 
 /* copy */
+/* name floats in the free space; the nav and key hints sit at the bottom */
 .copy {
   position: absolute;
   left: max(24px, 7vw);
-  top: 50%;
-  transform: translateY(-50%);
+  top: 96px;
+  bottom: 150px;
   width: min(620px, 56vw);
+  display: flex;
+  flex-direction: column;
   z-index: 2;
   transition: opacity 0.6s;
+}
+.copy > :first-child {
+  margin: auto 0;
 }
 .logo {
   display: inline-flex;
@@ -1621,6 +1627,8 @@ a.trk {
     position: relative;
     left: auto;
     top: auto;
+    bottom: auto;
+    display: block;
     transform: none;
     width: auto;
     padding: 0 16px;
