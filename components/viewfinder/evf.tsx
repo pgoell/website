@@ -414,6 +414,8 @@ export function Evf({
             <a
               className={cx(s.ro, s.big, s.hideM)}
               href={lastPush ? `${GITHUB}/${repo}` : GITHUB}
+              target="_blank"
+              rel="noopener noreferrer"
               {...ro("focus")}
             >
               <span className={s.v}>
@@ -428,6 +430,8 @@ export function Evf({
                   ? `${GITHUB}/${lastPush.repo}/commit/${lastPush.sha}`
                   : GITHUB
               }
+              target="_blank"
+              rel="noopener noreferrer"
               data-af="10"
             >
               <span className={s.v}>
