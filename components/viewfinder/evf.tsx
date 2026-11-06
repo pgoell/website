@@ -29,6 +29,10 @@ interface Props {
   fnRef: React.RefObject<Array<() => void>>;
   onPowerOn: () => void;
   github: GithubStats | null;
+  /** Opens or closes the panel that pins day, time and weather. */
+  onScene: () => void;
+  sceneOpen: boolean;
+  scenePanel: React.ReactNode;
 }
 
 type Guide = { text: string; key: string } | null;
@@ -46,6 +50,9 @@ export function Evf({
   fnRef,
   onPowerOn,
   github,
+  onScene,
+  sceneOpen,
+  scenePanel,
 }: Props) {
   const t = useTranslations("home");
   const locale = useLocale();
@@ -304,25 +311,41 @@ export function Evf({
             <span className={s.l}>{t("ro.gps.l")}</span>
           </button>
           <div className={s.grp}>
-            <div className={cx(s.ro, s.hideM)} {...ro("weather")}>
-              <div className={s.v}>
+            <button
+              type="button"
+              className={cx(s.ro, s.pick, s.hideM)}
+              {...ro("weather")}
+              data-scene=""
+              aria-expanded={sceneOpen}
+              onClick={onScene}
+            >
+              <span className={s.v}>
                 <svg className={s.i} viewBox="0 0 16 16" aria-hidden="true">
                   <path d="M4.5 12.5h7.2a2.8 2.8 0 0 0 .3-5.6 3.8 3.8 0 0 0-7.3.8 2.4 2.4 0 0 0-.2 4.8z" />
                 </svg>
                 {temperature === null ? "--" : `${Math.round(temperature)}°`}
-              </div>
-              <div className={s.l}>
+              </span>
+              <span className={s.l}>
                 {t("ro.weather.l", {
                   cond: weather
                     ? t(`ro.weather.c.${conditionOf(weather)}`)
                     : "--",
                 })}
-              </div>
-            </div>
-            <div className={s.ro} {...ro("clock")}>
-              <div className={s.v}>{clock.time}</div>
-              <div className={s.l}>{t("ro.clock.l", { zone: clock.zone })}</div>
-            </div>
+              </span>
+            </button>
+            <button
+              type="button"
+              className={cx(s.ro, s.pick)}
+              {...ro("clock")}
+              data-scene=""
+              aria-expanded={sceneOpen}
+              onClick={onScene}
+            >
+              <span className={s.v}>{clock.time}</span>
+              <span className={s.l}>
+                {t("ro.clock.l", { zone: clock.zone })}
+              </span>
+            </button>
           </div>
         </div>
         <div className={cx(s.corner, s.c1)} />
@@ -413,6 +436,7 @@ export function Evf({
           </div>
         </div>
       </div>
+      {scenePanel}
       <div className={cx(s.guide, guide && s.on)} aria-live="polite">
         <small>{guide?.key || t("guideDefault")}</small>
         <span>{guide?.text}</span>

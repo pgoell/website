@@ -21,6 +21,7 @@ import { hudFont, monoFont, semiFont } from "./fonts";
 import { LocationMap } from "./location-map";
 import { PlaybackWindow } from "./playback-window";
 import { useWeather } from "./readouts";
+import { ScenePanel } from "./scene-panel";
 import { useViewfinder } from "./use-viewfinder";
 import s from "./viewfinder.module.css";
 
@@ -47,6 +48,8 @@ export function ViewfinderHome({
   const weather = useWeather(initialWeather);
   const [powered, setPowered] = useState(false);
   const onPowerOn = useCallback(() => setPowered(true), []);
+  const { setSceneOpen } = vf;
+  const closeScene = useCallback(() => setSceneOpen(false), [setSceneOpen]);
   const tabs = useMemo(
     () => buildMenu(posts, { github, spotify }),
     [posts, github, spotify],
@@ -85,6 +88,18 @@ export function ViewfinderHome({
         fnRef={vf.fnRef}
         onPowerOn={onPowerOn}
         github={github}
+        onScene={() => vf.setSceneOpen((o) => !o)}
+        sceneOpen={vf.sceneOpen}
+        scenePanel={
+          vf.sceneOpen ? (
+            <ScenePanel
+              at={vf.at}
+              scene={vf.scene}
+              onChange={vf.setScene}
+              onClose={closeScene}
+            />
+          ) : null
+        }
       />
 
       <div className={s.peek}>

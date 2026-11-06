@@ -81,3 +81,9 @@ export function sinceLabel(iso: string, now: Date): string {
   if (min < 60 * 24) return `${Math.floor(min / 60)}H`;
   return `${Math.floor(min / 1440)}D`;
 }
+
+/** Berlin-local date and time of an instant as `YYYY-MM-DD` and `HH:MM`, the shape `berlinInstant` reads. */
+export function berlinParts(date: Date): { date: string; time: string } {
+  const w = new Date(wallAsUtc(date)).toISOString();
+  return { date: w.slice(0, 10), time: w.slice(11, 16) };
+}

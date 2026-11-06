@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { berlinHour, berlinInstant, berlinZoneName, sinceLabel } from "../time";
+import {
+  berlinHour,
+  berlinInstant,
+  berlinParts,
+  berlinZoneName,
+  sinceLabel,
+} from "../time";
 
 describe("berlinInstant", () => {
   const now = new Date("2026-07-01T10:15:00Z");
@@ -49,5 +55,25 @@ describe("sinceLabel", () => {
     expect(sinceLabel("2026-09-30T11:20:00Z", now)).toBe("40M");
     expect(sinceLabel("2026-09-30T09:59:00Z", now)).toBe("2H");
     expect(sinceLabel("2026-09-27T11:00:00Z", now)).toBe("3D");
+  });
+});
+
+describe("berlinParts", () => {
+  it("gives the Berlin wall date and time", () => {
+    expect(berlinParts(new Date("2026-07-01T22:30:00Z"))).toEqual({
+      date: "2026-07-02",
+      time: "00:30",
+    });
+    expect(berlinParts(new Date("2026-12-21T15:05:00Z"))).toEqual({
+      date: "2026-12-21",
+      time: "16:05",
+    });
+  });
+  it("round-trips through berlinInstant", () => {
+    const at = new Date("2026-03-29T09:45:00Z");
+    const p = berlinParts(at);
+    expect(berlinInstant(p.date, p.time, new Date()).getTime()).toBe(
+      at.getTime(),
+    );
   });
 });

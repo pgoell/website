@@ -23,6 +23,15 @@
       "display": "display"
     },
     "guideDefault": "Help",
+    "scene": {
+      "title": "Scene",
+      "date": "Day",
+      "time": "Time",
+      "weather": "Weather",
+      "live": "live",
+      "reset": "Back to live",
+      "close": "Close"
+    },
     "ro": {
       "mode": {
         "g": "Shooting mode M. Every readout on this screen is set by hand from Pascal's own tools.",
@@ -44,7 +53,7 @@
         "l": "location"
       },
       "weather": {
-        "g": "White balance set by the live weather in the valley. The picture shows the same sky. Data from Open-Meteo.",
+        "g": "White balance set by the live weather in the valley. The picture shows the same sky. Data from Open-Meteo. Click to pick another day, time or weather.",
         "k": "Weather",
         "l": "wb {cond}",
         "c": {
@@ -58,7 +67,7 @@
         }
       },
       "clock": {
-        "g": "Local time in Gelnhausen, Europe/Berlin. Live. The light in the picture follows it.",
+        "g": "Local time in Gelnhausen, Europe/Berlin. Live. The light in the picture follows it. Click to pick another day, time or weather.",
         "k": "Clock",
         "l": "{zone} local"
       },
