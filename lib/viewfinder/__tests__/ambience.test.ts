@@ -57,6 +57,20 @@ describe("ambienceMix", () => {
     expect(at("rain")).toBeLessThan(at("clear"));
   });
 
+  it("gives snow its music box and fog its drone, bell and echo", () => {
+    const snow = ambienceMix(PRESETS.snow, NOON);
+    const fog = ambienceMix(PRESETS.fog, NOON);
+    const rain = ambienceMix(PRESETS.rain, NOON);
+    expect(snow.sparkle).toBeGreaterThan(0);
+    expect(snow.drone).toBe(0);
+    expect(fog.drone).toBeGreaterThan(0);
+    expect(fog.bell).toBeGreaterThan(0);
+    expect(fog.sparkle).toBe(0);
+    expect(rain.sparkle + rain.drone + rain.bell).toBe(0);
+    expect(fog.space).toBeGreaterThan(snow.space);
+    expect(snow.space).toBeGreaterThan(rain.space);
+  });
+
   it("treats wind from either side the same", () => {
     const left = ambienceMix({ ...PRESETS.cloudy, wind: -20 }, NOON);
     const right = ambienceMix({ ...PRESETS.cloudy, wind: 20 }, NOON);
@@ -66,7 +80,16 @@ describe("ambienceMix", () => {
   it("keeps every level within 0 to 1", () => {
     for (const p of Object.values(PRESETS)) {
       const m = ambienceMix({ ...p, wind: 200 }, NOON);
-      for (const v of [m.wind, m.rain, m.heavy, m.birds, m.keys]) {
+      for (const v of [
+        m.wind,
+        m.rain,
+        m.heavy,
+        m.birds,
+        m.keys,
+        m.sparkle,
+        m.drone,
+        m.space,
+      ]) {
         expect(v).toBeGreaterThanOrEqual(0);
         expect(v).toBeLessThanOrEqual(1);
       }

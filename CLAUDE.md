@@ -129,7 +129,7 @@ jj bookmark create feature/other
 ## Features
 
 **Implemented:**
-- Viewfinder home page at `/` (canvas rooftop view of Gelnhausen lit by the real sun over the town, four seasons, camera menu, contact and legal links on the image, no second screen; on a phone the scene fills the screen and pans and pinch-zooms by touch; live weather from Open-Meteo; soft lo-fi ambient sound (CC0 recordings in `public/sounds/ambience` plus a Web Audio piano) that follows the weather, off until the visitor turns it on; `?time=HH[:MM]`, `?date=YYYY-MM-DD` (Berlin local), `?weather=clear|cloudy|overcast|rain|snow|fog|storm` and `?state=menu|search|play` for review)
+- Viewfinder home page at `/` (canvas rooftop view of Gelnhausen lit by the real sun over the town, four seasons, camera menu, contact and legal links on the image, no second screen; on a phone the scene fills the screen and pans and pinch-zooms by touch; live weather from Open-Meteo; soft lo-fi ambient sound (CC0 recordings in `public/sounds/ambience` plus a Web Audio piano, a music box in snow and a drone and far bell in fog) that follows the weather, off until the visitor turns it on; `?time=HH[:MM]`, `?date=YYYY-MM-DD` (Berlin local), `?weather=clear|cloudy|overcast|rain|snow|fog|storm` and `?state=menu|search|play` for review)
 - Personal blog (MDX) at `/blog`
 - Wordle game at `/games/wordle` (EN/DE word lists, solver, demo)
 - Kniffel tracker at `/games/kniffel` (digital + manual modes)
