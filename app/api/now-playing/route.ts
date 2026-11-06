@@ -1,5 +1,13 @@
-import { getNowPlaying } from "@/lib/stats/spotify";
+import {
+  getNowPlaying,
+  getProfileUrl,
+  type Listening,
+} from "@/lib/stats/spotify";
 
 export async function GET() {
-  return Response.json(await getNowPlaying());
+  const [track, profile] = await Promise.all([
+    getNowPlaying(),
+    getProfileUrl(),
+  ]);
+  return Response.json({ track, profile } satisfies Listening);
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { NowPlaying } from "@/lib/stats/spotify";
+import type { Listening } from "@/lib/stats/spotify";
 import { sunCrossings } from "@/lib/viewfinder/sun";
 import { TIME_ZONE } from "@/lib/viewfinder/time";
 import type { Weather } from "@/lib/weather/weather";
@@ -140,14 +140,14 @@ export function DayScale({
 
 /** What plays on Spotify, refreshed every minute while the tab is visible. */
 export function useNowPlaying() {
-  const [track, setTrack] = useState<NowPlaying | null>(null);
+  const [listening, setListening] = useState<Listening | null>(null);
   useEffect(() => {
     let on = true;
     const load = () => {
       if (document.hidden) return;
       fetch("/api/now-playing")
         .then((r) => r.json())
-        .then((t: NowPlaying | null) => on && setTrack(t))
+        .then((l: Listening) => on && setListening(l))
         .catch(() => {});
     };
     load();
@@ -157,7 +157,7 @@ export function useNowPlaying() {
       clearInterval(id);
     };
   }, []);
-  return track;
+  return listening;
 }
 
 const HALF_HOUR = 30 * 60_000;

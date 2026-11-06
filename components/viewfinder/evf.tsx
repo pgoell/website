@@ -69,7 +69,9 @@ export function Evf({
   const poweredRef = useRef(false);
   const [guide, setGuide] = useState<Guide>(null);
   const [clock, setClock] = useState({ time: "--:--", zone: "CET" });
-  const track = useNowPlaying();
+  const listening = useNowPlaying();
+  const track = listening?.track ?? null;
+  const trackHref = track?.url ?? listening?.profile ?? undefined;
   const lastPush = github?.lastPush;
   const repo = lastPush?.repo ?? "--";
   const [since, setSince] = useState("--");
@@ -370,7 +372,13 @@ export function Evf({
             </div>
             <CommitHistogram weeks={github?.weeks} />
           </div>
-          <div className={cx(s.box, s.ro)} data-af="10">
+          <a
+            className={cx(s.box, s.ro)}
+            href={trackHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-af="10"
+          >
             <div className={s.hd}>
               <span>
                 {t(
@@ -380,14 +388,16 @@ export function Evf({
               <span>{t("ro.playing.lvl")}</span>
             </div>
             <LevelMeters live={track?.playing ?? false} />
-            {track ? (
-              <a className={s.trk} href={track.url}>
-                {track.title} <em>{track.artist}</em>
-              </a>
-            ) : (
-              <div className={s.trk}>--</div>
-            )}
-          </div>
+            <div className={s.trk}>
+              {track ? (
+                <>
+                  {track.title} <em>{track.artist}</em>
+                </>
+              ) : (
+                "--"
+              )}
+            </div>
+          </a>
           {book && (
             <div className={cx(s.box, s.ro)} {...ro("reading")}>
               <div className={s.hd}>
