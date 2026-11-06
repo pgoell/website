@@ -24,6 +24,19 @@ interface ApiTrack {
   external_urls: { spotify: string };
 }
 
+interface ApiEpisode {
+  type: "episode";
+  name: string;
+  show: { name: string };
+  external_urls: { spotify: string };
+}
+
+/** What the live readout gets: the track and a link to the profile for when there is none. */
+export interface Listening {
+  track: NowPlaying | null;
+  profile: string | null;
+}
+
 let token: { value: string; expires: number } | null = null;
 
 async function accessToken(): Promise<string | null> {
@@ -78,19 +91,23 @@ async function api<T>(path: string, revalidate: number): Promise<T | null> {
   return res.json() as Promise<T>;
 }
 
-const toTrack = (t: ApiTrack): Track => ({
-  title: t.name,
-  artist: t.artists.map((a) => a.name).join(", "),
-  url: t.external_urls.spotify,
-});
+export const toTrack = (t: ApiTrack | ApiEpisode): Track =>
+  "type" in t && t.type === "episode"
+    ? { title: t.name, artist: t.show.name, url: t.external_urls.spotify }
+    : {
+        title: t.name,
+        artist: (t as ApiTrack).artists.map((a) => a.name).join(", "),
+        url: t.external_urls.spotify,
+      };
 
 /** The live track, else the last played one; null without credentials. */
 export async function getNowPlaying(): Promise<NowPlaying | null> {
   try {
-    const now = await api<{ is_playing: boolean; item: ApiTrack | null }>(
-      "/me/player/currently-playing",
-      30,
-    );
+    // podcasts come back only when asked for; recently-played holds songs only
+    const now = await api<{
+      is_playing: boolean;
+      item: ApiTrack | ApiEpisode | null;
+    }>("/me/player/currently-playing?additional_types=episode", 30);
     if (now?.is_playing && now.item)
       return { ...toTrack(now.item), playing: true };
     const recent = await api<{ items: { track: ApiTrack }[] }>(
@@ -99,6 +116,16 @@ export async function getNowPlaying(): Promise<NowPlaying | null> {
     );
     const last = recent?.items[0]?.track;
     return last ? { ...toTrack(last), playing: false } : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Link to the Spotify profile; the id comes with any token, no extra scope. */
+export async function getProfileUrl(): Promise<string | null> {
+  try {
+    const me = await api<{ external_urls: { spotify: string } }>("/me", DAY);
+    return me?.external_urls.spotify ?? null;
   } catch {
     return null;
   }
