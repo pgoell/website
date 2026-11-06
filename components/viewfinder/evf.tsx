@@ -54,6 +54,8 @@ export function Evf({
   scenePanel,
 }: Props) {
   const t = useTranslations("home");
+  const roles = t.raw("roles") as string[];
+  const [roleIdx, setRoleIdx] = useState(0);
   const locale = useLocale();
   const evfRef = useRef<HTMLElement | null>(null);
   const afRef = useRef<HTMLDivElement | null>(null);
@@ -69,6 +71,16 @@ export function Evf({
   const [since, setSince] = useState("2H");
 
   // clock readout
+  /* role line under the name cycles; held still for reduced motion */
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const id = window.setInterval(
+      () => setRoleIdx((i) => (i + 1) % roles.length),
+      2400,
+    );
+    return () => window.clearInterval(id);
+  }, [roles.length]);
+
   useEffect(() => {
     if (at === null) return;
     setClock({
@@ -455,8 +467,10 @@ export function Evf({
       <div className={s.copy}>
         <div>
           <h1 ref={nameRef} className={s.name} data-af="18">
-            <span>Pascal Göllner</span>
-            <span className={s.role}>{t("role")}</span>
+            <span>Pascal Goellner</span>
+            <span key={roleIdx} className={s.role}>
+              {roles[roleIdx]}
+            </span>
           </h1>
         </div>
         <nav className={s.fn} aria-label={t("mainNav")}>
