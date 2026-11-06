@@ -9,7 +9,13 @@ import {
   rng,
   smoothstep as sm,
 } from "@/lib/viewfinder/color";
-import { blurFor, PLANES, type Plane } from "@/lib/viewfinder/focus";
+import {
+  apertureScale,
+  blurFor,
+  DEFAULT_STOP,
+  PLANES,
+  type Plane,
+} from "@/lib/viewfinder/focus";
 import { type Palette, paletteFor } from "@/lib/viewfinder/palette";
 import { SEASONS, seasonOf } from "@/lib/viewfinder/season";
 import { sunAt } from "@/lib/viewfinder/sun";
@@ -1663,6 +1669,8 @@ export interface SceneOptions {
   weather?: SceneWeather | null;
   /** Animate the clouds, smoke, swifts, rain and snow. Without it the storm does not flash. */
   motion?: boolean;
+  /** The starting f-number for the depth of field. */
+  aperture?: number;
 }
 
 export interface Scene {
@@ -1679,6 +1687,8 @@ export interface Scene {
   /** Focuses the lens on the plane under a point in the host's CSS px; unfocus() makes the whole frame sharp. */
   focusAt(x: number, y: number): void;
   unfocus(): void;
+  /** Sets the f-number: wide open blurs most, f/11 and beyond keeps everything sharp. */
+  setAperture(n: number): void;
   destroy(): void;
 }
 
@@ -1760,6 +1770,7 @@ export function createGelnhausenScene(
   let DW = 0;
   let dpr = 1;
   let focus: Plane | null = null;
+  let fNumber: number = o.aperture ?? DEFAULT_STOP;
   let when = o.at;
   let weather = o.weather ?? null;
   // the fitted view before the visitor zooms or pans: scale, left edge in scene px, top in css px
@@ -1896,7 +1907,9 @@ export function createGelnhausenScene(
     cv.forEach((c, i) => {
       const p = at(PLANE_OF, i);
       // blur follows the drawing's size on screen, which on a phone is wider than the frame
-      const b = focus ? blurFor(p, focus, SW * ZOOM) : 0;
+      const b = focus
+        ? blurFor(p, focus, SW * ZOOM) * apertureScale(fNumber)
+        : 0;
       c.style.filter = b < 0.15 ? "" : `blur(${b.toFixed(2)}px)`;
     });
   }
@@ -1976,6 +1989,11 @@ export function createGelnhausenScene(
     },
     unfocus() {
       setFocus(null);
+    },
+    setAperture(n) {
+      if (n === fNumber) return;
+      fNumber = n;
+      applyFocus();
     },
     destroy() {
       setRunning(false);

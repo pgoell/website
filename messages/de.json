@@ -83,6 +83,11 @@
         "k": "Gehäuse",
         "l": "a7 IV"
       },
+      "aperture": {
+        "g": "Blende. Offen bei F2,8 wird die Szene um den Fokus am stärksten unscharf; ab F11 ist alles scharf. Klicken zum Abblenden, Umschalt-Klick oder Scrollen zurück.",
+        "k": "Blende",
+        "l": "Blende"
+      },
       "disp": {
         "g": "Anzeige wechseln. Taste D.",
         "k": "Anzeige"

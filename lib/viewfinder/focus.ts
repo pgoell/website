@@ -28,3 +28,30 @@ export function blurFor(plane: Plane, focus: Plane, width: number): number {
   const d = Math.abs(dioptres(plane) - dioptres(focus));
   return Math.min(MAX, K * d) * (width / 1440);
 }
+
+/** The lens's full stops, wide open first. */
+export const STOPS = [2.8, 4, 5.6, 8, 11, 16, 22] as const;
+export type Stop = (typeof STOPS)[number];
+export const DEFAULT_STOP: Stop = 2.8;
+
+/** At this stop and beyond, the whole scene is sharp. */
+const SHARP = 11;
+
+/** How much of the full blur a stop lets through: 1 wide open at f/2.8, 0 from f/11 on.
+    Blur follows 1 / N as on a real lens, shifted so f/11 lands on zero. */
+export function apertureScale(n: number): number {
+  const k = (1 / n - 1 / SHARP) / (1 / DEFAULT_STOP - 1 / SHARP);
+  return Math.max(0, Math.min(1, k));
+}
+
+/** The next stop up, or down with `dir` -1; it stops at either end. */
+export function stepStop(n: Stop, dir: 1 | -1): Stop {
+  const i = STOPS.indexOf(n);
+  return STOPS[Math.max(0, Math.min(STOPS.length - 1, i + dir))] ?? n;
+}
+
+/** A stored value back to a stop, or the default when it is not one. */
+export function toStop(v: unknown): Stop {
+  const n = Number(v);
+  return (STOPS as readonly number[]).includes(n) ? (n as Stop) : DEFAULT_STOP;
+}
