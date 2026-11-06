@@ -121,6 +121,7 @@
   transition: opacity 0.25s;
 }
 .osd [data-g],
+.osd a,
 .osd button {
   pointer-events: auto;
 }

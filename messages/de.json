@@ -37,13 +37,8 @@
         "g": "Das Zeichen der Seite. Ein Klick lädt die Seite neu.",
         "k": "Start"
       },
-      "photos": {
-        "g": "Aufnahmen mit der a7 IV in diesem Jahr. Beispielwert.",
-        "k": "Fotos",
-        "l": "Bilder 2026"
-      },
       "focus": {
-        "g": "Worauf der Autofokus scharf stellt: das Repo meines letzten Pushs auf GitHub. Live. Klicken öffnet es.",
+        "g": "Repo meines letzten Pushs auf GitHub.",
         "k": "Fokus",
         "l": "aktuelles Projekt"
       },
@@ -90,8 +85,6 @@
         "k": "Lesen"
       },
       "lastCommit": {
-        "g": "Verschlusszeit: Zeit seit meinem letzten Push auf GitHub, mit Commit. Live. Klicken öffnet den Commit.",
-        "k": "Letzter Commit",
         "l": "letzter Commit"
       },
       "timer": {

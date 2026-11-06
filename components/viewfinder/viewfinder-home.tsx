@@ -81,7 +81,6 @@ export function ViewfinderHome({
         temperature={weather?.temperature ?? null}
         weather={vf.weatherOverride ?? weather?.scene ?? null}
         mode={vf.mode}
-        shots={vf.shots}
         onShoot={vf.shoot}
         onMenu={() => vf.openMenu({ tab: vf.lastTab })}
         onCycleMode={vf.cycleMode}

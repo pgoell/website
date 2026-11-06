@@ -37,13 +37,8 @@
         "g": "The site's mark. Click it to reload the page.",
         "k": "Home"
       },
-      "photos": {
-        "g": "Frames shot on the a7 IV this year. Sample value.",
-        "k": "Photos",
-        "l": "frames 2026"
-      },
       "focus": {
-        "g": "What the autofocus tracks: the repo of my last push to GitHub. Live. Click to open it.",
+        "g": "Repo of my last push to GitHub.",
         "k": "Focus",
         "l": "current project"
       },
@@ -90,8 +85,6 @@
         "k": "Reading"
       },
       "lastCommit": {
-        "g": "Shutter slot: time since my last push to GitHub, with its commit. Live. Click to open the commit.",
-        "k": "Last commit",
         "l": "last commit"
       },
       "timer": {
