@@ -337,6 +337,10 @@ a.trk {
   color: var(--dim);
 }
 .book em {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
   font-style: normal;
   font-weight: 400;
   color: var(--dim);
