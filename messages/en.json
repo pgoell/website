@@ -40,7 +40,6 @@
         "l": "current project"
       },
       "lang": {
-        "g": "Switch the whole site between English and German. Your choice is kept for next time.",
         "k": "Language",
         "l": "language"
       },
@@ -79,10 +78,6 @@
         "last": "LAST PLAYED",
         "lvl": "REC LVL",
         "reading": "READING"
-      },
-      "reading": {
-        "g": "On the bookshelf: the book open in my notebook and how far in. Live.",
-        "k": "Reading"
       },
       "lastCommit": {
         "l": "last commit"

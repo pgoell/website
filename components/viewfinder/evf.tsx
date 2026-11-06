@@ -329,7 +329,7 @@ export function Evf({
               className={cx(s.ro, s.lang)}
               href={`/${other}`}
               hrefLang={other}
-              {...ro("lang")}
+              data-af="10"
               aria-label={t("ro.lang.k")}
             >
               <span className={s.v}>
@@ -456,7 +456,7 @@ export function Evf({
             </div>
           </a>
           {book && (
-            <div className={cx(s.box, s.ro)} {...ro("reading")}>
+            <div className={cx(s.box, s.ro)} data-af="10">
               <div className={s.hd}>
                 <span>{t("ro.playing.reading")}</span>
                 {book.progress !== null && (

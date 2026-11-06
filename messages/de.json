@@ -40,7 +40,6 @@
         "l": "aktuelles Projekt"
       },
       "lang": {
-        "g": "Stellt die ganze Seite zwischen Deutsch und Englisch um. Die Wahl bleibt beim nächsten Besuch erhalten.",
         "k": "Sprache",
         "l": "Sprache"
       },
@@ -79,10 +78,6 @@
         "last": "ZULETZT GEHÖRT",
         "lvl": "PEGEL",
         "reading": "LESE GERADE"
-      },
-      "reading": {
-        "g": "Im Bücherregal: das Buch, das in meinem Notizbuch offen ist, und wie weit ich bin. Live.",
-        "k": "Lesen"
       },
       "lastCommit": {
         "l": "letzter Commit"
