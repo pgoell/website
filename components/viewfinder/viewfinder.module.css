@@ -1437,7 +1437,114 @@ a.trk {
 }
 
 /* ================= phone ================= */
+/* scene panel: the weather and clock readouts open it to pick day, time and weather */
+.ro.pick {
+  cursor: pointer;
+}
+.ro.pick .l {
+  text-decoration: underline dotted var(--faint);
+  text-underline-offset: 3px;
+}
+.ro.pick:hover .l {
+  color: var(--sony);
+}
+.scenePanel {
+  position: absolute;
+  top: 66px;
+  right: 24px;
+  z-index: 6;
+  width: 300px;
+  padding: 12px 14px 14px;
+  background: rgba(5, 6, 6, 0.86);
+  border: 1px solid var(--faint);
+  backdrop-filter: blur(6px);
+  cursor: default;
+  font: 500 12px / 1.2 var(--semi);
+}
+.sceneHd {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font: 600 13px / 1 var(--hud);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.sceneHd button {
+  font-size: 20px;
+  line-height: 1;
+  padding: 0 2px;
+  color: var(--dim);
+}
+.sceneHd button:hover {
+  color: var(--sony);
+}
+.sceneRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.sceneRow > span {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.sceneRow > span b {
+  font: 600 14px / 1 var(--hud);
+  color: var(--ink);
+  margin-left: 6px;
+}
+.sceneRow input[type="date"] {
+  font: 500 14px / 1 var(--mono);
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--faint);
+  padding: 6px 8px;
+}
+.sceneRow input[type="range"] {
+  width: 100%;
+  accent-color: var(--sony);
+}
+.sceneChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sceneChips button,
+.sceneReset {
+  font: 600 12px / 1 var(--hud);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid var(--faint);
+  padding: 5px 8px;
+}
+.sceneChips button:hover,
+.sceneReset:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+.sceneChips button.on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #000;
+}
+.sceneReset {
+  width: 100%;
+  text-align: center;
+}
+.sceneReset:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
 @media (max-width: 760px) {
+  .scenePanel {
+    top: 58px;
+    right: 16px;
+    left: 16px;
+    width: auto;
+  }
   .evf {
     height: auto;
     min-height: 0;

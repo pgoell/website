@@ -6,11 +6,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { MenuAction, MenuTabDef } from "@/lib/viewfinder/menu";
 import { PROJECTS } from "@/lib/viewfinder/projects";
 import { berlinInstant } from "@/lib/viewfinder/time";
-import { PRESETS, type SceneWeather } from "@/lib/weather/weather";
+import { type Condition, PRESETS } from "@/lib/weather/weather";
 import { cls } from "./cx";
 import s from "./viewfinder.module.css";
 
 export type DisplayMode = 0 | 1 | 2;
+
+/** What a visitor sets in the scene panel; null parts follow the live clock or the live weather. */
+export interface SceneSetting {
+  date: string | null;
+  time: string | null;
+  weather: Condition | null;
+}
 
 export interface MenuRequest {
   tab: MenuTabDef["id"] | "search";
@@ -27,9 +34,12 @@ export function useViewfinder() {
   const pathname = usePathname();
 
   const [at, setAt] = useState<Date | null>(null);
-  const [weatherOverride, setWeatherOverride] = useState<SceneWeather | null>(
-    null,
-  );
+  const [scene, setSceneState] = useState<SceneSetting>({
+    date: null,
+    time: null,
+    weather: null,
+  });
+  const [sceneOpen, setSceneOpen] = useState(false);
   const [onlyMap, setOnlyMap] = useState(false);
   const [mode, setMode] = useState<DisplayMode>(0);
   const [shots, setShots] = useState(1284);
@@ -43,15 +53,13 @@ export function useViewfinder() {
   // light follows the real sun now; ?time=HH[:MM] and ?date=YYYY-MM-DD (Berlin local) pin it, ?weather= fixes the weather, ?state= opens a view for review
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
-    const time = q.get("time");
-    const date = q.get("date");
-    setAt(berlinInstant(date, time, new Date()));
     const w = q.get("weather");
-    if (w && w in PRESETS)
-      setWeatherOverride(PRESETS[w as keyof typeof PRESETS]);
+    setSceneState({
+      date: q.get("date"),
+      time: q.get("time"),
+      weather: w && w in PRESETS ? (w as Condition) : null,
+    });
     const timers: number[] = [];
-    if (!time && !date)
-      timers.push(window.setInterval(() => setAt(new Date()), 60000));
     const state = q.get("state");
     const later = (fn: () => void) => timers.push(window.setTimeout(fn, 1300));
     if (state === "menu") later(() => setMenu({ tab: "work" }));
@@ -63,11 +71,32 @@ export function useViewfinder() {
       later(() => setPick(1));
     }
     return () => {
-      for (const t of timers) {
-        clearInterval(t);
-        clearTimeout(t);
-      }
+      for (const t of timers) clearTimeout(t);
     };
+  }, []);
+
+  // the clock runs while neither day nor time is pinned
+  const pinned = scene.date !== null || scene.time !== null;
+  useEffect(() => {
+    setAt(berlinInstant(scene.date, scene.time, new Date()));
+    if (pinned) return;
+    const id = window.setInterval(() => setAt(new Date()), 60000);
+    return () => clearInterval(id);
+  }, [scene.date, scene.time, pinned]);
+
+  /** Pins day, time or weather from the scene panel and keeps the address in step, so the view can be shared. */
+  const setScene = useCallback((next: Partial<SceneSetting>) => {
+    setSceneState((cur) => {
+      const merged = { ...cur, ...next };
+      const url = new URL(window.location.href);
+      for (const k of ["date", "time", "weather"] as const) {
+        const v = merged[k];
+        if (v) url.searchParams.set(k, v);
+        else url.searchParams.delete(k);
+      }
+      window.history.replaceState(window.history.state, "", url);
+      return merged;
+    });
   }, []);
 
   const fireCurtain = useCallback(() => {
@@ -181,7 +210,11 @@ export function useViewfinder() {
 
   return {
     at,
-    weatherOverride,
+    weatherOverride: scene.weather ? PRESETS[scene.weather] : null,
+    scene,
+    setScene,
+    sceneOpen,
+    setSceneOpen,
     onlyMap,
     mode,
     cycleMode,

@@ -23,6 +23,15 @@
       "display": "Anzeige"
     },
     "guideDefault": "Hilfe",
+    "scene": {
+      "title": "Szene",
+      "date": "Tag",
+      "time": "Uhrzeit",
+      "weather": "Wetter",
+      "live": "live",
+      "reset": "Zurück zu live",
+      "close": "Schließen"
+    },
     "ro": {
       "mode": {
         "g": "Aufnahmemodus M. Jede Anzeige auf diesem Bildschirm stellt Pascal von Hand aus seinen eigenen Werkzeugen ein.",
@@ -44,7 +53,7 @@
         "l": "Standort"
       },
       "weather": {
-        "g": "Weißabgleich nach dem aktuellen Wetter im Tal. Das Bild zeigt denselben Himmel. Daten von Open-Meteo.",
+        "g": "Weißabgleich nach dem aktuellen Wetter im Tal. Das Bild zeigt denselben Himmel. Daten von Open-Meteo. Klick, um Tag, Uhrzeit oder Wetter zu wählen.",
         "k": "Wetter",
         "l": "WA {cond}",
         "c": {
@@ -58,7 +67,7 @@
         }
       },
       "clock": {
-        "g": "Ortszeit in Gelnhausen, Europe/Berlin. Live. Das Licht im Bild folgt ihr.",
+        "g": "Ortszeit in Gelnhausen, Europe/Berlin. Live. Das Licht im Bild folgt ihr. Klick, um Tag, Uhrzeit oder Wetter zu wählen.",
         "k": "Uhr",
         "l": "{zone} Ortszeit"
       },
