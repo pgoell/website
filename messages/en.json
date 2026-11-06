@@ -14,9 +14,6 @@
     "fn": {
       "work": "Work",
       "writing": "Writing",
-      "photos": "Photos",
-      "books": "Books",
-      "music": "Music",
       "hire": "Hire me",
       "menu": "MENU"
     },
@@ -93,12 +90,6 @@
         "sunset": "SUNSET",
         "sunrise": "SUNRISE"
       },
-      "writing": {
-        "g": "ISO slot: posts in the writing drawer. Two drafts, none out yet.",
-        "k": "Writing",
-        "v": "DRAFT 2",
-        "l": "writing"
-      },
       "body": {
         "g": "Lens slot: the camera itself. Sony a7 IV with a 35mm prime.",
         "k": "Body",
@@ -155,21 +146,6 @@
         "s": "DIR 101",
         "t": "Writing",
         "p": "Notes on building with LLMs. First posts in progress."
-      },
-      "books": {
-        "s": "DIR 102, SOON",
-        "t": "Bookshelf",
-        "p": "Thoughts on books, read or not."
-      },
-      "music": {
-        "s": "DIR 103, SOON",
-        "t": "Music corner",
-        "p": "What is on repeat while I work."
-      },
-      "photos": {
-        "s": "DIR 104, A7 IV, SOON",
-        "t": "Photos",
-        "p": "Kinzigtal walks. Placeholders until the RAWs are edited."
       }
     },
     "footer": {
