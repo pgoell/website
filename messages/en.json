@@ -40,6 +40,11 @@
         "k": "Focus",
         "l": "current project"
       },
+      "lang": {
+        "g": "Switch the whole site between English and German. Your choice is kept for next time.",
+        "k": "Language",
+        "l": "language"
+      },
       "gps": {
         "l": "location"
       },
@@ -544,7 +549,7 @@
       {
         "title": "4. Cookie",
         "text": [
-          "The website sets one cookie named \"NEXT_LOCALE\". It remembers the language you chose and expires when you close the browser. It is technically necessary and needs no consent under § 25(2) no. 2 TDDDG. The website sets no other cookies."
+          "The website sets one cookie named \"NEXT_LOCALE\". It remembers the language you chose and expires after one year. It is technically necessary and needs no consent under § 25(2) no. 2 TDDDG. The website sets no other cookies."
         ]
       },
       {

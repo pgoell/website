@@ -40,6 +40,11 @@
         "k": "Fokus",
         "l": "aktuelles Projekt"
       },
+      "lang": {
+        "g": "Stellt die ganze Seite zwischen Deutsch und Englisch um. Die Wahl bleibt beim nächsten Besuch erhalten.",
+        "k": "Sprache",
+        "l": "Sprache"
+      },
       "gps": {
         "l": "Standort"
       },
@@ -544,7 +549,7 @@
       {
         "title": "4. Cookie",
         "text": [
-          "Die Website setzt ein Cookie namens „NEXT_LOCALE“. Es merkt sich die gewählte Sprache und verfällt, wenn Sie den Browser schließen. Es ist technisch notwendig und braucht nach § 25 Abs. 2 Nr. 2 TDDDG keine Einwilligung. Weitere Cookies setzt die Website nicht."
+          "Die Website setzt ein Cookie namens „NEXT_LOCALE“. Es merkt sich die gewählte Sprache und verfällt nach einem Jahr. Es ist technisch notwendig und braucht nach § 25 Abs. 2 Nr. 2 TDDDG keine Einwilligung. Weitere Cookies setzt die Website nicht."
         ]
       },
       {

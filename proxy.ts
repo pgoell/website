@@ -7,6 +7,8 @@ const intlMiddleware = createMiddleware({
   locales,
   defaultLocale,
   localePrefix: "always",
+  // keep the visitor's language for a year, not just this browser session
+  localeCookie: { maxAge: 60 * 60 * 24 * 365 },
 });
 
 export function proxy(request: NextRequest) {

@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { locales } from "@/i18n/config";
 import type { GithubStats } from "@/lib/stats/github";
 import type { Book } from "@/lib/stats/kasten";
 import { GITHUB } from "@/lib/viewfinder/menu";
@@ -66,6 +67,7 @@ export function Evf({
   const roles = t.raw("roles") as string[];
   const [roleIdx, setRoleIdx] = useState(0);
   const locale = useLocale();
+  const other = locale === "en" ? "de" : "en";
   const evfRef = useRef<HTMLElement | null>(null);
   const afRef = useRef<HTMLDivElement | null>(null);
   const dotRef = useRef<HTMLSpanElement | null>(null);
@@ -309,6 +311,22 @@ export function Evf({
                   <i />
                 </span>
               </span>
+            </a>
+            <a
+              className={cx(s.ro, s.lang)}
+              href={`/${other}`}
+              hrefLang={other}
+              {...ro("lang")}
+              aria-label={t("ro.lang.k")}
+            >
+              <span className={s.v}>
+                {locales.map((l) => (
+                  <span key={l} className={cx(l === locale && s.cur)}>
+                    {l.toUpperCase()}
+                  </span>
+                ))}
+              </span>
+              <span className={cx(s.l, s.hideM)}>{t("ro.lang.l")}</span>
             </a>
           </div>
           <button

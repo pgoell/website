@@ -1802,3 +1802,21 @@ a.box {
     height: 22px;
   }
 }
+
+/* language toggle beside the logo: both codes shown, the current one lit */
+.ro.lang {
+  cursor: pointer;
+}
+.ro.lang .v {
+  gap: 8px;
+}
+.ro.lang .v > span {
+  color: var(--dim);
+  transition: color 0.15s;
+}
+.ro.lang .v > span.cur {
+  color: var(--ink);
+}
+.ro.lang:hover .v > span:not(.cur) {
+  color: var(--sony);
+}
