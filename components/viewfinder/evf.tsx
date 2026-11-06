@@ -389,7 +389,7 @@ export function Evf({
           </div>
         </div>
         <div className={cx(s.bar, s.b)}>
-          <div className={s.grp}>
+          <div className={cx(s.grp, s.hideM)}>
             <span ref={dotRef} className={s.fdot} />
             <a
               className={cx(s.ro, s.big, s.hideM)}
