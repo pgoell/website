@@ -294,7 +294,7 @@ export function Evf({
                 e.preventDefault();
                 window.location.reload();
               }}
-              {...ro("logo")}
+              data-af="10"
             >
               <span className={s.v}>
                 <span className={s.mode}>
@@ -307,7 +307,7 @@ export function Evf({
           <button
             type="button"
             className={cx(s.ro, s.hideM, s.gps)}
-            {...ro("gps")}
+            data-af="10"
             onClick={() => onShoot("#work")}
           >
             <span className={s.v}>
@@ -345,7 +345,7 @@ export function Evf({
             <button
               type="button"
               className={cx(s.ro, s.pick)}
-              {...ro("clock")}
+              data-af="10"
               data-scene=""
               aria-expanded={sceneOpen}
               onClick={onScene}
@@ -370,7 +370,7 @@ export function Evf({
             </div>
             <CommitHistogram weeks={github?.weeks} />
           </div>
-          <div className={cx(s.box, s.ro)} {...ro("playing")}>
+          <div className={cx(s.box, s.ro)} data-af="10">
             <div className={s.hd}>
               <span>
                 {t(
@@ -436,7 +436,7 @@ export function Evf({
               <span className={s.l}>{t("ro.lastCommit.l")}</span>
             </a>
           </div>
-          <div className={cx(s.ro, s.scale)} {...ro("timer")}>
+          <div className={cx(s.ro, s.scale)} data-af="10">
             <DayScale
               at={at}
               sunset={t("ro.timer.sunset")}
