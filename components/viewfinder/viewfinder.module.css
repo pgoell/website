@@ -1610,10 +1610,20 @@ a.trk {
   .ticks {
     width: 120px;
   }
-  /* the sunset dial and lens readout sit just above the name */
+  /* the sunset dial sits top centre, the lens readout just above the name */
   .bar.b {
-    top: 258px;
+    top: 0;
     bottom: auto;
+    height: 303px;
+  }
+  .bar.b .scale {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .bar.b > .grp:last-child {
+    margin-left: auto;
   }
   .copy {
     position: relative;
