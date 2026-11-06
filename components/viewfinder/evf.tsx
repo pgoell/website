@@ -467,7 +467,7 @@ export function Evf({
       <div className={s.copy}>
         <div>
           <h1 ref={nameRef} className={s.name} data-af="18">
-            <span>Pascal</span> <span>Göllner</span>{" "}
+            <span>Pascal</span> <span>Goellner</span>{" "}
             <span className={s.role}>
               {roles.map((r, i) => (
                 <span
