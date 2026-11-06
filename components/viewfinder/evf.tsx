@@ -453,16 +453,12 @@ export function Evf({
       </div>
 
       <div className={s.copy}>
-        <div className={s.eyebrow}>{t("eyebrow")}</div>
         <div>
           <h1 ref={nameRef} className={s.name} data-af="18">
             <span>Pascal Göllner</span>
             <span className={s.role}>{t("role")}</span>
           </h1>
         </div>
-        <p className={s.lede} data-af="18">
-          {t.rich("lede", { b: (chunks) => <b>{chunks}</b> })}
-        </p>
         <nav className={s.fn} aria-label={t("mainNav")}>
           {fn.map((f, i) => (
             <a
