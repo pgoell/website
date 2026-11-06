@@ -33,9 +33,9 @@
       "close": "Close"
     },
     "ro": {
-      "mode": {
-        "g": "Shooting mode M. Every readout on this screen is set by hand from Pascal's own tools.",
-        "k": "Mode"
+      "logo": {
+        "g": "The site's mark. Click it to reload the page.",
+        "k": "Home"
       },
       "photos": {
         "g": "Frames shot on the a7 IV this year. Sample value.",

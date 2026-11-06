@@ -273,11 +273,23 @@ export function Evf({
       <div className={s.osd}>
         <div className={cx(s.bar, s.t)}>
           <div className={s.grp}>
-            <div className={s.ro} {...ro("mode")}>
-              <div className={s.v}>
-                <span className={s.mode}>M</span>
-              </div>
-            </div>
+            <a
+              className={cx(s.ro, s.home)}
+              href={`/${locale}`}
+              aria-label="pgoell.com"
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.reload();
+              }}
+              {...ro("logo")}
+            >
+              <span className={s.v}>
+                <span className={s.mode}>
+                  pg
+                  <i />
+                </span>
+              </span>
+            </a>
             <div className={s.ro} {...ro("photos")}>
               <div className={s.v}>
                 <svg className={s.i} viewBox="0 0 16 16" aria-hidden="true">
@@ -443,15 +455,6 @@ export function Evf({
       </div>
 
       <div className={s.copy}>
-        <a
-          className={s.logo}
-          href={`/${locale}`}
-          data-af="18"
-          aria-label="pgoell.com"
-        >
-          pg
-          <i />
-        </a>
         <div className={s.eyebrow}>{t("eyebrow")}</div>
         <div>
           <h1 ref={nameRef} className={s.name} data-af="18">
