@@ -1,0 +1,10 @@
+Ambient recordings for the home page sound. All CC0 (public domain), from OpenGameArt.org.
+Trimmed, filtered, levelled and cut into seamless loops for this site.
+
+rain.mp3        "Rain gutter loop" by ogrebane          https://opengameart.org/content/rain-gutter-loop
+rain-heavy.mp3  "Rain (loopable)" by ylmir, track 3     https://opengameart.org/content/rain-loopable
+wind.mp3        "Park ambiences" (wind) by thimras      https://opengameart.org/content/park-ambiences
+birds.mp3       "Park ambiences" (birds) by thimras     https://opengameart.org/content/park-ambiences
+thunder.mp3     "Rain, long thunder" by wuxiascrub      https://opengameart.org/content/rain-long-thunder
+
+The piano, tape wobble and vinyl crackle are made live in the browser with Web Audio.
