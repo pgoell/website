@@ -233,7 +233,7 @@ export function Evf({
     work?: boolean;
   }> = [
     { id: "work", href: "#work", target: "#work", work: true },
-    { id: "writing", href: `/${locale}/blog`, target: "/blog" },
+    { id: "writing", href: "#more", target: "#more" },
     { id: "photos", href: "#more", target: "#more" },
     { id: "books", href: "#more", target: "#more" },
     { id: "music", href: "#more", target: "#more" },
