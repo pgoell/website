@@ -106,6 +106,10 @@
 .osd button {
   pointer-events: auto;
 }
+/* buttons drop inherited text styles by default; readouts that are buttons keep the shadow */
+.osd button.ro {
+  text-shadow: inherit;
+}
 .bar {
   position: absolute;
   left: 0;
@@ -1200,11 +1204,10 @@ a.box {
   .ticks {
     width: 120px;
   }
-  /* the sunset dial sits top centre, the lens readout just above the name */
+  /* the sunset dial sits top centre, the lens readouts low on the right, above the legal links */
   .bar.b {
     top: 0;
-    bottom: auto;
-    height: 303px;
+    bottom: 0;
   }
   .bar.b .scale {
     position: absolute;
@@ -1213,7 +1216,9 @@ a.box {
     transform: translateX(-50%);
   }
   .bar.b > .grp:last-child {
-    margin-left: auto;
+    position: absolute;
+    right: 0;
+    bottom: 84px;
   }
   /* the name sits at the foot of the frame; only its links and button catch touches, so the rest pans */
   .copy {

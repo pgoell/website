@@ -547,7 +547,7 @@ export function Evf({
             >
               <span className={s.v}>
                 <span>
-                  <span style={{ fontSize: 18, fontWeight: 500 }}>f/</span>
+                  <span style={{ fontSize: 15 }}>f/</span>
                   {stop}
                 </span>
               </span>
