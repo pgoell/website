@@ -66,9 +66,9 @@
 /* ================= viewfinder ================= */
 .evf {
   position: relative;
+  /* with the 64px peek bar below, the home page fills exactly one screen */
   height: calc(100svh - 64px);
   min-height: 600px;
-  max-height: 980px;
   overflow: hidden;
   cursor: crosshair;
   background: #000;
@@ -1571,8 +1571,7 @@ a.trk {
   .evf {
     height: auto;
     min-height: 0;
-    max-height: none;
-    padding: 318px 0 84px;
+    padding: 330px 0 24px;
   }
   .scene {
     height: 400px;
@@ -1610,6 +1609,11 @@ a.trk {
   }
   .ticks {
     width: 120px;
+  }
+  /* the sunset dial and lens readout sit just above the name */
+  .bar.b {
+    top: 258px;
+    bottom: auto;
   }
   .copy {
     position: relative;
