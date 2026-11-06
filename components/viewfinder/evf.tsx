@@ -9,6 +9,7 @@ import { GITHUB } from "@/lib/viewfinder/menu";
 import { berlinZoneName, sinceLabel, TIME_ZONE } from "@/lib/viewfinder/time";
 import { conditionOf, type SceneWeather } from "@/lib/weather/weather";
 import { cls, cx } from "./cx";
+import type { Scene } from "./gelnhausen-engine";
 import { GelnhausenScene } from "./gelnhausen-scene";
 import {
   CommitHistogram,
@@ -73,6 +74,7 @@ export function Evf({
   const dotRef = useRef<HTMLSpanElement | null>(null);
   const nameRef = useRef<HTMLHeadingElement | null>(null);
   const sceneRef = useRef<HTMLDivElement | null>(null);
+  const lensRef = useRef<Scene | null>(null);
   const poweredRef = useRef(false);
   const [guide, setGuide] = useState<Guide>(null);
   const [clock, setClock] = useState({ time: "--:--", zone: "CET" });
@@ -160,22 +162,31 @@ export function Evf({
   const padFor = (el: HTMLElement) =>
     Number(el.dataset.af ?? (el.classList.contains(cls(s.ro)) ? 10 : 18));
 
-  const onMove = (e: React.MouseEvent) => {
+  const onMove = (e: React.MouseEvent | React.PointerEvent) => {
     if (!poweredRef.current) return;
     const el = target(e.target);
     if (el) {
       place(el, padFor(el));
       showGuide(el);
+      lensRef.current?.unfocus();
     } else {
       const v = evfRef.current?.getBoundingClientRect();
-      if (v)
+      if (v) {
         box(e.clientX - v.left - 45, e.clientY - v.top - 31, 90, 62, false);
+        // nothing highlighted: the frame pulls focus to whatever stands under it
+        lensRef.current?.focusAt(e.clientX - v.left, e.clientY - v.top);
+      }
       showGuide(null);
     }
+  };
+  // phones have no hover: a tap on the scene focuses there, as on a phone camera
+  const onTap = (e: React.PointerEvent) => {
+    if (e.pointerType !== "mouse") onMove(e);
   };
   const onLeave = () => {
     home();
     showGuide(null);
+    lensRef.current?.unfocus();
   };
   // keyboard users get the same focus frame and help line
   const onFocus = (e: React.FocusEvent) => {
@@ -183,6 +194,7 @@ export function Evf({
     if (!poweredRef.current || !el) return;
     place(el, padFor(el));
     showGuide(el);
+    lensRef.current?.unfocus();
   };
 
   useEffect(() => {
@@ -280,12 +292,14 @@ export function Evf({
       className={cx(s.evf, mode === 1 && s.values, mode === 2 && s.clean)}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
+      onPointerDown={onTap}
       onFocus={onFocus}
     >
       <GelnhausenScene
         at={at}
         weather={weather}
         hostRef={sceneRef}
+        sceneRef={lensRef}
         className={s.scene}
         label={t("sceneLabel")}
       />
