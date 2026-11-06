@@ -249,10 +249,11 @@ a.ro {
   box-shadow: 0 0 8px rgba(92, 240, 124, 0.7);
 }
 /* right info column */
+/* 12px inside the top-right frame corner on both sides */
 .col {
   position: absolute;
   right: 0;
-  top: 56px;
+  top: 62px;
   width: 180px;
   display: flex;
   flex-direction: column;
@@ -464,26 +465,19 @@ a.box {
 /* contact icons under the name */
 .reach {
   display: flex;
-  gap: 4px;
-  margin-top: 6px;
+  gap: 20px;
+  margin-top: 8px;
 }
 .reach a {
-  width: 40px;
-  height: 40px;
   display: grid;
   place-items: center;
+  padding: 6px 0;
   color: var(--ink);
-  background: rgba(10, 11, 12, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  transition:
-    border-color 0.12s,
-    color 0.12s;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.9));
+  transition: color 0.12s;
 }
-.reach a:hover,
-.reach a:focus-visible {
+.reach a:hover {
   color: var(--sony);
-  border-color: var(--sony);
-  outline: 0;
 }
 /* legal links, one per row, above the lens readout */
 .legal {
