@@ -101,7 +101,9 @@ export function ViewfinderHome({
         <span className={s.hideM}>100MSDCF</span>
         <span>{t("peek.mapped")}</span>
         <span className={s.sp} />
-        <span className={s.hideM}>{t("peek.files")}</span>
+        <span className={s.hideM}>
+          {t("peek.files", { count: PROJECTS.length })}
+        </span>
         <button type="button" onClick={() => vf.shoot("#work")}>
           {t("peek.map")}
         </button>

@@ -153,17 +153,10 @@ export function CameraMenu({ tabs, request, onClose, onAction, onTab }: Props) {
 
   const color = qs ? "#f08a00" : tabDef.color;
   const tag = (f?: string) =>
-    f === "soon" ? (
-      <i>{t("soon")}</i>
-    ) : f === "ph" ? (
-      <i>{t("ph")}</i>
-    ) : f === "ok" ? (
-      <i>●</i>
-    ) : null;
+    f === "soon" ? <i>{t("soon")}</i> : f === "ok" ? <i>●</i> : null;
   const help = (e: MenuEntry) => {
     const key = `items.${e.def.id}.help`;
     if (!e.def.title && t.has(key)) return t(key);
-    if (e.def.flag === "ph") return t("helpPh");
     if (e.def.flag === "soon") return t("helpSoon");
     return `${e.title}, ${e.value}.`;
   };

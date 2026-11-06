@@ -78,16 +78,11 @@
         "span": "52W"
       },
       "playing": {
-        "g": "Music corner and bookshelf: what plays on Spotify right now, or played last, and what I am reading. The book is a sample.",
+        "g": "Music corner: what plays on Spotify right now, or played last. Live.",
         "k": "Now playing",
         "hd": "NOW PLAYING",
         "last": "LAST PLAYED",
-        "lvl": "REC LVL",
-        "reading": "READING"
-      },
-      "reading": {
-        "g": "On the bookshelf: current book and how far in. Sample title.",
-        "k": "Reading"
+        "lvl": "REC LVL"
       },
       "lastCommit": {
         "l": "last commit"
@@ -117,7 +112,7 @@
     "peek": {
       "playback": "Playback",
       "mapped": "Work, mapped",
-      "files": "5 files",
+      "files": "{count} files",
       "map": "Location map ▾"
     },
     "map": {
@@ -131,7 +126,7 @@
       "sheet": "KINZIGTAL, SHEET GELNHAUSEN",
       "scale": "2.5 km, roughly",
       "contour": "CONTOUR 20 m, ◀ ▶ select",
-      "label": "Contour map of the Kinzigtal around Gelnhausen with five project pins"
+      "label": "Contour map of the Kinzigtal around Gelnhausen with the project pins"
     },
     "projects": {
       "klassenzeit": {
@@ -194,8 +189,6 @@
       "what": "What",
       "type": "Type",
       "repo": "Repo",
-      "status": "Status",
-      "placeholder": "[placeholder]",
       "private": "private",
       "prev": "◀ Prev",
       "next": "Next ▶",
@@ -206,22 +199,18 @@
       "placeholder": "Type to search everything",
       "search": "Search",
       "found": "/ {count} found",
-      "empty": "No match. Try \"agent\", \"photo\" or \"kniffel\".",
+      "empty": "No match. Try \"agent\", \"GitHub\" or \"light\".",
       "tab": "tab",
       "select": "select",
       "open": "open",
       "back": "back",
       "soon": "SOON",
-      "ph": "PLACEHOLDER",
-      "helpPh": "Placeholder until the real entry lands.",
       "helpSoon": "Coming soon.",
       "all": "ALL",
       "tabs": {
         "main": "Main",
         "work": "Work",
         "writing": "Writing",
-        "photos": "Photos",
-        "books": "Books",
         "music": "Music",
         "play": "Play",
         "setup": "Setup"
@@ -233,9 +222,6 @@
         "tools": "Tools",
         "games": "Games",
         "posts": "Posts",
-        "kinzigtal": "Kinzigtal",
-        "read": "Read",
-        "notRead": "Not read",
         "onRepeat": "On repeat",
         "topArtists": "Top artists",
         "languages": "Languages",
@@ -287,10 +273,6 @@
           "v": "inbox to brief",
           "help": "An agent that reads my inbox and writes a short brief."
         },
-        "ask": {
-          "t": "Ask Pascal",
-          "v": "site agent"
-        },
         "klassenzeit": {
           "t": "Klassenzeit",
           "v": "timetable planner",
@@ -322,38 +304,6 @@
           "t": "All posts",
           "v": "blog",
           "help": "Every post on the blog."
-        },
-        "photo1": {
-          "t": "Kinzig meadows at dusk",
-          "v": "100-0421"
-        },
-        "photo2": {
-          "t": "Marienkirche from the Halbmond",
-          "v": "100-0438"
-        },
-        "photo3": {
-          "t": "Büdinger Wald in fog",
-          "v": "100-0450"
-        },
-        "bookA": {
-          "t": "Book title A",
-          "v": "note"
-        },
-        "bookB": {
-          "t": "Book title B",
-          "v": "note"
-        },
-        "bookC": {
-          "t": "Book title C",
-          "v": "why not"
-        },
-        "recordA": {
-          "t": "Record A",
-          "v": "artist"
-        },
-        "recordB": {
-          "t": "Record B",
-          "v": "artist"
         },
         "wordle": {
           "t": "Wordle",
@@ -401,7 +351,7 @@
         },
         "readouts": {
           "t": "Readouts",
-          "v": "sample data"
+          "v": "live"
         },
         "histogram": {
           "t": "Histogram",
@@ -453,7 +403,7 @@
         "info": "Info",
         "noMatches": "No matching words found",
         "enterGuess": "Enter your guess and mark each letter",
-        "clickToMark": "Click tiles to cycle: absent \u2192 present \u2192 correct",
+        "clickToMark": "Click tiles to cycle: absent → present → correct",
         "failed": "Failed. The word was {word}",
         "loading": "Loading...",
         "absent": "Absent",
@@ -530,7 +480,7 @@
       "totalWork": "Total focus: {minutes} min",
       "totalBreak": "Total break: {minutes} min",
       "ratio": "Break ratio: {percent}%",
-      "ratioGood": "Within the recommended 20\u201325% range.",
+      "ratioGood": "Within the recommended 20–25% range.",
       "breaksTooShort": "Breaks are shorter than recommended. Consider longer breaks.",
       "breaksTooLong": "Breaks exceed the recommended ratio. Consider shorter breaks."
     },
@@ -563,8 +513,8 @@
       "noData": "No sessions recorded yet."
     },
     "timeOfDay": {
-      "peakFocus": "Peak focus window \u2014 your best time for deep work.",
-      "afternoonDip": "Afternoon dip \u2014 consider a lighter task or shorter session."
+      "peakFocus": "Peak focus window — your best time for deep work.",
+      "afternoonDip": "Afternoon dip — consider a lighter task or shorter session."
     },
     "notifications": {
       "workDone": "Focus session complete! Time for a break.",
@@ -576,15 +526,15 @@
       "pomodoroTechnique": "The Pomodoro Technique (Cirillo, 2006)",
       "pomodoroDesc": "Original 25/5 pattern with 4-cycle structure. Foundation of structured interval-based focus.",
       "desktime": "DeskTime Productivity Study (Draugiem Group, 2014)",
-      "desktimeDesc": "Analysis of top 10% most productive workers found 52/17 work-break ratio. Updated data suggests 75\u2013112 min sessions.",
+      "desktimeDesc": "Analysis of top 10% most productive workers found 52/17 work-break ratio. Updated data suggests 75–112 min sessions.",
       "ultradian": "Basic Rest-Activity Cycle (Kleitman, 1982)",
-      "ultradianDesc": "90\u2013120 minute biological rhythm affecting alertness and cognitive performance during wakefulness.",
+      "ultradianDesc": "90–120 minute biological rhythm affecting alertness and cognitive performance during wakefulness.",
       "huberman": "Huberman Lab: Focus & Concentration Protocols",
-      "hubermanDesc": "Neurobiological basis for 90-minute focus sessions with 10\u201330 min defocus periods. Max 2\u20133 sessions per day.",
+      "hubermanDesc": "Neurobiological basis for 90-minute focus sessions with 10–30 min defocus periods. Max 2–3 sessions per day.",
       "microbreaks": "Micro-Breaks Meta-Analysis (Albulescu et al., 2022)",
       "microbreaksDesc": "Systematic review showing longer breaks yield greater performance recovery, especially after depleting tasks.",
       "breakRatio": "Optimal Work-Break Ratios (Bailey, 2017)",
-      "breakRatioDesc": "Most productive people spend 20\u201325% of their workday on breaks. Break quality matters as much as duration."
+      "breakRatioDesc": "Most productive people spend 20–25% of their workday on breaks. Break quality matters as much as duration."
     }
   },
   "impressum": {

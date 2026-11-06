@@ -38,32 +38,6 @@ export function MenuIcon({
           strokeWidth="2"
         />
       )}
-      {name === "play" && (
-        <>
-          <rect
-            x="3"
-            y="4"
-            width="18"
-            height="16"
-            rx="1"
-            fill="none"
-            stroke={c}
-            strokeWidth="2"
-          />
-          <path d="M10 8.5v7l6-3.5z" fill={c} />
-        </>
-      )}
-      {name === "book" && (
-        <>
-          <path
-            d="M4 5c3-1 5-1 8 1 3-2 5-2 8-1v14c-3-1-5-1-8 1-3-2-5-2-8-1z"
-            fill="none"
-            stroke={c}
-            strokeWidth="2"
-          />
-          <path d="M12 6v14" stroke={c} strokeWidth="2" />
-        </>
-      )}
       {name === "disc" && (
         <>
           <circle

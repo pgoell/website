@@ -108,8 +108,6 @@ export function PlaybackWindow({ index, onClose, onGo, fonts }: Props) {
             <dd>{t(`projects.${p.id}.k`)}</dd>
             <dt>{t("playback.repo")}</dt>
             <dd>{p.href ? p.repo : `${p.repo} (${t("playback.private")})`}</dd>
-            <dt>{t("playback.status")}</dt>
-            <dd className={s.dim}>{t("playback.placeholder")}</dd>
           </dl>
           <div className={s.nav}>
             <button type="button" onClick={() => onGo(index - 1)}>

@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { NowPlaying } from "@/lib/stats/spotify";
-import { lcg } from "@/lib/viewfinder/color";
 import { sunCrossings } from "@/lib/viewfinder/sun";
 import { TIME_ZONE } from "@/lib/viewfinder/time";
 import type { Weather } from "@/lib/weather/weather";
@@ -11,28 +10,22 @@ import s from "./viewfinder.module.css";
 const reducedMotion = () =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/** Commit histogram: 52 weeks, one bar per week. A sample shape until real weeks arrive. */
+/** Commit histogram: 52 weeks, one bar per week. Empty until real weeks arrive. */
 export function CommitHistogram({ weeks }: { weeks?: number[] }) {
   const ref = useRef<HTMLCanvasElement | null>(null);
   useEffect(() => {
     const c = ref.current;
     const x = c?.getContext("2d");
     if (!c || !x) return;
-    const r = lcg(7);
     const W = c.width;
     const H = c.height;
     x.fillStyle = "rgba(255,255,255,.16)";
     for (const k of [1, 2, 3]) x.fillRect(Math.round((W * k) / 4), 0, 1, H);
+    if (!weeks) return;
     x.fillStyle = "rgba(255,255,255,.9)";
-    const max = weeks ? Math.max(1, ...weeks) : 1;
+    const max = Math.max(1, ...weeks);
     for (let i = 0; i < 52; i++) {
-      const wk = i % 7 > 4 ? 0.25 : 1;
-      const v = weeks
-        ? Math.sqrt((weeks[i] ?? 0) / max)
-        : Math.max(
-            0,
-            (Math.sin(i / 6) + 1.2) * r() * wk * 0.5 + (i > 42 ? 0.35 : 0),
-          );
+      const v = Math.sqrt((weeks[i] ?? 0) / max);
       const bh = Math.min(1, v) * (H - 6);
       x.fillRect(2 + i * 6.25, H - bh, 4.4, bh);
     }

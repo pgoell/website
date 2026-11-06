@@ -78,16 +78,11 @@
         "span": "52W"
       },
       "playing": {
-        "g": "Musikecke und Bücherregal: was gerade auf Spotify läuft oder zuletzt lief, und was ich lese. Das Buch ist ein Beispiel.",
+        "g": "Musikecke: was gerade auf Spotify läuft oder zuletzt lief. Live.",
         "k": "Läuft gerade",
         "hd": "LÄUFT GERADE",
         "last": "ZULETZT GEHÖRT",
-        "lvl": "PEGEL",
-        "reading": "LESE GERADE"
-      },
-      "reading": {
-        "g": "Im Bücherregal: aktuelles Buch und wie weit ich bin. Beispieltitel.",
-        "k": "Lesen"
+        "lvl": "PEGEL"
       },
       "lastCommit": {
         "l": "letzter Commit"
@@ -117,7 +112,7 @@
     "peek": {
       "playback": "Wiedergabe",
       "mapped": "Arbeit, kartiert",
-      "files": "5 Dateien",
+      "files": "{count} Dateien",
       "map": "Standortkarte ▾"
     },
     "map": {
@@ -131,7 +126,7 @@
       "sheet": "KINZIGTAL, BLATT GELNHAUSEN",
       "scale": "etwa 2,5 km",
       "contour": "HÖHENLINIEN 20 m, ◀ ▶ wählen",
-      "label": "Höhenlinienkarte des Kinzigtals um Gelnhausen mit fünf Projekt-Pins"
+      "label": "Höhenlinienkarte des Kinzigtals um Gelnhausen mit den Projekt-Pins"
     },
     "projects": {
       "klassenzeit": {
@@ -194,8 +189,6 @@
       "what": "Was",
       "type": "Art",
       "repo": "Repo",
-      "status": "Status",
-      "placeholder": "[Platzhalter]",
       "private": "privat",
       "prev": "◀ Zurück",
       "next": "Weiter ▶",
@@ -206,22 +199,18 @@
       "placeholder": "Tippen, um alles zu durchsuchen",
       "search": "Suche",
       "found": "/ {count} gefunden",
-      "empty": "Kein Treffer. Versuch es mit \"Agent\", \"Foto\" oder \"Kniffel\".",
+      "empty": "Kein Treffer. Versuch es mit \"Agent\", \"GitHub\" oder \"Licht\".",
       "tab": "Reiter",
       "select": "wählen",
       "open": "öffnen",
       "back": "zurück",
       "soon": "BALD",
-      "ph": "PLATZHALTER",
-      "helpPh": "Platzhalter, bis der echte Eintrag kommt.",
       "helpSoon": "Kommt bald.",
       "all": "ALLE",
       "tabs": {
         "main": "Übersicht",
         "work": "Arbeit",
         "writing": "Texte",
-        "photos": "Fotos",
-        "books": "Bücher",
         "music": "Musik",
         "play": "Spielen",
         "setup": "Einstellungen"
@@ -233,9 +222,6 @@
         "tools": "Werkzeuge",
         "games": "Spiele",
         "posts": "Beiträge",
-        "kinzigtal": "Kinzigtal",
-        "read": "Gelesen",
-        "notRead": "Nicht gelesen",
         "onRepeat": "In Dauerschleife",
         "topArtists": "Top-Künstler",
         "languages": "Sprachen",
@@ -287,10 +273,6 @@
           "v": "Postfach zu Brief",
           "help": "Ein Agent, der mein Postfach liest und eine kurze Zusammenfassung schreibt."
         },
-        "ask": {
-          "t": "Frag Pascal",
-          "v": "Agent für die Seite"
-        },
         "klassenzeit": {
           "t": "Klassenzeit",
           "v": "Stundenplaner",
@@ -322,38 +304,6 @@
           "t": "Alle Beiträge",
           "v": "Blog",
           "help": "Alle Beiträge im Blog."
-        },
-        "photo1": {
-          "t": "Kinzigwiesen in der Dämmerung",
-          "v": "100-0421"
-        },
-        "photo2": {
-          "t": "Marienkirche vom Halbmond aus",
-          "v": "100-0438"
-        },
-        "photo3": {
-          "t": "Büdinger Wald im Nebel",
-          "v": "100-0450"
-        },
-        "bookA": {
-          "t": "Buchtitel A",
-          "v": "Notiz"
-        },
-        "bookB": {
-          "t": "Buchtitel B",
-          "v": "Notiz"
-        },
-        "bookC": {
-          "t": "Buchtitel C",
-          "v": "warum nicht"
-        },
-        "recordA": {
-          "t": "Platte A",
-          "v": "Künstler"
-        },
-        "recordB": {
-          "t": "Platte B",
-          "v": "Künstler"
         },
         "wordle": {
           "t": "Wordle",
@@ -401,7 +351,7 @@
         },
         "readouts": {
           "t": "Anzeigen",
-          "v": "Beispieldaten"
+          "v": "live"
         },
         "histogram": {
           "t": "Histogramm",
@@ -453,7 +403,7 @@
         "info": "Info",
         "noMatches": "Keine passenden Wörter gefunden",
         "enterGuess": "Gib deinen Versuch ein und markiere jeden Buchstaben",
-        "clickToMark": "Klicke auf Kacheln: absent \u2192 present \u2192 correct",
+        "clickToMark": "Klicke auf Kacheln: absent → present → correct",
         "failed": "Fehlgeschlagen. Das Wort war {word}",
         "loading": "Lädt...",
         "absent": "Falsch",
@@ -530,7 +480,7 @@
       "totalWork": "Fokus gesamt: {minutes} Min",
       "totalBreak": "Pausen gesamt: {minutes} Min",
       "ratio": "Pausenanteil: {percent}%",
-      "ratioGood": "Im empfohlenen Bereich von 20\u201325%.",
+      "ratioGood": "Im empfohlenen Bereich von 20–25%.",
       "breaksTooShort": "Pausen sind kürzer als empfohlen. Längere Pausen in Betracht ziehen.",
       "breaksTooLong": "Pausen übersteigen den empfohlenen Anteil. Kürzere Pausen in Betracht ziehen."
     },
@@ -563,8 +513,8 @@
       "noData": "Noch keine Sessions aufgezeichnet."
     },
     "timeOfDay": {
-      "peakFocus": "Optimales Fokus-Fenster \u2014 beste Zeit für konzentrierte Arbeit.",
-      "afternoonDip": "Nachmittagstief \u2014 leichtere Aufgabe oder kürzere Session erwägen."
+      "peakFocus": "Optimales Fokus-Fenster — beste Zeit für konzentrierte Arbeit.",
+      "afternoonDip": "Nachmittagstief — leichtere Aufgabe oder kürzere Session erwägen."
     },
     "notifications": {
       "workDone": "Fokus-Session abgeschlossen! Zeit für eine Pause.",
@@ -578,13 +528,13 @@
       "desktime": "DeskTime-Produktivitätsstudie (Draugiem Group, 2014)",
       "desktimeDesc": "Analyse der produktivsten 10% der Mitarbeiter ergab ein 52/17 Arbeits-Pausen-Verhältnis.",
       "ultradian": "Grundlegender Ruhe-Aktivitäts-Zyklus (Kleitman, 1982)",
-      "ultradianDesc": "90\u2013120-minütiger biologischer Rhythmus, der Wachheit und kognitive Leistung beeinflusst.",
+      "ultradianDesc": "90–120-minütiger biologischer Rhythmus, der Wachheit und kognitive Leistung beeinflusst.",
       "huberman": "Huberman Lab: Fokus- & Konzentrationsprotokolle",
-      "hubermanDesc": "Neurobiologische Grundlage für 90-Minuten-Fokussessions. Maximal 2\u20133 Sessions pro Tag.",
+      "hubermanDesc": "Neurobiologische Grundlage für 90-Minuten-Fokussessions. Maximal 2–3 Sessions pro Tag.",
       "microbreaks": "Mikropausen-Metaanalyse (Albulescu et al., 2022)",
       "microbreaksDesc": "Systematische Übersicht zeigt, dass längere Pausen eine bessere Leistungserholung bewirken.",
       "breakRatio": "Optimale Arbeits-Pausen-Verhältnisse (Bailey, 2017)",
-      "breakRatioDesc": "Die produktivsten Menschen verbringen 20\u201325% ihres Arbeitstages mit Pausen."
+      "breakRatioDesc": "Die produktivsten Menschen verbringen 20–25% ihres Arbeitstages mit Pausen."
     }
   },
   "impressum": {

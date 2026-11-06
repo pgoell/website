@@ -67,8 +67,8 @@ export function Evf({
   const [clock, setClock] = useState({ time: "--:--", zone: "CET" });
   const track = useNowPlaying();
   const lastPush = github?.lastPush;
-  const repo = lastPush?.repo ?? "Klassenzeit";
-  const [since, setSince] = useState("2H");
+  const repo = lastPush?.repo ?? "--";
+  const [since, setSince] = useState("--");
 
   // clock readout
   /* role line under the name cycles; held still for reduced motion */
@@ -378,26 +378,14 @@ export function Evf({
               </span>
               <span>{t("ro.playing.lvl")}</span>
             </div>
-            <LevelMeters live={track?.playing ?? true} />
+            <LevelMeters live={track?.playing ?? false} />
             {track ? (
               <a className={s.trk} href={track.url}>
                 {track.title} <em>{track.artist}</em>
               </a>
             ) : (
-              <div className={s.trk}>
-                Says <em>Nils Frahm</em>
-              </div>
+              <div className={s.trk}>--</div>
             )}
-            <div className={s.hd} style={{ margin: "9px 0 0" }}>
-              <span>{t("ro.playing.reading")}</span>
-              <span>41%</span>
-            </div>
-            <div className={s.book} {...ro("reading")}>
-              Designing Data-Intensive Apps
-            </div>
-            <div className={s.pbar}>
-              <b />
-            </div>
           </div>
         </div>
         <div className={cx(s.bar, s.b)}>
@@ -405,7 +393,7 @@ export function Evf({
             <span ref={dotRef} className={s.fdot} />
             <a
               className={cx(s.ro, s.big, s.hideM)}
-              href={`${GITHUB}/${repo}`}
+              href={lastPush ? `${GITHUB}/${repo}` : GITHUB}
               {...ro("focus")}
             >
               <span className={s.v}>
@@ -423,7 +411,7 @@ export function Evf({
               data-af="10"
             >
               <span className={s.v}>
-                {since} <small>{lastPush?.sha.slice(0, 7) ?? "3f9c2e1"}</small>
+                {since} <small>{lastPush?.sha.slice(0, 7)}</small>
               </span>
               <span className={s.l}>{t("ro.lastCommit.l")}</span>
             </a>
