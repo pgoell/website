@@ -386,7 +386,6 @@ a.box {
   width: max-content;
   background: rgba(10, 10, 10, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-left: 3px solid var(--sony);
   padding: 7px 12px;
   font-size: 14px;
   opacity: 0;

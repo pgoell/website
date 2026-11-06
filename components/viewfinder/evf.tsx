@@ -348,7 +348,7 @@ export function Evf({
             <button
               type="button"
               className={cx(s.ro, s.snd, soundOn && s.on)}
-              {...ro("sound")}
+              data-af="10"
               aria-pressed={soundOn}
               aria-label={t("ro.sound.k")}
               onClick={onSound}
