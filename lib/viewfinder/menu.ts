@@ -5,7 +5,7 @@ import type { GithubStats } from "@/lib/stats/github";
 import type { SpotifyTop } from "@/lib/stats/spotify";
 import { PROJECTS } from "./projects";
 
-export type MenuFlag = "soon" | "ph" | "ok";
+export type MenuFlag = "soon" | "ok";
 
 export type MenuAction =
   /** Scroll to the map and lock the focus frame on a project pin. */
@@ -32,26 +32,10 @@ export interface MenuGroupDef {
   items: MenuItemDef[];
 }
 
-export type MenuIcon =
-  | "star"
-  | "cam"
-  | "pen"
-  | "play"
-  | "book"
-  | "disc"
-  | "dice"
-  | "box";
+export type MenuIcon = "star" | "cam" | "pen" | "disc" | "dice" | "box";
 
 export interface MenuTabDef {
-  id:
-    | "main"
-    | "work"
-    | "writing"
-    | "photos"
-    | "books"
-    | "music"
-    | "play"
-    | "setup";
+  id: "main" | "work" | "writing" | "music" | "play" | "setup";
   icon: MenuIcon;
   color: string;
   groups: MenuGroupDef[];
@@ -63,7 +47,7 @@ export interface PostLink {
   date: string;
 }
 
-/** Live stats that replace placeholder entries; either may be missing. */
+/** Live stats behind the languages and music entries; either may be missing. */
 export interface MenuStats {
   github?: GithubStats | null;
   spotify?: SpotifyTop | null;
@@ -103,7 +87,6 @@ export function buildMenu(
           id: "shortcuts",
           items: [
             { id: "hire", action: external(MAIL) },
-            { id: "cv", flag: "soon" },
             { id: "github", action: external(GITHUB) },
           ],
         },
@@ -116,10 +99,7 @@ export function buildMenu(
       groups: [
         {
           id: "agents",
-          items: [
-            { id: "gmail", action: pin(1) },
-            { id: "ask", flag: "soon" },
-          ],
+          items: [{ id: "gmail", action: pin(1) }],
         },
         {
           id: "tools",
@@ -172,42 +152,13 @@ export function buildMenu(
       ],
     },
     {
-      id: "photos",
-      icon: "play",
-      color: "#3aa0ff",
-      groups: [
-        {
-          id: "kinzigtal",
-          items: [
-            { id: "photo1", flag: "ph" },
-            { id: "photo2", flag: "ph" },
-            { id: "photo3", flag: "ph" },
-          ],
-        },
-      ],
-    },
-    {
-      id: "books",
-      icon: "book",
-      color: "#47d17a",
-      groups: [
-        {
-          id: "read",
-          items: [
-            { id: "bookA", flag: "ph" },
-            { id: "bookB", flag: "ph" },
-          ],
-        },
-        { id: "notRead", items: [{ id: "bookC", flag: "ph" }] },
-      ],
-    },
-    {
       id: "music",
       icon: "disc",
       color: "#b07bff",
-      groups: [
-        spotify
-          ? {
+      // empty without Spotify, and then dropped by visibleMenu
+      groups: spotify
+        ? [
+            {
               id: "onRepeat",
               items: spotify.tracks.map((t, i) => ({
                 id: `track-${i}`,
@@ -215,28 +166,18 @@ export function buildMenu(
                 value: t.artist,
                 action: external(t.url),
               })),
-            }
-          : {
-              id: "onRepeat",
-              items: [
-                { id: "recordA", flag: "ph" },
-                { id: "recordB", flag: "ph" },
-              ],
             },
-        ...(spotify
-          ? [
-              {
-                id: "topArtists",
-                items: spotify.artists.map((a, i) => ({
-                  id: `artist-${i}`,
-                  title: a.name,
-                  value: `#${i + 1}`,
-                  action: external(a.url),
-                })),
-              },
-            ]
-          : []),
-      ],
+            {
+              id: "topArtists",
+              items: spotify.artists.map((a, i) => ({
+                id: `artist-${i}`,
+                title: a.name,
+                value: `#${i + 1}`,
+                action: external(a.url),
+              })),
+            },
+          ]
+        : [],
     },
     {
       id: "play",

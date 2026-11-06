@@ -66,7 +66,7 @@ export function languageShares(repos: Repo[]): GithubStats["languages"] {
     .map(([name, size]) => ({ name, share: size / total }));
 }
 
-/** Public pages only, no token. Null when GitHub fails; the page then shows sample data. */
+/** Public pages only, no token. Null when GitHub fails; the readouts then stay empty. */
 export async function getGithubStats(): Promise<GithubStats | null> {
   const get = (url: string) =>
     fetch(url, { next: { revalidate: HOUR } }).then((r) => {

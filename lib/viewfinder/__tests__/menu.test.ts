@@ -15,17 +15,20 @@ const posts = [
 describe("buildMenu", () => {
   const tabs = buildMenu(posts);
 
-  it("has the eight camera tabs", () => {
+  it("has the six camera tabs", () => {
     expect(tabs.map((t) => t.id)).toEqual([
       "main",
       "work",
       "writing",
-      "photos",
-      "books",
       "music",
       "play",
       "setup",
     ]);
+  });
+
+  it("leaves music empty without Spotify", () => {
+    expect(tabs.find((t) => t.id === "music")?.groups).toEqual([]);
+    expect(visibleMenu(tabs).map((t) => t.id)).not.toContain("music");
   });
 
   it("lists blog posts under writing", () => {
@@ -59,10 +62,10 @@ describe("buildMenu", () => {
 
 describe("actionFor", () => {
   it("does nothing for soon entries", () => {
-    expect(actionFor({ id: "ask", flag: "soon" })).toBeNull();
+    expect(actionFor({ id: "cv", flag: "soon" })).toBeNull();
   });
   it("falls back to the folders section", () => {
-    expect(actionFor({ id: "photo1", flag: "ph" })).toEqual({
+    expect(actionFor({ id: "stack" })).toEqual({
       kind: "section",
       id: "more",
     });

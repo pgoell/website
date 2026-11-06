@@ -318,8 +318,7 @@ a.ro {
 .segs i.pk {
   background: #ff5a4a;
 }
-.trk,
-.book {
+.trk {
   font: 600 14px / 1.2 var(--semi);
   margin-top: 5px;
   white-space: nowrap;
@@ -335,17 +334,6 @@ a.trk {
   font-style: normal;
   font-weight: 400;
   color: var(--dim);
-}
-.pbar {
-  height: 3px;
-  background: rgba(255, 255, 255, 0.18);
-  margin-top: 6px;
-}
-.pbar b {
-  display: block;
-  height: 100%;
-  width: 41%;
-  background: var(--ink);
 }
 /* pomodoro exposure scale */
 .scale {
