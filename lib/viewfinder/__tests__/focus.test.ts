@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { blurFor, PLANES, restBlur } from "../focus";
+import { blurFor, PLANES } from "../focus";
 
 describe("blurFor", () => {
   it("keeps the focused plane sharp", () => {
@@ -20,12 +20,5 @@ describe("blurFor", () => {
     expect(blurFor("sky", "near", 720)).toBeCloseTo(
       blurFor("sky", "near", 1440) / 2,
     );
-  });
-});
-
-describe("restBlur", () => {
-  it("softens only the hills", () => {
-    expect(restBlur("hills", 2600)).toBe(1);
-    expect(restBlur("church", 2600)).toBe(0);
   });
 });

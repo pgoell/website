@@ -28,8 +28,3 @@ export function blurFor(plane: Plane, focus: Plane, width: number): number {
   const d = Math.abs(dioptres(plane) - dioptres(focus));
   return Math.min(MAX, K * d) * (width / 1440);
 }
-
-/** The resting look, with nothing in focus: the distance slightly soft, the rest sharp. */
-export function restBlur(plane: Plane, width: number): number {
-  return plane === "hills" ? width / 2600 : 0;
-}
