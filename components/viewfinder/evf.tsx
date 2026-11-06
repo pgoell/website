@@ -23,7 +23,6 @@ interface Props {
   temperature: number | null;
   weather: SceneWeather | null;
   mode: DisplayMode;
-  shots: number;
   onShoot: (target: string) => void;
   onMenu: () => void;
   onCycleMode: () => void;
@@ -44,7 +43,6 @@ export function Evf({
   temperature,
   weather,
   mode,
-  shots,
   onShoot,
   onMenu,
   onCycleMode,
@@ -292,26 +290,6 @@ export function Evf({
                 </span>
               </span>
             </a>
-            <div className={s.ro} {...ro("photos")}>
-              <div className={s.v}>
-                <svg className={s.i} viewBox="0 0 16 16" aria-hidden="true">
-                  <path d="M4 1.5h6l3 3v10H4z" />
-                  <path d="M6.5 1.5v3M8.5 1.5v3M10.5 1.5v3" />
-                </svg>
-                <span>{shots.toLocaleString("de-DE").replace(".", " ")}</span>
-              </div>
-              <div className={s.l}>{t("ro.photos.l")}</div>
-            </div>
-            <a
-              className={cx(s.ro, s.hideM)}
-              href={`${GITHUB}/${repo}`}
-              {...ro("focus")}
-            >
-              <span className={s.v}>
-                AF-C <span style={{ fontWeight: 500 }}>{repo}</span>
-              </span>
-              <span className={s.l}>{t("ro.focus.l")}</span>
-            </a>
           </div>
           <button
             type="button"
@@ -414,13 +392,23 @@ export function Evf({
           <div className={s.grp}>
             <span ref={dotRef} className={s.fdot} />
             <a
+              className={cx(s.ro, s.big, s.hideM)}
+              href={`${GITHUB}/${repo}`}
+              {...ro("focus")}
+            >
+              <span className={s.v}>
+                AF-C <span style={{ fontWeight: 500 }}>{repo}</span>
+              </span>
+              <span className={s.l}>{t("ro.focus.l")}</span>
+            </a>
+            <a
               className={cx(s.ro, s.big)}
               href={
                 lastPush
                   ? `${GITHUB}/${lastPush.repo}/commit/${lastPush.sha}`
                   : GITHUB
               }
-              {...ro("lastCommit")}
+              data-af="10"
             >
               <span className={s.v}>
                 {since} <small>{lastPush?.sha.slice(0, 7) ?? "3f9c2e1"}</small>
