@@ -79,7 +79,12 @@
         "k": "Läuft gerade",
         "hd": "LÄUFT GERADE",
         "last": "ZULETZT GEHÖRT",
-        "lvl": "PEGEL"
+        "lvl": "PEGEL",
+        "reading": "LESE GERADE"
+      },
+      "reading": {
+        "g": "Im Bücherregal: das Buch, das in meinem Notizbuch offen ist, und wie weit ich bin. Live.",
+        "k": "Lesen"
       },
       "lastCommit": {
         "l": "letzter Commit"

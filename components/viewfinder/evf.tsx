@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { GithubStats } from "@/lib/stats/github";
+import type { Book } from "@/lib/stats/kasten";
 import { GITHUB } from "@/lib/viewfinder/menu";
 import { berlinZoneName, sinceLabel, TIME_ZONE } from "@/lib/viewfinder/time";
 import { conditionOf, type SceneWeather } from "@/lib/weather/weather";
@@ -29,6 +30,8 @@ interface Props {
   fnRef: React.RefObject<Array<() => void>>;
   onPowerOn: () => void;
   github: GithubStats | null;
+  /** The book open in Kasten; the reading line is left out without one. */
+  book: Book | null;
   /** Opens or closes the panel that pins day, time and weather. */
   onScene: () => void;
   sceneOpen: boolean;
@@ -49,6 +52,7 @@ export function Evf({
   fnRef,
   onPowerOn,
   github,
+  book,
   onScene,
   sceneOpen,
   scenePanel,
@@ -382,6 +386,25 @@ export function Evf({
               </a>
             ) : (
               <div className={s.trk}>--</div>
+            )}
+            {book && (
+              <>
+                <div className={s.hd} style={{ margin: "9px 0 0" }}>
+                  <span>{t("ro.playing.reading")}</span>
+                  {book.progress !== null && (
+                    <span>{Math.round(book.progress * 100)}%</span>
+                  )}
+                </div>
+                <div className={s.book} {...ro("reading")}>
+                  {book.title}
+                  {book.author && <em> {book.author}</em>}
+                </div>
+                {book.progress !== null && (
+                  <div className={s.pbar}>
+                    <b style={{ width: `${book.progress * 100}%` }} />
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
