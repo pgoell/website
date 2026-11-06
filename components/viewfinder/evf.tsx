@@ -387,26 +387,26 @@ export function Evf({
             ) : (
               <div className={s.trk}>--</div>
             )}
-            {book && (
-              <>
-                <div className={s.hd} style={{ margin: "9px 0 0" }}>
-                  <span>{t("ro.playing.reading")}</span>
-                  {book.progress !== null && (
-                    <span>{Math.round(book.progress * 100)}%</span>
-                  )}
-                </div>
-                <div className={s.book} {...ro("reading")}>
-                  {book.title}
-                  {book.author && <em> {book.author}</em>}
-                </div>
-                {book.progress !== null && (
-                  <div className={s.pbar}>
-                    <b style={{ width: `${book.progress * 100}%` }} />
-                  </div>
-                )}
-              </>
-            )}
           </div>
+          {book && (
+            <div className={cx(s.box, s.ro)} {...ro("reading")}>
+              <div className={s.hd}>
+                <span>{t("ro.playing.reading")}</span>
+                {book.progress !== null && (
+                  <span>{Math.round(book.progress * 100)}%</span>
+                )}
+              </div>
+              <div className={s.book}>
+                {book.title}
+                {book.author && <em>{book.author}</em>}
+              </div>
+              {book.progress !== null && (
+                <div className={s.pbar}>
+                  <b style={{ width: `${book.progress * 100}%` }} />
+                </div>
+              )}
+            </div>
+          )}
         </div>
         <div className={cx(s.bar, s.b)}>
           <div className={cx(s.grp, s.hideM)}>
