@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { actionFor, buildMenu, type MenuEntry, searchMenu } from "../menu";
+import { isHiddenPage } from "@/lib/hidden-pages";
+import {
+  actionFor,
+  buildMenu,
+  type MenuEntry,
+  searchMenu,
+  visibleMenu,
+} from "../menu";
 
 const posts = [
   { slug: "hello-world", title: "Hello World", date: "2025-02-01" },
@@ -90,5 +97,34 @@ describe("searchMenu", () => {
   it("returns nothing for an empty or unmatched query", () => {
     expect(searchMenu(entries, "  ")).toEqual([]);
     expect(searchMenu(entries, "zzz")).toEqual([]);
+  });
+});
+
+describe("visibleMenu", () => {
+  const tabs = visibleMenu(buildMenu(posts));
+  const paths = tabs.flatMap((t) =>
+    t.groups.flatMap((g) =>
+      g.items.flatMap((i) =>
+        i.action?.kind === "route" ? [i.action.path] : [],
+      ),
+    ),
+  );
+
+  it("links no hidden page", () => {
+    expect(paths.filter(isHiddenPage)).toEqual([]);
+  });
+
+  it("drops tabs left empty", () => {
+    expect(tabs.map((t) => t.id)).not.toContain("writing");
+    expect(tabs.map((t) => t.id)).not.toContain("play");
+    expect(tabs.map((t) => t.id)).toContain("work");
+  });
+});
+
+describe("visibleMenu pins", () => {
+  it("drops pins to projects that left the map", () => {
+    const tabs = visibleMenu(buildMenu(posts));
+    const work = tabs.find((t) => t.id === "work");
+    expect(work?.groups.map((g) => g.id)).not.toContain("games");
   });
 });

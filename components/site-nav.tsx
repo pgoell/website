@@ -25,15 +25,6 @@ export function SiteNav() {
         <DropdownMenuItem asChild>
           <Link href={`/${locale}`}>{t("home")}</Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href={`/${locale}/blog`}>{t("blog")}</Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href={`/${locale}/games`}>{t("games")}</Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href={`/${locale}/tools`}>{t("tools")}</Link>
-        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

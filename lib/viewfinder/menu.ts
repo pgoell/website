@@ -1,7 +1,9 @@
 /** The camera menu: tabs, groups and items, plus the search across all of them. */
 
+import { isHiddenPage } from "@/lib/hidden-pages";
 import type { GithubStats } from "@/lib/stats/github";
 import type { SpotifyTop } from "@/lib/stats/spotify";
+import { PROJECTS } from "./projects";
 
 export type MenuFlag = "soon" | "ph" | "ok";
 
@@ -307,4 +309,23 @@ export function searchMenu(
 export function actionFor(def: MenuItemDef): MenuAction | null {
   if (def.flag === "soon") return null;
   return def.action ?? { kind: "section", id: "more" };
+}
+
+const isHidden = ({ action }: MenuItemDef) =>
+  (action?.kind === "route" && isHiddenPage(action.path)) ||
+  (action?.kind === "pin" && !PROJECTS[action.index]);
+
+/** Drops links to hidden pages or projects, then any group or tab left empty. */
+export function visibleMenu(tabs: readonly MenuTabDef[]): MenuTabDef[] {
+  return tabs
+    .map((tab) => ({
+      ...tab,
+      groups: tab.groups
+        .map((g) => ({
+          ...g,
+          items: g.items.filter((i) => !isHidden(i)),
+        }))
+        .filter((g) => g.items.length > 0),
+    }))
+    .filter((tab) => tab.groups.length > 0);
 }

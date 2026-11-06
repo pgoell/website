@@ -1,3 +1,5 @@
+import { isHiddenPage } from "@/lib/hidden-pages";
+
 export type ArtKind = "grid" | "mail" | "slides" | "pitch" | "dice";
 
 export type ProjectId =
@@ -23,7 +25,7 @@ export interface Project {
   y: number;
 }
 
-export const PROJECTS: readonly Project[] = [
+const ALL_PROJECTS: readonly Project[] = [
   {
     id: "klassenzeit",
     name: "Klassenzeit",
@@ -70,3 +72,8 @@ export const PROJECTS: readonly Project[] = [
     y: 0.8,
   },
 ];
+
+/** Projects on the map; a project whose page is hidden stays off it. */
+export const PROJECTS: readonly Project[] = ALL_PROJECTS.filter(
+  (p) => !p.route || !isHiddenPage(p.route),
+);

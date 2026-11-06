@@ -11,6 +11,7 @@ import {
   LINKEDIN,
   MAIL,
   type PostLink,
+  visibleMenu,
 } from "@/lib/viewfinder/menu";
 import { PROJECTS } from "@/lib/viewfinder/projects";
 import type { Weather } from "@/lib/weather/weather";
@@ -51,16 +52,10 @@ export function ViewfinderHome({
   const { setSceneOpen } = vf;
   const closeScene = useCallback(() => setSceneOpen(false), [setSceneOpen]);
   const tabs = useMemo(
-    () => buildMenu(posts, { github, spotify }),
+    () => visibleMenu(buildMenu(posts, { github, spotify })),
     [posts, github, spotify],
   );
   const other = locale === "en" ? "de" : "en";
-
-  const shootLink = (target: string) => (e: React.MouseEvent) => {
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
-    e.preventDefault();
-    vf.shoot(target);
-  };
 
   return (
     <div
@@ -128,12 +123,7 @@ export function ViewfinderHome({
           monoFamily={ART_FONTS.mono}
         />
         <div className={s.folders} id="more">
-          <Link href={`/${locale}/blog`} onClick={shootLink("/blog")}>
-            <span>{t("folders.writing.s")}</span>
-            <strong>{t("folders.writing.t")}</strong>
-            <p>{t("folders.writing.p")}</p>
-          </Link>
-          {(["books", "music", "photos"] as const).map((k) => (
+          {(["writing", "books", "music", "photos"] as const).map((k) => (
             <div key={k}>
               <span>{t(`folders.${k}.s`)}</span>
               <strong>{t(`folders.${k}.t`)}</strong>
@@ -151,9 +141,6 @@ export function ViewfinderHome({
         <a href={MAIL}>{t("footer.contact")}</a>
         <a href={GITHUB}>GitHub</a>
         <a href={LINKEDIN}>LinkedIn</a>
-        <Link href={`/${locale}/blog`}>{t("footer.blog")}</Link>
-        <Link href={`/${locale}/games`}>{t("footer.games")}</Link>
-        <Link href={`/${locale}/tools`}>{t("footer.tools")}</Link>
         <Link href={`/${locale}/impressum`}>{t("footer.impressum")}</Link>
         <Link href={`/${locale}/datenschutz`}>{t("footer.datenschutz")}</Link>
         <span className={s.sp} />
