@@ -35,22 +35,16 @@
       "close": "Schließen"
     },
     "ro": {
-      "logo": {
-        "g": "Das Zeichen der Seite. Ein Klick lädt die Seite neu.",
-        "k": "Start"
-      },
       "focus": {
         "g": "Repo meines letzten Pushs auf GitHub.",
         "k": "Fokus",
         "l": "aktuelles Projekt"
       },
       "gps": {
-        "g": "Gelnhausen im Kinzigtal, Hessen. Klicken öffnet die Standortkarte der Arbeit.",
-        "k": "GPS",
         "l": "Standort"
       },
       "weather": {
-        "g": "Weißabgleich nach dem aktuellen Wetter im Tal. Das Bild zeigt denselben Himmel. Daten von Open-Meteo. Klick, um Tag, Uhrzeit oder Wetter zu wählen.",
+        "g": "Ändere deine Ansicht.",
         "k": "Wetter",
         "l": "WA {cond}",
         "c": {
@@ -64,19 +58,15 @@
         }
       },
       "clock": {
-        "g": "Ortszeit in Gelnhausen, Europe/Berlin. Live. Das Licht im Bild folgt ihr. Klick, um Tag, Uhrzeit oder Wetter zu wählen.",
-        "k": "Uhr",
         "l": "{zone} Ortszeit"
       },
       "commits": {
-        "g": "GitHub-Beiträge der letzten 52 Wochen, ein Balken pro Woche. Live.",
+        "g": "Meine GitHub-Aktivität im letzten Jahr, nach Wochen gruppiert.",
         "k": "Commits",
         "hd": "COMMITS",
         "span": "52W"
       },
       "playing": {
-        "g": "Musikecke: was gerade auf Spotify läuft oder zuletzt lief. Live.",
-        "k": "Läuft gerade",
         "hd": "LÄUFT GERADE",
         "last": "ZULETZT GEHÖRT",
         "lvl": "PEGEL",
@@ -90,18 +80,16 @@
         "l": "letzter Commit"
       },
       "timer": {
-        "g": "Belichtungsskala: wie weit der Tag zwischen Sonnenaufgang und Sonnenuntergang in Gelnhausen ist, oder die Nacht dazwischen. Die Uhrzeit ist der nächste der beiden. Live.",
-        "k": "Tageslicht",
         "sunset": "UNTERGANG",
         "sunrise": "AUFGANG"
       },
       "body": {
-        "g": "Objektiv: die Kamera selbst. Sony a7 IV mit 35-mm-Festbrennweite.",
+        "g": "Meine Kamera: Sony α7 IV mit Sigma 24-70mm F2.8 DG DN II Art.",
         "k": "Gehäuse",
         "l": "a7 IV"
       },
       "disp": {
-        "g": "DISP wechselt die Anzeige: alle Infos, nur Werte, keine Infos. Taste D.",
+        "g": "Anzeige wechseln. Taste D.",
         "k": "Anzeige"
       }
     },

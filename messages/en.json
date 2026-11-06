@@ -35,22 +35,16 @@
       "close": "Close"
     },
     "ro": {
-      "logo": {
-        "g": "The site's mark. Click it to reload the page.",
-        "k": "Home"
-      },
       "focus": {
         "g": "Repo of my last push to GitHub.",
         "k": "Focus",
         "l": "current project"
       },
       "gps": {
-        "g": "Gelnhausen in the Kinzigtal, Hesse. Click to open the location map of the work.",
-        "k": "GPS",
         "l": "location"
       },
       "weather": {
-        "g": "White balance set by the live weather in the valley. The picture shows the same sky. Data from Open-Meteo. Click to pick another day, time or weather.",
+        "g": "Change your view.",
         "k": "Weather",
         "l": "wb {cond}",
         "c": {
@@ -64,19 +58,15 @@
         }
       },
       "clock": {
-        "g": "Local time in Gelnhausen, Europe/Berlin. Live. The light in the picture follows it. Click to pick another day, time or weather.",
-        "k": "Clock",
         "l": "{zone} local"
       },
       "commits": {
-        "g": "GitHub contributions over the last 52 weeks, one bar per week. Live.",
+        "g": "My GitHub activity over the past year, grouped by week.",
         "k": "Commits",
         "hd": "COMMITS",
         "span": "52W"
       },
       "playing": {
-        "g": "Music corner: what plays on Spotify right now, or played last. Live.",
-        "k": "Now playing",
         "hd": "NOW PLAYING",
         "last": "LAST PLAYED",
         "lvl": "REC LVL",
@@ -90,18 +80,16 @@
         "l": "last commit"
       },
       "timer": {
-        "g": "Exposure scale: how far the day has run between sunrise and sunset in Gelnhausen, or the night between sunset and sunrise. The time is the next of the two. Live.",
-        "k": "Daylight",
         "sunset": "SUNSET",
         "sunrise": "SUNRISE"
       },
       "body": {
-        "g": "Lens slot: the camera itself. Sony a7 IV with a 35mm prime.",
+        "g": "My camera: Sony α7 IV with a Sigma 24-70mm F2.8 DG DN II Art.",
         "k": "Body",
         "l": "a7 IV"
       },
       "disp": {
-        "g": "DISP cycles the display: all info, values only, no info. Key D.",
+        "g": "Cycle the display. Key D.",
         "k": "Display"
       }
     },
