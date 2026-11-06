@@ -125,13 +125,11 @@ export function ViewfinderHome({
           monoFamily={ART_FONTS.mono}
         />
         <div className={s.folders} id="more">
-          {(["writing", "books", "music", "photos"] as const).map((k) => (
-            <div key={k}>
-              <span>{t(`folders.${k}.s`)}</span>
-              <strong>{t(`folders.${k}.t`)}</strong>
-              <p>{t(`folders.${k}.p`)}</p>
-            </div>
-          ))}
+          <div>
+            <span>{t("folders.writing.s")}</span>
+            <strong>{t("folders.writing.t")}</strong>
+            <p>{t("folders.writing.p")}</p>
+          </div>
         </div>
       </section>
 

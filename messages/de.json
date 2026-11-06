@@ -14,9 +14,6 @@
     "fn": {
       "work": "Arbeit",
       "writing": "Texte",
-      "photos": "Fotos",
-      "books": "Bücher",
-      "music": "Musik",
       "hire": "Anfragen",
       "menu": "MENÜ"
     },
@@ -93,12 +90,6 @@
         "sunset": "UNTERGANG",
         "sunrise": "AUFGANG"
       },
-      "writing": {
-        "g": "ISO: Texte in der Schublade. Zwei Entwürfe, noch keiner veröffentlicht.",
-        "k": "Schreiben",
-        "v": "ENTWURF 2",
-        "l": "Schreiben"
-      },
       "body": {
         "g": "Objektiv: die Kamera selbst. Sony a7 IV mit 35-mm-Festbrennweite.",
         "k": "Gehäuse",
@@ -155,21 +146,6 @@
         "s": "DIR 101",
         "t": "Texte",
         "p": "Notizen zum Bauen mit LLMs. Die ersten Beiträge entstehen gerade."
-      },
-      "books": {
-        "s": "DIR 102, BALD",
-        "t": "Bücherregal",
-        "p": "Gedanken zu Büchern, gelesen oder nicht."
-      },
-      "music": {
-        "s": "DIR 103, BALD",
-        "t": "Musikecke",
-        "p": "Was beim Arbeiten in Dauerschleife läuft."
-      },
-      "photos": {
-        "s": "DIR 104, A7 IV, BALD",
-        "t": "Fotos",
-        "p": "Spaziergänge im Kinzigtal. Platzhalter, bis die RAWs bearbeitet sind."
       }
     },
     "footer": {

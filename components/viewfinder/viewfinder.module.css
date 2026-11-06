@@ -477,7 +477,7 @@ a.trk {
 .fn {
   margin-top: 24px;
   display: grid;
-  grid-template-columns: repeat(7, 74px);
+  grid-template-columns: repeat(4, 74px);
   gap: 4px;
 }
 .fn > * {

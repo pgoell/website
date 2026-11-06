@@ -246,9 +246,6 @@ export function Evf({
   }> = [
     { id: "work", href: "#work", target: "#work", work: true },
     { id: "writing", href: "#more", target: "#more" },
-    { id: "photos", href: "#more", target: "#more" },
-    { id: "books", href: "#more", target: "#more" },
-    { id: "music", href: "#more", target: "#more" },
     { id: "hire", href: "#contact", target: "#contact" },
   ];
   fnRef.current = fn.map((f) => () => onShoot(f.target));
@@ -424,10 +421,6 @@ export function Evf({
             />
           </div>
           <div className={s.grp}>
-            <div className={cx(s.ro, s.big, s.hideM)} {...ro("writing")}>
-              <div className={s.v}>{t("ro.writing.v")}</div>
-              <div className={s.l}>{t("ro.writing.l")}</div>
-            </div>
             <div className={cx(s.ro, s.big)} {...ro("body")}>
               <div className={s.v}>
                 35<span style={{ fontSize: 15 }}>mm</span>
@@ -504,7 +497,7 @@ export function Evf({
           </span>
           <span>
             <kbd>1</kbd>
-            {t("hint.to")} <kbd>6</kbd>
+            {t("hint.to")} <kbd>{fn.length}</kbd>
             {t("hint.shoot")}
           </span>
           <span>
