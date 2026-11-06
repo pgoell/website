@@ -27,7 +27,7 @@ export interface MenuRequest {
 
 const COUNT = PROJECTS.length;
 
-/** Page state for the viewfinder home: clock, shutter, display mode, menu, map selection and playback. */
+/** Page state for the viewfinder home: clock, shutter, display mode, menu and playback. */
 export function useViewfinder() {
   const router = useRouter();
   const locale = useLocale();
@@ -40,14 +40,11 @@ export function useViewfinder() {
     weather: null,
   });
   const [sceneOpen, setSceneOpen] = useState(false);
-  const [onlyMap, setOnlyMap] = useState(false);
   const [mode, setMode] = useState<DisplayMode>(0);
   const [shots, setShots] = useState(1284);
   const [menu, setMenu] = useState<MenuRequest | null>(null);
   const [lastTab, setLastTab] = useState<MenuTabDef["id"]>("work");
   const [playback, setPlayback] = useState<number | null>(null);
-  const [pick, setPick] = useState(0);
-  const [mapReady, setMapReady] = useState(false);
   const curtainRef = useRef<HTMLDivElement | null>(null);
 
   // light follows the real sun now; ?time=HH[:MM] and ?date=YYYY-MM-DD (Berlin local) pin it, ?weather= fixes the weather, ?state= opens a view for review
@@ -66,10 +63,6 @@ export function useViewfinder() {
     if (state === "search")
       later(() => setMenu({ tab: "search", query: "agent" }));
     if (state === "play") later(() => setPlayback(1));
-    if (state === "map") {
-      setOnlyMap(true);
-      later(() => setPick(1));
-    }
     return () => {
       for (const t of timers) clearTimeout(t);
     };
@@ -107,35 +100,28 @@ export function useViewfinder() {
     c.classList.add(cls(s.fire));
   }, []);
 
-  /** Shutter: blackout, then jump to a section (#id) or another page of the site. */
+  /** Shutter: blackout, then go to another page of the site. */
   const shoot = useCallback(
-    (target: string) => {
+    (path: string) => {
       fireCurtain();
       setShots((n) => n + 1);
       window.setTimeout(() => {
-        if (target.startsWith("#")) {
-          const el = document.querySelector(target);
-          if (el)
-            window.scrollTo({
-              top: el.getBoundingClientRect().top + window.scrollY - 8,
-              behavior: "instant",
-            });
-        } else router.push(`/${locale}${target}`);
+        router.push(`/${locale}${path}`);
       }, 130);
     },
     [fireCurtain, router, locale],
   );
 
+  const openPlayback = useCallback(
+    (i: number) => setPlayback(((i % COUNT) + COUNT) % COUNT),
+    [],
+  );
   const runAction = useCallback(
     (action: MenuAction) => {
       setMenu(null);
       switch (action.kind) {
-        case "pin":
-          shoot("#work");
-          window.setTimeout(() => setPick(action.index), 160);
-          break;
-        case "section":
-          shoot(`#${action.id}`);
+        case "project":
+          openPlayback(action.index);
           break;
         case "route":
           shoot(action.path);
@@ -152,7 +138,7 @@ export function useViewfinder() {
         }
       }
     },
-    [shoot, router, locale, pathname],
+    [shoot, openPlayback, router, locale, pathname],
   );
 
   const openMenu = useCallback((req: MenuRequest) => {
@@ -164,14 +150,9 @@ export function useViewfinder() {
     () => setMode((m) => ((m + 1) % 3) as DisplayMode),
     [],
   );
-  const openPlayback = useCallback(
-    (i: number) => setPlayback(((i % COUNT) + COUNT) % COUNT),
-    [],
-  );
   const closePlayback = useCallback(() => setPlayback(null), []);
 
-  // keys: M menu, Ctrl/Cmd K search, D display, 1 to 6 shoot, arrows pick files; the menu handles its own keys
-  const fnRef = useRef<Array<() => void>>([]);
+  // keys: M menu, Ctrl/Cmd K search, D display, arrows step through an open file; the menu handles its own keys
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -191,9 +172,6 @@ export function useViewfinder() {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === "m" || e.key === "M") openMenu({ tab: lastTab });
       else if (e.key === "d" || e.key === "D") cycleMode();
-      else if (/^[1-6]$/.test(e.key)) fnRef.current[Number(e.key) - 1]?.();
-      else if (mapReady && (e.key === "ArrowRight" || e.key === "ArrowLeft"))
-        setPick((p) => (p + (e.key === "ArrowRight" ? 1 : COUNT - 1)) % COUNT);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -201,7 +179,6 @@ export function useViewfinder() {
     menu,
     playback,
     lastTab,
-    mapReady,
     openMenu,
     closePlayback,
     openPlayback,
@@ -215,7 +192,6 @@ export function useViewfinder() {
     setScene,
     sceneOpen,
     setSceneOpen,
-    onlyMap,
     mode,
     cycleMode,
     shots,
@@ -228,12 +204,7 @@ export function useViewfinder() {
     playback,
     openPlayback,
     closePlayback,
-    pick,
-    setPick,
-    mapReady,
-    setMapReady,
     curtainRef,
     setLastTab,
-    fnRef,
   };
 }

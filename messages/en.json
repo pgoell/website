@@ -11,17 +11,9 @@
       "Dad"
     ],
     "mainNav": "Main",
+    "legalNav": "Legal",
     "fn": {
-      "work": "Work",
-      "writing": "Writing",
       "menu": "MENU"
-    },
-    "hint": {
-      "menu": "menu",
-      "search": "search all",
-      "to": "to",
-      "shoot": "shoot",
-      "display": "display"
     },
     "guideDefault": "Help",
     "scene": {
@@ -96,25 +88,6 @@
         "k": "Display"
       }
     },
-    "peek": {
-      "playback": "Playback",
-      "mapped": "Work, mapped",
-      "files": "{count} files",
-      "map": "Location map ▾"
-    },
-    "map": {
-      "kicker": "▶ PLAYBACK, LOCATION VIEW",
-      "title": "Work, mapped",
-      "intro": "Each project sits on a hill around Gelnhausen: the Büdinger Wald to the north, the Spessart to the south. Pick a file and the focus frame locks on. Stylised, not to scale.",
-      "work": "WORK",
-      "detail": "DETAIL",
-      "play": "▶ Play",
-      "repo": "Repo",
-      "sheet": "KINZIGTAL, SHEET GELNHAUSEN",
-      "scale": "2.5 km, roughly",
-      "contour": "CONTOUR 20 m, ◀ ▶ select",
-      "label": "Contour map of the Kinzigtal around Gelnhausen with the project pins"
-    },
     "projects": {
       "klassenzeit": {
         "d": "school timetable planner",
@@ -137,22 +110,10 @@
         "k": "web games"
       }
     },
-    "folders": {
-      "writing": {
-        "s": "DIR 101",
-        "t": "Writing",
-        "p": "Notes on building with LLMs. First posts in progress."
-      }
-    },
     "footer": {
       "contact": "Get in touch",
-      "blog": "Blog",
-      "games": "Games",
-      "tools": "Tools",
       "impressum": "Legal notice",
-      "datenschutz": "Privacy",
-      "place": "Gelnhausen, Kinzigtal",
-      "language": "Deutsch"
+      "datenschutz": "Privacy"
     },
     "playback": {
       "label": "Playback",

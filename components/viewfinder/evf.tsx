@@ -1,16 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { locales } from "@/i18n/config";
 import type { GithubStats } from "@/lib/stats/github";
 import type { Book } from "@/lib/stats/kasten";
-import { GITHUB } from "@/lib/viewfinder/menu";
+import { GITHUB, LINKEDIN, MAIL } from "@/lib/viewfinder/menu";
 import { berlinZoneName, sinceLabel, TIME_ZONE } from "@/lib/viewfinder/time";
 import { conditionOf, type SceneWeather } from "@/lib/weather/weather";
 import { cls, cx } from "./cx";
 import type { Scene } from "./gelnhausen-engine";
 import { GelnhausenScene } from "./gelnhausen-scene";
+import { ContactIcon } from "./icons";
 import {
   CommitHistogram,
   DayScale,
@@ -26,10 +28,8 @@ interface Props {
   temperature: number | null;
   weather: SceneWeather | null;
   mode: DisplayMode;
-  onShoot: (target: string) => void;
   onMenu: () => void;
   onCycleMode: () => void;
-  fnRef: React.RefObject<Array<() => void>>;
   onPowerOn: () => void;
   github: GithubStats | null;
   /** The book open in Kasten; the reading line is left out without one. */
@@ -51,10 +51,8 @@ export function Evf({
   temperature,
   weather,
   mode,
-  onShoot,
   onMenu,
   onCycleMode,
-  fnRef,
   onPowerOn,
   github,
   book,
@@ -262,23 +260,6 @@ export function Evf({
     };
   }, [box, home, onPowerOn]);
 
-  /* ---------- Fn row ---------- */
-  const fn: Array<{
-    id: string;
-    href: string;
-    target: string;
-    work?: boolean;
-  }> = [
-    { id: "work", href: "#work", target: "#work", work: true },
-    { id: "writing", href: "#more", target: "#more" },
-  ];
-  fnRef.current = fn.map((f) => () => onShoot(f.target));
-  const shootLink = (targetId: string) => (e: React.MouseEvent) => {
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
-    e.preventDefault();
-    onShoot(targetId);
-  };
-
   const ro = (key: string) => ({
     "data-g": t(`ro.${key}.g`),
     "data-gk": t(`ro.${key}.k`),
@@ -342,12 +323,7 @@ export function Evf({
               <span className={cx(s.l, s.hideM)}>{t("ro.lang.l")}</span>
             </a>
           </div>
-          <button
-            type="button"
-            className={cx(s.ro, s.hideM, s.gps)}
-            data-af="10"
-            onClick={() => onShoot("#work")}
-          >
+          <div className={cx(s.ro, s.hideM, s.gps)} data-af="10">
             <span className={s.v}>
               <svg className={s.i} viewBox="0 0 16 16" aria-hidden="true">
                 <path d="M8 14.5s-4.5-4.6-4.5-8a4.5 4.5 0 0 1 9 0c0 3.4-4.5 8-4.5 8z" />
@@ -356,7 +332,7 @@ export function Evf({
               Gelnhausen <span className={s.soft}>50.20N 9.19E</span>
             </span>
             <span className={s.l}>{t("ro.gps.l")}</span>
-          </button>
+          </div>
           <div className={s.grp}>
             <button
               type="button"
@@ -475,6 +451,14 @@ export function Evf({
             </div>
           )}
         </div>
+        <nav className={s.legal} aria-label={t("legalNav")}>
+          <Link href={`/${locale}/impressum`} data-af="10">
+            {t("footer.impressum")}
+          </Link>
+          <Link href={`/${locale}/datenschutz`} data-af="10">
+            {t("footer.datenschutz")}
+          </Link>
+        </nav>
         <div className={cx(s.bar, s.b)}>
           <div className={cx(s.grp, s.hideM)}>
             <span ref={dotRef} className={s.fdot} />
@@ -555,20 +539,30 @@ export function Evf({
               ))}
             </span>
           </h1>
+          <div className={s.reach}>
+            {(
+              [
+                ["mail", MAIL, t("footer.contact")],
+                ["github", GITHUB, "GitHub"],
+                ["linkedin", LINKEDIN, "LinkedIn"],
+              ] as const
+            ).map(([icon, href, label]) => (
+              <a
+                key={icon}
+                href={href}
+                aria-label={label}
+                title={label}
+                data-af="10"
+                {...(icon === "mail"
+                  ? {}
+                  : { target: "_blank", rel: "noopener noreferrer" })}
+              >
+                <ContactIcon name={icon} />
+              </a>
+            ))}
+          </div>
         </div>
         <nav className={s.fn} aria-label={t("mainNav")}>
-          {fn.map((f, i) => (
-            <a
-              key={f.id}
-              href={f.href}
-              className={f.work ? s.work : undefined}
-              data-af="10"
-              onClick={shootLink(f.target)}
-            >
-              <small>0{i + 1}</small>
-              <strong>{t(`fn.${f.id}`)}</strong>
-            </a>
-          ))}
           <button
             type="button"
             className={s.mbtn}
@@ -580,25 +574,6 @@ export function Evf({
             <strong>{t("fn.menu")}</strong>
           </button>
         </nav>
-        <div className={s.hint}>
-          <span>
-            <kbd>M</kbd>
-            {t("hint.menu")}
-          </span>
-          <span>
-            <kbd>Ctrl K</kbd>
-            {t("hint.search")}
-          </span>
-          <span>
-            <kbd>1</kbd>
-            {t("hint.to")} <kbd>{fn.length}</kbd>
-            {t("hint.shoot")}
-          </span>
-          <span>
-            <kbd>D</kbd>
-            {t("hint.display")}
-          </span>
-        </div>
       </div>
       <div ref={afRef} className={s.af} aria-hidden="true">
         <i />

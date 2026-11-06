@@ -8,10 +8,8 @@ import { PROJECTS } from "./projects";
 export type MenuFlag = "soon" | "ok";
 
 export type MenuAction =
-  /** Scroll to the map and lock the focus frame on a project pin. */
-  | { kind: "pin"; index: number }
-  /** Jump to a section on the home page. */
-  | { kind: "section"; id: "work" | "more" | "contact" }
+  /** Open a project's playback window. */
+  | { kind: "project"; index: number }
   /** Another page of this site, without the locale prefix. */
   | { kind: "route"; path: string }
   | { kind: "external"; href: string }
@@ -59,8 +57,8 @@ export const LINKEDIN = "https://www.linkedin.com/in/pascal7kraus/";
 
 const route = (path: string): MenuAction => ({ kind: "route", path });
 const external = (href: string): MenuAction => ({ kind: "external", href });
-const pin = (index: number): MenuAction => ({ kind: "pin", index });
-const contact: MenuAction = { kind: "section", id: "contact" };
+const project = (index: number): MenuAction => ({ kind: "project", index });
+const contact = external(MAIL);
 
 export function buildMenu(
   posts: readonly PostLink[],
@@ -96,14 +94,14 @@ export function buildMenu(
       groups: [
         {
           id: "agents",
-          items: [{ id: "gmail", action: pin(1) }],
+          items: [{ id: "gmail", action: project(1) }],
         },
         {
           id: "tools",
           items: [
-            { id: "klassenzeit", action: pin(0) },
-            { id: "slides", action: pin(2) },
-            { id: "football", action: pin(3) },
+            { id: "klassenzeit", action: project(0) },
+            { id: "slides", action: project(2) },
+            { id: "football", action: project(3) },
           ],
         },
         ...(github?.languages.length
@@ -122,9 +120,9 @@ export function buildMenu(
         {
           id: "games",
           items: [
-            { id: "wordleMap", action: pin(4) },
-            { id: "kniffelMap", action: pin(4) },
-            { id: "pomodoroMap", action: pin(4) },
+            { id: "wordleMap", action: project(4) },
+            { id: "kniffelMap", action: project(4) },
+            { id: "pomodoroMap", action: project(4) },
           ],
         },
       ],
@@ -243,15 +241,15 @@ export function searchMenu(
   );
 }
 
-/** What Enter does on an entry: soon entries do nothing, entries without an action jump to the folders. */
+/** What Enter does on an entry: soon entries and entries without an action do nothing. */
 export function actionFor(def: MenuItemDef): MenuAction | null {
   if (def.flag === "soon") return null;
-  return def.action ?? { kind: "section", id: "more" };
+  return def.action ?? null;
 }
 
 const isHidden = ({ action }: MenuItemDef) =>
   (action?.kind === "route" && isHiddenPage(action.path)) ||
-  (action?.kind === "pin" && !PROJECTS[action.index]);
+  (action?.kind === "project" && !PROJECTS[action.index]);
 
 /** Drops links to hidden pages or projects, then any group or tab left empty. */
 export function visibleMenu(tabs: readonly MenuTabDef[]): MenuTabDef[] {
