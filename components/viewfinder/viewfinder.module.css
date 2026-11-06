@@ -1160,23 +1160,21 @@ a.box {
     left: 16px;
     width: auto;
   }
+  /* one screen: the scene fills it, one finger pans it, two zoom it */
   .evf {
-    height: auto;
-    min-height: 0;
-    padding: 330px 0 24px;
+    height: 100svh;
+    min-height: 560px;
   }
   .scene {
-    height: 400px;
-    bottom: auto;
+    touch-action: none;
   }
   .shade {
     background:
       linear-gradient(
         0deg,
-        #050606 0,
-        #050606 calc(100% - 400px),
-        rgba(5, 6, 6, 0.2) calc(100% - 300px),
-        rgba(0, 0, 0, 0) calc(100% - 200px)
+        rgba(5, 6, 6, 0.9) 0,
+        rgba(5, 6, 6, 0.55) 30%,
+        rgba(0, 0, 0, 0) 55%
       ),
       linear-gradient(180deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0) 90px);
   }
@@ -1217,15 +1215,21 @@ a.box {
   .bar.b > .grp:last-child {
     margin-left: auto;
   }
+  /* the name sits at the foot of the frame; only its links and button catch touches, so the rest pans */
   .copy {
-    position: relative;
-    left: auto;
+    left: 0;
+    right: 0;
     top: auto;
-    bottom: auto;
+    bottom: 24px;
     display: block;
-    transform: none;
     width: auto;
     padding: 0 16px;
+    pointer-events: none;
+  }
+  .copy h1,
+  .copy a,
+  .copy button {
+    pointer-events: auto;
   }
   .name {
     font-size: 46px;
@@ -1235,6 +1239,7 @@ a.box {
   }
   .legal {
     bottom: 12px;
+    z-index: 3;
   }
   .fn > * {
     height: 54px;
