@@ -1,26 +1,16 @@
 "use client";
 
-import Link from "next/link";
-import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
 import type { GithubStats } from "@/lib/stats/github";
 import type { Book } from "@/lib/stats/kasten";
 import type { SpotifyTop } from "@/lib/stats/spotify";
-import {
-  buildMenu,
-  GITHUB,
-  LINKEDIN,
-  MAIL,
-  type PostLink,
-  visibleMenu,
-} from "@/lib/viewfinder/menu";
+import { buildMenu, type PostLink, visibleMenu } from "@/lib/viewfinder/menu";
 import { PROJECTS } from "@/lib/viewfinder/projects";
 import type { Weather } from "@/lib/weather/weather";
 import { CameraMenu } from "./camera-menu";
 import { cx } from "./cx";
 import { Evf } from "./evf";
 import { hudFont, monoFont, semiFont } from "./fonts";
-import { LocationMap } from "./location-map";
 import { PlaybackWindow } from "./playback-window";
 import { useWeather } from "./readouts";
 import { ScenePanel } from "./scene-panel";
@@ -33,7 +23,7 @@ const ART_FONTS = {
   hud: hudFont.style.fontFamily,
 };
 
-/** The home page: a camera viewfinder over Gelnhausen, then the work on a map. */
+/** The home page: a camera viewfinder over Gelnhausen, with the contact links laid over it. */
 export function ViewfinderHome({
   posts,
   github,
@@ -47,8 +37,6 @@ export function ViewfinderHome({
   weather: Weather | null;
   book: Book | null;
 }) {
-  const t = useTranslations("home");
-  const locale = useLocale();
   const vf = useViewfinder();
   const weather = useWeather(initialWeather);
   const sky = vf.weatherOverride ?? weather?.scene ?? null;
@@ -61,7 +49,6 @@ export function ViewfinderHome({
     () => visibleMenu(buildMenu(posts, { github, spotify })),
     [posts, github, spotify],
   );
-  const other = locale === "en" ? "de" : "en";
 
   return (
     <div
@@ -71,21 +58,15 @@ export function ViewfinderHome({
         semiFont.variable,
         monoFont.variable,
         !powered && s.off,
-        vf.onlyMap && s.onlyMap,
       )}
     >
-      <a className={s.skip} href="#work">
-        {t("peek.map").replace(" ▾", "")}
-      </a>
       <Evf
         at={vf.at}
         temperature={weather?.temperature ?? null}
         weather={sky}
         mode={vf.mode}
-        onShoot={vf.shoot}
         onMenu={() => vf.openMenu({ tab: vf.lastTab })}
         onCycleMode={vf.cycleMode}
-        fnRef={vf.fnRef}
         onPowerOn={onPowerOn}
         github={github}
         book={book}
@@ -104,60 +85,6 @@ export function ViewfinderHome({
           ) : null
         }
       />
-
-      <div className={s.peek}>
-        <b>{t("peek.playback")}</b>
-        <span className={s.hideM}>100MSDCF</span>
-        <span>{t("peek.mapped")}</span>
-        <span className={s.sp} />
-        <span className={s.hideM}>
-          {t("peek.files", { count: PROJECTS.length })}
-        </span>
-        <button type="button" onClick={() => vf.shoot("#work")}>
-          {t("peek.map")}
-        </button>
-      </div>
-
-      <section className={s.loc} id="work" aria-labelledby="work-title">
-        <div className={s.lhead}>
-          <h2 id="work-title">
-            <small>{t("map.kicker")}</small>
-            {t("map.title")}
-          </h2>
-          <p>{t("map.intro")}</p>
-        </div>
-        <LocationMap
-          pick={vf.pick}
-          onPick={vf.setPick}
-          onOpen={vf.openPlayback}
-          onReady={() => vf.setMapReady(true)}
-          monoFamily={ART_FONTS.mono}
-        />
-        <div className={s.folders} id="more">
-          <div>
-            <span>{t("folders.writing.s")}</span>
-            <strong>{t("folders.writing.t")}</strong>
-            <p>{t("folders.writing.p")}</p>
-          </div>
-        </div>
-      </section>
-
-      <footer className={s.footer} id="contact">
-        <span className={s.logo} style={{ color: "var(--ink)" }}>
-          pg
-          <i />
-        </span>
-        <a href={MAIL}>{t("footer.contact")}</a>
-        <a href={GITHUB}>GitHub</a>
-        <a href={LINKEDIN}>LinkedIn</a>
-        <Link href={`/${locale}/impressum`}>{t("footer.impressum")}</Link>
-        <Link href={`/${locale}/datenschutz`}>{t("footer.datenschutz")}</Link>
-        <span className={s.sp} />
-        <Link href={`/${other}`} hrefLang={other}>
-          {t("footer.language")}
-        </Link>
-        <span>{t("footer.place")}</span>
-      </footer>
 
       {vf.menu ? (
         <CameraMenu

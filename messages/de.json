@@ -11,17 +11,9 @@
       "Papa"
     ],
     "mainNav": "Hauptmenü",
+    "legalNav": "Rechtliches",
     "fn": {
-      "work": "Arbeit",
-      "writing": "Texte",
       "menu": "MENÜ"
-    },
-    "hint": {
-      "menu": "Menü",
-      "search": "alles suchen",
-      "to": "bis",
-      "shoot": "auslösen",
-      "display": "Anzeige"
     },
     "guideDefault": "Hilfe",
     "scene": {
@@ -96,25 +88,6 @@
         "k": "Anzeige"
       }
     },
-    "peek": {
-      "playback": "Wiedergabe",
-      "mapped": "Arbeit, kartiert",
-      "files": "{count} Dateien",
-      "map": "Standortkarte ▾"
-    },
-    "map": {
-      "kicker": "▶ WIEDERGABE, KARTENANSICHT",
-      "title": "Arbeit, kartiert",
-      "intro": "Jedes Projekt liegt auf einem Hügel rund um Gelnhausen: im Norden der Büdinger Wald, im Süden der Spessart. Wähle eine Datei und der Fokusrahmen rastet ein. Stilisiert, nicht maßstabsgetreu.",
-      "work": "ARBEIT",
-      "detail": "DETAIL",
-      "play": "▶ Abspielen",
-      "repo": "Repo",
-      "sheet": "KINZIGTAL, BLATT GELNHAUSEN",
-      "scale": "etwa 2,5 km",
-      "contour": "HÖHENLINIEN 20 m, ◀ ▶ wählen",
-      "label": "Höhenlinienkarte des Kinzigtals um Gelnhausen mit den Projekt-Pins"
-    },
     "projects": {
       "klassenzeit": {
         "d": "Stundenplaner für Schulen",
@@ -137,22 +110,10 @@
         "k": "Browserspiele"
       }
     },
-    "folders": {
-      "writing": {
-        "s": "DIR 101",
-        "t": "Texte",
-        "p": "Notizen zum Bauen mit LLMs. Die ersten Beiträge entstehen gerade."
-      }
-    },
     "footer": {
       "contact": "Schreib mir",
-      "blog": "Blog",
-      "games": "Spiele",
-      "tools": "Tools",
       "impressum": "Impressum",
-      "datenschutz": "Datenschutz",
-      "place": "Gelnhausen, Kinzigtal",
-      "language": "English"
+      "datenschutz": "Datenschutz"
     },
     "playback": {
       "label": "Wiedergabe",

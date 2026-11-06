@@ -64,11 +64,8 @@ describe("actionFor", () => {
   it("does nothing for soon entries", () => {
     expect(actionFor({ id: "cv", flag: "soon" })).toBeNull();
   });
-  it("falls back to the folders section", () => {
-    expect(actionFor({ id: "stack" })).toEqual({
-      kind: "section",
-      id: "more",
-    });
+  it("does nothing for entries without an action", () => {
+    expect(actionFor({ id: "stack" })).toBeNull();
   });
 });
 
