@@ -185,11 +185,26 @@
   font-weight: 400;
   color: var(--dim);
 }
+.home {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+}
 .mode {
+  display: inline-flex;
+  align-items: center;
   border: 1.5px solid var(--ink);
   padding: 0 5px;
-  font-weight: 700;
-  line-height: 20px;
+  font: 500 17px / 20px var(--mono);
+  letter-spacing: -0.02em;
+}
+.mode i {
+  display: inline-block;
+  width: 0.52em;
+  height: 1em;
+  background: var(--teal);
+  margin-left: 2px;
+  animation: blink 1.1s steps(1) infinite;
 }
 .i {
   width: 16px;

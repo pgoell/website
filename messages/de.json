@@ -33,9 +33,9 @@
       "close": "Schließen"
     },
     "ro": {
-      "mode": {
-        "g": "Aufnahmemodus M. Jede Anzeige auf diesem Bildschirm stellt Pascal von Hand aus seinen eigenen Werkzeugen ein.",
-        "k": "Modus"
+      "logo": {
+        "g": "Das Zeichen der Seite. Ein Klick lädt die Seite neu.",
+        "k": "Start"
       },
       "photos": {
         "g": "Aufnahmen mit der a7 IV in diesem Jahr. Beispielwert.",
