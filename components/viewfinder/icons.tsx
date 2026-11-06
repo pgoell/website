@@ -88,7 +88,7 @@ export function MenuIcon({
 export function ContactIcon({
   name,
 }: {
-  name: "mail" | "github" | "linkedin";
+  name: "mail" | "github" | "linkedin" | "x";
 }) {
   return (
     <svg width={22} height={22} viewBox="0 0 24 24" aria-hidden="true">
@@ -123,64 +123,12 @@ export function ContactIcon({
           d="M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm1.8 6.8V18h2.6V9.8H5.8zm1.3-4.1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM10.2 9.8V18h2.6v-4.3c0-1.1.2-2.2 1.6-2.2s1.4 1.3 1.4 2.3V18h2.6v-4.7c0-2.3-.5-4-3.2-4-1.3 0-2.1.7-2.5 1.4V9.8h-2.5z"
         />
       )}
-    </svg>
-  );
-}
-
-/** An iris of six blades whose opening shrinks as the lens stops down, with the f-number in the middle. */
-export function ApertureIcon({ n, size = 36 }: { n: number; size?: number }) {
-  const R = 17;
-  // opening radius: the light through the iris falls with 1 / N squared, so its width with 1 / N
-  const r = Math.max(4, 15 * (2.8 / n) ** 0.6);
-  // the blades turn as they close
-  const turn = (n / 22) * 0.9;
-  const pts = Array.from({ length: 6 }, (_, i) => {
-    const a = turn + (i * Math.PI) / 3;
-    return [r * Math.cos(a), r * Math.sin(a)] as const;
-  });
-  // each blade edge runs on from a corner of the opening until it meets the rim
-  const edges = pts.map(([x, y], i) => {
-    const [px, py] = pts[(i + 5) % 6] as readonly [number, number];
-    const dx = x - px;
-    const dy = y - py;
-    const l = Math.hypot(dx, dy);
-    const ux = dx / l;
-    const uy = dy / l;
-    const b = x * ux + y * uy;
-    const t = -b + Math.sqrt(b * b - (x * x + y * y - R * R));
-    return `M${x.toFixed(2)} ${y.toFixed(2)}L${(x + ux * t).toFixed(2)} ${(y + uy * t).toFixed(2)}`;
-  });
-  const hole = `M${pts.map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`).join("L")}Z`;
-  return (
-    <svg width={size} height={size} viewBox="-18 -18 36 36" aria-hidden="true">
-      <path
-        d={`M${R} 0A${R} ${R} 0 1 0 ${-R} 0A${R} ${R} 0 1 0 ${R} 0Z${hole}`}
-        fill="currentColor"
-        fillOpacity={0.14}
-        fillRule="evenodd"
-      />
-      <circle r={R} fill="none" stroke="currentColor" strokeWidth={1.2} />
-      <path
-        d={`${hole}${edges.join("")}`}
-        fill="none"
-        stroke="currentColor"
-        strokeOpacity={0.55}
-        strokeWidth={0.9}
-        strokeLinejoin="round"
-      />
-      <text
-        y={0.5}
-        textAnchor="middle"
-        dominantBaseline="middle"
-        fontSize={n >= 10 ? 10 : 10.5}
-        fontWeight={700}
-        fill="currentColor"
-        paintOrder="stroke"
-        stroke="rgba(0,0,0,.55)"
-        strokeWidth={2.4}
-      >
-        {n}
-      </text>
+      {name === "x" && (
+        <path
+          fill="currentColor"
+          d="M17.8 3.5h3l-6.6 7.5 7.8 9.5h-6.1l-4.8-6-5.5 6H2.6l7-8L2.2 3.5h6.2l4.3 5.5 5.1-5.5zm-1 15.3h1.7L7.4 5.1H5.6l11.2 13.7z"
+        />
+      )}
     </svg>
   );
 }

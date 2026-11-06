@@ -13,13 +13,13 @@ import {
   stepStop,
   toStop,
 } from "@/lib/viewfinder/focus";
-import { GITHUB, LINKEDIN, MAIL } from "@/lib/viewfinder/menu";
+import { GITHUB, LINKEDIN, MAIL, X } from "@/lib/viewfinder/menu";
 import { berlinZoneName, sinceLabel, TIME_ZONE } from "@/lib/viewfinder/time";
 import { conditionOf, type SceneWeather } from "@/lib/weather/weather";
 import { cls, cx } from "./cx";
 import type { Scene } from "./gelnhausen-engine";
 import { GelnhausenScene } from "./gelnhausen-scene";
-import { ApertureIcon, ContactIcon } from "./icons";
+import { ContactIcon } from "./icons";
 import {
   CommitHistogram,
   DayScale,
@@ -535,7 +535,7 @@ export function Evf({
               className={cx(s.ro, s.big)}
               {...ro("aperture")}
               data-keep=""
-              aria-label={`${t("ro.aperture.k")} F${stop}`}
+              aria-label={`${t("ro.aperture.k")} f/${stop}`}
               onClick={(e) => {
                 const last = STOPS[STOPS.length - 1];
                 if (e.shiftKey) pickStop(stepStop(stop, -1));
@@ -546,7 +546,10 @@ export function Evf({
               }}
             >
               <span className={s.v}>
-                <ApertureIcon n={stop} />
+                <span>
+                  <span style={{ fontSize: 18, fontWeight: 500 }}>f/</span>
+                  {stop}
+                </span>
               </span>
               <span className={s.l}>{t("ro.aperture.l")}</span>
             </button>
@@ -590,6 +593,7 @@ export function Evf({
                 ["mail", MAIL, t("footer.contact")],
                 ["github", GITHUB, "GitHub"],
                 ["linkedin", LINKEDIN, "LinkedIn"],
+                ["x", X, "X"],
               ] as const
             ).map(([icon, href, label]) => (
               <a
