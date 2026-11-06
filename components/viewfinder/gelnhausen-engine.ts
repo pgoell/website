@@ -1663,7 +1663,6 @@ export interface SceneOptions {
   weather?: SceneWeather | null;
   /** Animate the clouds, smoke, swifts, rain and snow. Without it the storm does not flash. */
   motion?: boolean;
-  portraitK?: number;
 }
 
 export interface Scene {
@@ -1671,11 +1670,24 @@ export interface Scene {
   setWeather(w: SceneWeather | null): void;
   /** Starts or stops the animation loop, e.g. when the scene scrolls out of view. */
   setRunning(on: boolean): void;
+  /** The visitor's zoom (1 fits the frame) and pan, in the host's CSS px. */
+  view(): View;
+  /** Keeps a view inside the drawing: zoom 1 to MAX_ZOOM, no empty edge in the frame. */
+  clampView(v: View): View;
+  /** Redraws at a new zoom and pan, clamped. */
+  setView(v: View): void;
   /** Focuses the lens on the plane under a point in the host's CSS px; unfocus() makes the whole frame sharp. */
   focusAt(x: number, y: number): void;
   unfocus(): void;
   destroy(): void;
 }
+
+export interface View {
+  z: number;
+  x: number;
+  y: number;
+}
+export const MAX_ZOOM = 4;
 
 // the canvases run past the frame on every side, so a blurred plane does not fade at the frame's edge
 const BLEED = 16;
@@ -1689,7 +1701,6 @@ export function createGelnhausenScene(
     focusX: 860,
     anchorX: 0.38,
     motion: true,
-    portraitK: 0.62,
     ...opt,
   };
   el.style.overflow = "hidden";
@@ -1751,15 +1762,28 @@ export function createGelnhausenScene(
   let focus: Plane | null = null;
   let when = o.at;
   let weather = o.weather ?? null;
+  // the fitted view before the visitor zooms or pans: scale, left edge in scene px, top in css px
+  let base = { s: 1, left: 0, top: 0, H: 1 };
+  let view: View = { z: 1, x: 0, y: 0 };
+  function clampView(v: View): View {
+    const z = Math.min(MAX_ZOOM, Math.max(1, v.z));
+    const { s, left, top, H } = base;
+    const bound = (val: number, lo: number, hi: number) =>
+      lo > hi ? (lo + hi) / 2 : Math.min(hi, Math.max(lo, val));
+    return {
+      z,
+      x: bound(v.x, W - z * (SW - left) * s, z * left * s),
+      y: bound(v.y, H - z * (top + SH * s), -z * top),
+    };
+  }
 
   function layout() {
     W = el.clientWidth || 1;
     const H = el.clientHeight || 1;
     const DPR = Math.min(window.devicePixelRatio || 1, 2);
-    const portrait = W / H < 0.9;
-    const s = Math.max(W / SW, (H * (portrait ? o.portraitK : 1)) / SH);
+    // cover the frame; a tall phone frame crops the sides, and the visitor pans to see them
+    const s = Math.max(W / SW, H / SH);
     const vw = W / s;
-    ZOOM = s;
     const left = Math.max(0, Math.min(SW - vw, o.focusX - vw * o.anchorX));
     // crop mostly off the bottom, so the spires keep their sky
     const top = (H - SH * s) * 0.2;
@@ -1771,7 +1795,15 @@ export function createGelnhausenScene(
     tmp.height = canvas(0).height;
     edge.width = tmp.width;
     edge.height = tmp.height;
-    XF = [DPR * s, DPR * (BLEED - left * s), DPR * (top + BLEED)];
+    base = { s, left, top, H };
+    view = clampView(view);
+    const { z, x, y } = view;
+    ZOOM = s * z;
+    XF = [
+      DPR * s * z,
+      DPR * (BLEED + x - z * left * s),
+      DPR * (BLEED + y + z * top),
+    ];
     dpr = DPR;
   }
   function xf(c: Ctx) {
@@ -1930,6 +1962,12 @@ export function createGelnhausenScene(
       render();
     },
     setRunning,
+    view: () => view,
+    clampView,
+    setView(v) {
+      view = clampView(v);
+      resize();
+    },
     focusAt(x, y) {
       const H = el.clientHeight || 1;
       if (x < 0 || y < 0 || x >= W || y >= H) return setFocus(null);
