@@ -308,6 +308,7 @@
 }
 .toc a {
   display: flex;
+  align-items: baseline;
   gap: 10px;
   padding: 5px 0;
   font-size: 16px;
