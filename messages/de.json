@@ -480,7 +480,10 @@
     "contact": "Kontakt",
     "email": "E-Mail",
     "responsible": "Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV: Pascal Göllner",
-    "private": "Dies ist eine private Website ohne kommerzielle Absicht."
+    "private": "Dies ist eine private Website ohne kommerzielle Absicht.",
+    "provider": "Anbieter",
+    "name": "Name",
+    "content": "Inhalt"
   },
   "datenschutz": {
     "link": "Datenschutz",
@@ -551,5 +554,13 @@
         ]
       }
     ]
+  },
+  "legal": {
+    "back": "Sucher",
+    "backLabel": "Zurück",
+    "folder": "Rechtliches",
+    "contents": "Inhalt",
+    "pages": "Rechtliche Seiten",
+    "escHint": "Esc"
   }
 }
