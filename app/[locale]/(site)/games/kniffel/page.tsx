@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { KniffelGame } from "@/components/kniffel";
+import { AppPage } from "@/components/site/app-page";
 
 interface KniffelPageProps {
   params: Promise<{ locale: string }>;
@@ -9,23 +9,15 @@ interface KniffelPageProps {
 export default async function KniffelPage({ params }: KniffelPageProps) {
   const { locale } = await params;
   const t = await getTranslations("games");
-  const nav = await getTranslations("nav");
 
   return (
-    <div className="flex flex-col items-center space-y-6">
-      <div className="w-full max-w-lg">
-        <Link
-          href={`/${locale}/games`}
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          &larr; {nav("back")}
-        </Link>
-      </div>
-      <h1 className="text-2xl font-bold">{t("kniffel.title")}</h1>
-      <p className="text-muted-foreground text-center max-w-md">
-        {t("kniffel.instructions")}
-      </p>
+    <AppPage
+      up={{ href: `/${locale}/games`, label: t("title") }}
+      title={t("kniffel.title")}
+      sub={t("kniffel.description")}
+      lede={t("kniffel.instructions")}
+    >
       <KniffelGame locale={locale} />
-    </div>
+    </AppPage>
   );
 }

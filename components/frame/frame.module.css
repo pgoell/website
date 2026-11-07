@@ -1,4 +1,4 @@
-/* The legal pages, styled as a screen on the same camera as the home page. Always dark. */
+/* The camera-screen frame shared by the legal pages, the blog, games and tools. Always dark. */
 
 .root {
   --bg: #050606;
@@ -202,6 +202,9 @@
     background 0.12s;
 }
 .tab small {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
   font-size: 11px;
   letter-spacing: 0.14em;
   color: var(--dim);
@@ -227,6 +230,11 @@
 }
 .tab.on small {
   color: var(--af);
+}
+.cnt {
+  font: 500 10px / 1 var(--mono);
+  color: var(--faint);
+  letter-spacing: 0.04em;
 }
 
 /* the title sits in a locked focus frame, like the name on the home page */
@@ -272,6 +280,11 @@
   font: 600 clamp(44px, 7vw, 84px) / 0.95 var(--hud);
   text-transform: uppercase;
   letter-spacing: 0.01em;
+}
+.title.long h1 {
+  max-width: 18ch;
+  font-size: clamp(36px, 4.6vw, 60px);
+  line-height: 1;
 }
 .title p {
   margin: 12px 0 0;
@@ -433,7 +446,8 @@
     padding: 18px 18px 16px;
     margin-bottom: 32px;
   }
-  .title h1 {
+  .title h1,
+  .title.long h1 {
     font-size: clamp(36px, 11vw, 52px);
     overflow-wrap: anywhere;
     hyphens: auto;

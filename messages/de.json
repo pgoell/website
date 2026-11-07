@@ -360,19 +360,22 @@
           "solving": "Löst...",
           "ready": "Bereit zum Lösen"
         }
-      }
+      },
+      "tag": "EN · DE"
     },
     "kniffel": {
       "title": "Kniffel",
       "description": "Klassisches Würfelspiel für 1-6 Spieler",
       "play": "Spielen",
-      "instructions": "Würfle und sammle Punkte mit Kombinationen. Spiele digital oder nutze es als Tracker für echte Würfel."
+      "instructions": "Würfle und sammle Punkte mit Kombinationen. Spiele digital oder nutze es als Tracker für echte Würfel.",
+      "tag": "1–6 Spieler"
     },
     "bingo": {
       "title": "Bingo-Karten Generator",
       "description": "Erstelle bunte Bingo-Karten für jeden Anlass",
       "play": "Erstellen",
-      "instructions": "Fülle die Felder aus, erstelle eine Karte und klicke auf Kacheln um sie zu markieren. Doppelklick zum Bearbeiten."
+      "instructions": "Fülle die Felder aus, erstelle eine Karte und klicke auf Kacheln um sie zu markieren. Doppelklick zum Bearbeiten.",
+      "tag": "Drucken"
     }
   },
   "tools": {
@@ -381,7 +384,8 @@
     "pomodoro": {
       "title": "Pomodoro-Timer",
       "description": "Fokus-Timer mit wissenschaftlich fundierten Arbeits- und Pausenintervallen.",
-      "open": "Timer öffnen"
+      "open": "Timer öffnen",
+      "tag": "Fokus"
     }
   },
   "pomodoro": {
@@ -562,5 +566,27 @@
     "contents": "Inhalt",
     "pages": "Rechtliche Seiten",
     "escHint": "Esc"
+  },
+  "site": {
+    "sections": "Bereiche",
+    "tabs": {
+      "writing": "Texte",
+      "games": "Spiele",
+      "tools": "Werkzeuge"
+    },
+    "blog": {
+      "title": "Texte",
+      "subtitle": "Notizen zu Agenten, Werkzeugen und Gelnhausen",
+      "count": "{count, plural, one {# Beitrag} other {# Beiträge}}",
+      "minutes": "{count} Min.",
+      "empty": "Noch keine Beiträge.",
+      "date": "Datum",
+      "read": "Lesezeit",
+      "file": "Datei",
+      "older": "Älter",
+      "newer": "Neuer",
+      "more": "Weitere Beiträge",
+      "contents": "Inhalt"
+    }
   }
 }

@@ -1,20 +1,10 @@
-import s from "./legal.module.css";
+import s from "@/components/frame/frame.module.css";
+import { FrameTitle } from "@/components/frame/frame-title";
 
 export { s as legalStyles };
 
 /** The page title in a focus frame, with a small line under it. */
-export function LegalTitle({ title, sub }: { title: string; sub: string }) {
-  return (
-    <div className={s.title}>
-      <i />
-      <i />
-      <i />
-      <i />
-      <h1>{title}</h1>
-      <p>{sub}</p>
-    </div>
-  );
-}
+export const LegalTitle = FrameTitle;
 
 /** Splits "2. What this website is" into its number and its title. */
 export function splitNumber(title: string): { n: string; text: string } {

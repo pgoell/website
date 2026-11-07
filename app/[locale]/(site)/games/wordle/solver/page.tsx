@@ -1,9 +1,9 @@
 "use client";
 
 import { Keyboard, RotateCcw } from "lucide-react";
-import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { AppPage } from "@/components/site/app-page";
 import { Button } from "@/components/ui/button";
 import {
   SolverInputGrid,
@@ -22,7 +22,6 @@ export default function SolverPage() {
   const locale = useLocale();
   const t = useTranslations("games.wordle");
   const ts = useTranslations("games.wordle.solver");
-  const nav = useTranslations("nav");
 
   const wordList = locale === "de" ? WORDS_DE : WORDS_EN;
   const inputRef = useRef<HTMLInputElement>(null);
@@ -92,20 +91,11 @@ export default function SolverPage() {
   const hasSubmittedGuesses = rows.some((r) => r.submitted);
 
   return (
-    <div className="flex flex-col items-center space-y-6">
-      <div className="w-full">
-        <Link
-          href={`/${locale}/games/wordle`}
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          &larr; {nav("back")}
-        </Link>
-      </div>
-      <h1 className="text-2xl font-bold">{ts("title")}</h1>
-      <p className="text-muted-foreground text-center max-w-md">
-        {ts("description")}
-      </p>
-
+    <AppPage
+      up={{ href: `/${locale}/games/wordle`, label: t("title") }}
+      title={ts("title")}
+      sub={ts("description")}
+    >
       {/* Hidden input for mobile keyboard */}
       <input
         ref={inputRef}
@@ -177,6 +167,6 @@ export default function SolverPage() {
           </div>
         )}
       </div>
-    </div>
+    </AppPage>
   );
 }

@@ -123,7 +123,8 @@ jj bookmark create feature/other
 - `proxy.ts` — Locale routing middleware (Next.js 16 pattern)
 - `app/layout.tsx` — Root layout (imports globals.css)
 - `app/[locale]/layout.tsx` — Locale layout (providers, html lang)
-- `app/[locale]/(site)/layout.tsx` — Header and page frame for blog, games and tools
+- `app/[locale]/(site)/layout.tsx` — Camera-style frame for blog, games and tools (`components/site/`)
+- `components/frame/` — The shared camera-screen frame (top bar, tabs, focus-frame title) used by the legal and site layouts
 - `app/[locale]/(legal)/layout.tsx` — Camera-style frame for Impressum and Datenschutz (`components/legal/`)
 - `i18n/request.ts` — next-intl request config
 
