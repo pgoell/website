@@ -360,19 +360,22 @@
           "solving": "Solving...",
           "ready": "Ready to solve"
         }
-      }
+      },
+      "tag": "EN · DE"
     },
     "kniffel": {
       "title": "Kniffel",
       "description": "Classic dice game for 1-6 players",
       "play": "Play",
-      "instructions": "Roll dice and score combinations. Play digitally or use as a tracker for physical dice."
+      "instructions": "Roll dice and score combinations. Play digitally or use as a tracker for physical dice.",
+      "tag": "1–6 players"
     },
     "bingo": {
       "title": "Bingo Card Generator",
       "description": "Create colorful bingo cards for any occasion",
       "play": "Create",
-      "instructions": "Fill in your items, generate a card, and click tiles to mark them during play. Double-click to edit a tile."
+      "instructions": "Fill in your items, generate a card, and click tiles to mark them during play. Double-click to edit a tile.",
+      "tag": "Print"
     }
   },
   "tools": {
@@ -381,7 +384,8 @@
     "pomodoro": {
       "title": "Pomodoro Timer",
       "description": "Focus timer with scientifically-backed work/break intervals.",
-      "open": "Open Timer"
+      "open": "Open Timer",
+      "tag": "Focus"
     }
   },
   "pomodoro": {
@@ -562,5 +566,27 @@
     "contents": "Contents",
     "pages": "Legal pages",
     "escHint": "Esc"
+  },
+  "site": {
+    "sections": "Sections",
+    "tabs": {
+      "writing": "Writing",
+      "games": "Games",
+      "tools": "Tools"
+    },
+    "blog": {
+      "title": "Writing",
+      "subtitle": "Notes on agents, tools and Gelnhausen",
+      "count": "{count, plural, one {# post} other {# posts}}",
+      "minutes": "{count} min",
+      "empty": "No posts yet.",
+      "date": "Date",
+      "read": "Read",
+      "file": "File",
+      "older": "Older",
+      "newer": "Newer",
+      "more": "More posts",
+      "contents": "Contents"
+    }
   }
 }

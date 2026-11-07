@@ -1,0 +1,498 @@
+/* The blog, games and tools on the camera screen. Colours come from the frame (frame.module.css). */
+
+/* Tailwind tokens for the games and tools, tuned to the dark screen */
+.app.app {
+  --background: #050606;
+  --foreground: #f3f4f1;
+  --card: #0a0c0c;
+  --card-foreground: #f3f4f1;
+  --popover: #0a0c0c;
+  --popover-foreground: #f3f4f1;
+  --muted: #141716;
+  --muted-foreground: rgba(243, 244, 241, 0.6);
+  --border: rgba(255, 255, 255, 0.14);
+  --input: rgba(255, 255, 255, 0.18);
+  color: var(--ink);
+}
+
+/* ---------- blog list ---------- */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 20px 14px;
+  border-bottom: 1px solid var(--line);
+  outline: 1px solid transparent;
+  transition:
+    background 0.12s,
+    outline-color 0.12s;
+}
+.row::before,
+.row::after {
+  content: "";
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border: 0 solid var(--af);
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.row::before {
+  left: -1px;
+  top: -1px;
+  border-top-width: 2px;
+  border-left-width: 2px;
+}
+.row::after {
+  right: -1px;
+  bottom: -1px;
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+}
+.row:hover,
+.row:focus-visible {
+  background: rgba(92, 240, 124, 0.035);
+  outline-color: rgba(92, 240, 124, 0.5);
+}
+.row:hover::before,
+.row:hover::after,
+.row:focus-visible::before,
+.row:focus-visible::after {
+  opacity: 1;
+}
+.idx {
+  font: 500 12px / 1 var(--mono);
+  color: var(--sony);
+  letter-spacing: 0.04em;
+}
+.row h2 {
+  margin: 0;
+  font: 600 26px / 1.05 var(--hud);
+  letter-spacing: 0.01em;
+}
+.ex {
+  margin: 6px 0 0;
+  color: var(--dim);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.meta {
+  text-align: right;
+  font: 400 11px / 1.6 var(--mono);
+  color: var(--dim);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.file {
+  display: block;
+  margin-top: 6px;
+  font-size: 10px;
+  color: var(--faint);
+}
+.empty {
+  padding: 28px 14px;
+  color: var(--dim);
+  font: 500 12px / 1.5 var(--mono);
+  letter-spacing: 0.04em;
+}
+
+/* ---------- post ---------- */
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 26px;
+  margin: -28px 0 40px;
+  font: 400 11px / 1 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.strip b {
+  color: var(--ink);
+  font-weight: 500;
+  margin-left: 6px;
+}
+.post {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 210px;
+  gap: 56px;
+  align-items: start;
+}
+.post.solo {
+  grid-template-columns: minmax(0, 1fr);
+}
+.contents {
+  position: sticky;
+  top: 96px;
+  border-left: 1px solid var(--line);
+  padding-left: 16px;
+  font-family: var(--hud);
+}
+.contents ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.contents a {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+  color: var(--dim);
+}
+.contents a:hover {
+  color: var(--sony);
+}
+
+/* MDX text: level-two headings get orange numbers, counted by CSS */
+.prose {
+  max-width: 66ch;
+  color: var(--body);
+  font-size: 17px;
+  line-height: 1.65;
+  counter-reset: sec;
+}
+.prose > :first-child {
+  margin-top: 0;
+}
+.prose p,
+.prose ul,
+.prose ol {
+  margin: 0 0 16px;
+}
+.prose ul,
+.prose ol {
+  padding-left: 22px;
+}
+.prose li {
+  margin-bottom: 6px;
+}
+.prose li::marker {
+  color: var(--sony);
+}
+.prose h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 44px 0 14px;
+  font: 600 26px / 1.1 var(--hud);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  scroll-margin-top: 90px;
+}
+.prose h2::before {
+  counter-increment: sec;
+  content: counter(sec, decimal-leading-zero);
+  font: 500 12px / 1 var(--mono);
+  color: var(--sony);
+  letter-spacing: 0.04em;
+  min-width: 18px;
+}
+.prose h3 {
+  margin: 28px 0 10px;
+  font: 600 20px / 1.2 var(--hud);
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+.prose a {
+  color: var(--ink);
+  border-bottom: 1px solid var(--faint);
+}
+.prose a:hover {
+  color: var(--sony);
+  border-color: var(--sony);
+}
+.prose strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.prose code {
+  font: 400 0.84em var(--mono);
+  background: #111514;
+  border: 1px solid var(--line);
+  padding: 1px 5px;
+}
+.prose pre {
+  margin: 0 0 18px;
+  padding: 16px 18px;
+  overflow-x: auto;
+  font: 400 13px / 1.6 var(--mono);
+  background: #0b0e0d;
+  border: 1px solid var(--line);
+}
+.prose pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+}
+.prose blockquote {
+  margin: 0 0 16px;
+  padding: 2px 0 2px 16px;
+  border-left: 2px solid var(--af);
+  color: var(--dim);
+  font-style: italic;
+}
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+}
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 32px 0;
+}
+
+.pager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 48px;
+  max-width: 66ch;
+}
+.pager a {
+  border: 1px solid var(--line);
+  padding: 14px 16px;
+  transition: border-color 0.12s;
+}
+.pager a:hover {
+  border-color: var(--sony);
+}
+.pager a:hover small {
+  color: var(--sony);
+}
+.pager small {
+  display: block;
+  margin-bottom: 8px;
+  font: 500 10px / 1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.pager strong {
+  font: 600 20px / 1.1 var(--hud);
+  letter-spacing: 0.01em;
+}
+.pager .newer {
+  grid-column: 2;
+  text-align: right;
+}
+
+/* ---------- games and tools: playback thumbnails ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  background: #0a0c0c;
+  transition: border-color 0.12s;
+}
+.card:hover,
+.card:focus-visible {
+  border-color: var(--af);
+}
+.card:hover .no span:first-child,
+.card:focus-visible .no span:first-child {
+  color: var(--af);
+}
+.thumb {
+  height: 150px;
+  display: grid;
+  place-items: center;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, #0f1414, #080a0a);
+}
+.cap {
+  padding: 12px 14px 14px;
+}
+.no {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font: 500 10px / 1 var(--mono);
+  color: var(--dim);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.cap h2 {
+  margin: 10px 0 4px;
+  font: 600 24px / 1 var(--hud);
+  letter-spacing: 0.01em;
+}
+.cap p {
+  margin: 0;
+  color: var(--dim);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* the little pictures on each card, drawn in CSS */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(5, 22px);
+  gap: 4px;
+}
+.tiles b {
+  height: 22px;
+  border: 1.5px solid #2c3230;
+}
+.tiles .g {
+  background: #3f8f4f;
+  border-color: #3f8f4f;
+}
+.tiles .y {
+  background: #b49a2a;
+  border-color: #b49a2a;
+}
+.dice {
+  display: flex;
+  gap: 8px;
+}
+.dice b {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  border: 1.5px solid var(--ink);
+  border-radius: 5px;
+}
+.dice b::after {
+  content: "";
+  position: absolute;
+  inset: 11px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+.bingo {
+  display: grid;
+  grid-template-columns: repeat(5, 14px);
+  gap: 3px;
+}
+.bingo b {
+  height: 14px;
+  background: #1d2322;
+}
+.bingo .x {
+  background: var(--teal);
+}
+.ring {
+  width: 84px;
+  height: 84px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 3px solid #263030;
+  border-top-color: var(--sony);
+  border-right-color: var(--sony);
+  font: 600 22px / 1 var(--hud);
+}
+
+/* a game or tool page: the frame's title, then the app itself */
+.up {
+  display: table;
+  margin-bottom: 16px;
+  font: 500 11px / 1 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.up:hover {
+  color: var(--sony);
+}
+.appBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+.lede {
+  max-width: 62ch;
+  margin: -28px 0 36px;
+  color: var(--dim);
+  font-size: 15px;
+}
+
+@media (max-width: 760px) {
+  .row {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 12px;
+    padding: 16px 8px;
+  }
+  .row .meta {
+    grid-column: 2;
+    text-align: left;
+  }
+  .row h2 {
+    font-size: 22px;
+  }
+  .file {
+    display: none;
+  }
+  .strip {
+    margin-top: -16px;
+    gap: 8px 16px;
+  }
+  .post {
+    display: block;
+  }
+  .contents {
+    display: none;
+  }
+  .prose h2 {
+    font-size: 22px;
+  }
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .thumb {
+    height: 104px;
+  }
+  .tiles {
+    grid-template-columns: repeat(5, 16px);
+    gap: 3px;
+  }
+  .tiles b {
+    height: 16px;
+  }
+  .dice b {
+    width: 24px;
+    height: 24px;
+  }
+  .dice b::after {
+    inset: 8px;
+  }
+  .cap h2 {
+    font-size: 19px;
+  }
+  .cap p {
+    display: none;
+  }
+  .pager {
+    grid-template-columns: 1fr;
+  }
+  .pager .newer {
+    grid-column: 1;
+  }
+  .lede {
+    margin-top: -16px;
+  }
+}
