@@ -94,7 +94,11 @@ export default async function BlogPost({
       <div className={cx(s.post, toc.length < 2 && s.solo)}>
         <article>
           <div className={s.prose}>
-            <MDXRemote source={post.content} components={components} />
+            <MDXRemote
+              source={post.content}
+              components={components}
+              options={{ mdxOptions: { format: post.format } }}
+            />
           </div>
           {(older || newer) && (
             <nav className={s.pager} aria-label={t("more")}>
