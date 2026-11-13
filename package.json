@@ -36,6 +36,7 @@
     "gray-matter": "^4.0.3",
     "html-to-image": "^1.11.13",
     "lucide-react": "^0.563.0",
+    "maplibre-gl": "5",
     "next": "^16.1.6",
     "next-intl": "^4.8.1",
     "next-mdx-remote": "^5.0.0",

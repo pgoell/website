@@ -298,6 +298,11 @@
           "t": "Sprache",
           "v": "Deutsch",
           "help": "Die Seite auf Englisch umstellen."
+        },
+        "trips": {
+          "t": "Reisen",
+          "v": "auf der Karte",
+          "help": "Reisen, die ich gemacht habe, Tag für Tag auf einer Karte."
         }
       }
     }
@@ -572,7 +577,8 @@
     "tabs": {
       "writing": "Texte",
       "games": "Spiele",
-      "tools": "Werkzeuge"
+      "tools": "Werkzeuge",
+      "trips": "Reisen"
     },
     "blog": {
       "title": "Texte",
@@ -587,6 +593,24 @@
       "newer": "Neuer",
       "more": "Weitere Beiträge",
       "contents": "Inhalt"
+    },
+    "trips": {
+      "title": "Reisen",
+      "subtitle": "Reisen auf der Karte, Tag für Tag",
+      "count": "{count, plural, one {# Reise} other {# Reisen}}",
+      "empty": "Zurzeit sind keine Reisen offen.",
+      "days": "{count, plural, one {# Tag} other {# Tage}}",
+      "stops": "{count, plural, one {# Station} other {# Stationen}}",
+      "up": "Alle Reisen",
+      "to": "bis",
+      "inTheAir": "In der Luft",
+      "day": "Tag",
+      "map": "Karte der Reise",
+      "wholeTrip": "Ganze Reise",
+      "showDay": "Diesen Tag auf der Karte zeigen",
+      "noMap": "Die Karte lädt hier nicht. Der Plan darunter funktioniert trotzdem.",
+      "planner": "Gemacht mit meiner Reise-App",
+      "language": "Die Notizen einer Reise sind auf Englisch."
     }
   }
 }
