@@ -5,6 +5,7 @@ export const ALL_SITE_SECTIONS = [
   { id: "writing", path: "/blog" },
   { id: "games", path: "/games" },
   { id: "tools", path: "/tools" },
+  { id: "trips", path: "/trips" },
 ] as const;
 
 /** The sections that are switched on; hidden ones get no tab. */

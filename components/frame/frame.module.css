@@ -25,7 +25,9 @@
   -webkit-font-smoothing: antialiased;
   font-variant-numeric: tabular-nums;
   color-scheme: dark;
-  overflow-x: hidden;
+  /* clip, not hidden: hidden would make this box the scroller and switch off
+     every sticky part inside (the top bar, the contents list, the trip map) */
+  overflow-x: clip;
 }
 .root :where(a) {
   color: inherit;
