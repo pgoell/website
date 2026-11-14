@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { RANGES, type Range } from "@/lib/stats/spotify";
 import {
   actionFor,
   type MenuAction,
@@ -19,10 +20,20 @@ interface Props {
   request: MenuRequest;
   onClose: () => void;
   onAction: (a: MenuAction) => void;
+  /** The Spotify span the Music tab's top lists show. */
+  range: Range;
+  onRange: (r: Range) => void;
 }
 
 /** Sony-style camera menu: tabs down the side, groups, items; type anywhere to search everything. */
-export function CameraMenu({ tabs, request, onClose, onAction }: Props) {
+export function CameraMenu({
+  tabs,
+  request,
+  onClose,
+  onAction,
+  range,
+  onRange,
+}: Props) {
   const t = useTranslations("home.menu");
   const startTab = Math.max(
     0,
@@ -45,7 +56,7 @@ export function CameraMenu({ tabs, request, onClose, onAction }: Props) {
     return {
       def,
       title: def.title ?? t(`items.${def.id}.t`),
-      value: def.value ?? t(`items.${def.id}.v`),
+      value: def.value ?? t(`items.${def.id}.v`, def.vars),
       tab: ti,
       tabName: t(`tabs.${tabDef.id}`),
       group: t(`groups.${groupId}`),
@@ -155,6 +166,8 @@ export function CameraMenu({ tabs, request, onClose, onAction }: Props) {
       <i>{t("soon")}</i>
     ) : f === "ok" ? (
       <i className={s.dot} aria-hidden="true" />
+    ) : f === "live" ? (
+      <i className={s.live}>{t("live")}</i>
     ) : null;
 
   return (
@@ -235,7 +248,9 @@ export function CameraMenu({ tabs, request, onClose, onAction }: Props) {
               </button>
             ))}
           </nav>
-          <div className={s.groups}>
+          <div
+            className={cx(s.groups, !qs && tabDef.groups.length > 1 && s.many)}
+          >
             {qs
               ? tabs.map((tb, ti) => {
                   const n = list.filter((l) => l.tab === ti).length;
@@ -267,6 +282,25 @@ export function CameraMenu({ tabs, request, onClose, onAction }: Props) {
                 ))}
           </div>
           <div className={s.items} ref={itemsRef}>
+            {!qs && group?.ranged && (
+              <fieldset className={s.span}>
+                <legend className={s.sr}>{t("span")}</legend>
+                {RANGES.map((r) => (
+                  <button
+                    type="button"
+                    key={r}
+                    className={cx(range === r && s.on)}
+                    aria-pressed={range === r}
+                    onClick={() => {
+                      onRange(r);
+                      setSel(0);
+                    }}
+                  >
+                    {t(`range.${r}`)}
+                  </button>
+                ))}
+              </fieldset>
+            )}
             {list.length ? (
               list.map((it, i) => {
                 const row = (

@@ -156,8 +156,10 @@
         "glance": "Auf einen Blick",
         "trips": "Reisen",
         "posts": "Beiträge",
-        "onRepeat": "In Dauerschleife",
+        "listening": "Gerade gehört",
         "topArtists": "Top-Künstler",
+        "topTracks": "Top-Songs",
+        "genres": "Genres",
         "inBrowser": "Im Browser",
         "contact": "Kontakt"
       },
@@ -265,7 +267,22 @@
         "tripsSignIn": {
           "t": "Anmelden",
           "v": "mehr Reisen"
+        },
+        "today": {
+          "t": "Heute",
+          "v": "{plays} Songs · {minutes} Min"
+        },
+        "spotifyProfile": {
+          "t": "Profil auf Spotify",
+          "v": "Alle Playlists"
         }
+      },
+      "live": "LIVE",
+      "span": "Zeitraum",
+      "range": {
+        "short_term": "4 Wochen",
+        "medium_term": "6 Monate",
+        "long_term": "1 Jahr"
       }
     }
   },

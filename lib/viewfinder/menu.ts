@@ -2,11 +2,17 @@
 
 import { isHiddenPage } from "@/lib/hidden-pages";
 import type { GithubStats } from "@/lib/stats/github";
-import type { SpotifyTop } from "@/lib/stats/spotify";
+import {
+  dayTotals,
+  type Listening,
+  type Range,
+  type SpotifyStats,
+} from "@/lib/stats/spotify";
 import { TRIPS_APP } from "@/lib/trips/feed";
 import { PROJECTS } from "./projects";
+import { berlinParts, sinceLabel } from "./time";
 
-export type MenuFlag = "soon" | "ok";
+export type MenuFlag = "soon" | "ok" | "live";
 
 export type MenuAction =
   /** Open a project's playback window. */
@@ -22,6 +28,8 @@ export interface MenuItemDef {
   /** Literal title and value, for entries that come from content (blog posts). */
   title?: string;
   value?: string;
+  /** Values for the message's placeholders, such as a count. */
+  vars?: Record<string, string | number>;
   flag?: MenuFlag;
   action?: MenuAction;
 }
@@ -29,6 +37,8 @@ export interface MenuItemDef {
 export interface MenuGroupDef {
   id: string;
   items: MenuItemDef[];
+  /** Its items follow the chosen Spotify time span, so the menu shows the span switch over them. */
+  ranged?: boolean;
 }
 
 export type MenuIcon = "star" | "cam" | "pen" | "disc" | "dice" | "box";
@@ -53,10 +63,15 @@ export interface TripLink {
   when: string;
 }
 
-/** Live stats behind the languages and music entries; either may be missing. */
+/** Live stats behind the languages and music entries; any may be missing. */
 export interface MenuStats {
   github?: GithubStats | null;
-  spotify?: SpotifyTop | null;
+  spotify?: SpotifyStats | null;
+  /** What plays now, refreshed on the page. */
+  listening?: Listening | null;
+  /** The time span the top lists show. */
+  range?: Range;
+  now?: Date;
 }
 
 export const MAIL = "mailto:hello@pgoell.com";
@@ -69,7 +84,12 @@ const external = (href: string): MenuAction => ({ kind: "external", href });
 
 export function buildMenu(
   posts: readonly PostLink[],
-  { spotify }: MenuStats = {},
+  {
+    spotify,
+    listening,
+    range = "short_term",
+    now = new Date(),
+  }: MenuStats = {},
   trips: readonly TripLink[] = [],
 ): MenuTabDef[] {
   return [
@@ -135,28 +155,7 @@ export function buildMenu(
       icon: "disc",
       color: "#b07bff",
       // empty without Spotify, and then dropped by visibleMenu
-      groups: spotify
-        ? [
-            {
-              id: "onRepeat",
-              items: spotify.tracks.map((t, i) => ({
-                id: `track-${i}`,
-                title: t.title,
-                value: t.artist,
-                action: external(t.url),
-              })),
-            },
-            {
-              id: "topArtists",
-              items: spotify.artists.map((a, i) => ({
-                id: `artist-${i}`,
-                title: a.name,
-                value: `#${i + 1}`,
-                action: external(a.url),
-              })),
-            },
-          ]
-        : [],
+      groups: musicGroups(spotify ?? null, listening ?? null, range, now),
     },
     {
       id: "play",
@@ -240,4 +239,92 @@ export function visibleMenu(tabs: readonly MenuTabDef[]): MenuTabDef[] {
         .filter((g) => g.items.length > 0),
     }))
     .filter((tab) => tab.groups.length > 0);
+}
+
+const RECENT = 12;
+const dayOf = (iso: string) => berlinParts(new Date(iso)).date;
+
+/** The Music tab: what plays and played, then top artists, tracks and genres over the chosen span. */
+export function musicGroups(
+  spotify: SpotifyStats | null,
+  listening: Listening | null,
+  range: Range,
+  now: Date,
+): MenuGroupDef[] {
+  const track = listening?.track ?? null;
+  const recent = spotify?.recent ?? [];
+  // the song on top is often also the first recent play; show it once
+  const plays =
+    track && recent[0]?.url === track.url ? recent.slice(1) : recent;
+  const today = dayTotals(recent, berlinParts(now).date, dayOf);
+  const profile = spotify?.profile ?? listening?.profile ?? null;
+  const listeningItems: MenuItemDef[] = [
+    ...(track
+      ? [
+          {
+            id: "nowPlaying",
+            title: track.title,
+            value: track.artist,
+            flag: track.playing ? ("live" as const) : undefined,
+            action: external(track.url),
+          },
+        ]
+      : []),
+    ...(today.plays > 0
+      ? [
+          {
+            id: "today",
+            vars: {
+              plays: `${today.plays}${today.capped ? "+" : ""}`,
+              minutes: today.minutes,
+            },
+          },
+        ]
+      : []),
+    ...plays.slice(0, RECENT).map((p) => ({
+      id: `play-${p.at}`,
+      title: p.title,
+      value: `${p.artist} · ${sinceLabel(p.at, now)}`,
+      action: external(p.url),
+    })),
+    ...(profile ? [{ id: "spotifyProfile", action: external(profile) }] : []),
+  ];
+  const top = spotify?.top[range];
+  if (!top) return track ? [{ id: "listening", items: listeningItems }] : [];
+  return [
+    { id: "listening", items: listeningItems },
+    {
+      id: "topArtists",
+      ranged: true,
+      items: top.artists.map((a, i) => ({
+        id: `artist-${i}`,
+        title: a.name,
+        value: a.genres.slice(0, 2).join(", "),
+        action: external(a.url),
+      })),
+    },
+    {
+      id: "topTracks",
+      ranged: true,
+      items: top.tracks.map((t, i) => ({
+        id: `track-${i}`,
+        title: t.title,
+        value: t.artist,
+        action: external(t.url),
+      })),
+    },
+    {
+      id: "genres",
+      ranged: true,
+      items: top.genres.map((g) => ({
+        id: `genre-${g}`,
+        title: g,
+        value: top.artists
+          .filter((a) => a.genres.includes(g))
+          .slice(0, 3)
+          .map((a) => a.name)
+          .join(", "),
+      })),
+    },
+  ];
 }

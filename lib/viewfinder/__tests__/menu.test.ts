@@ -4,6 +4,7 @@ import {
   actionFor,
   buildMenu,
   type MenuEntry,
+  musicGroups,
   searchMenu,
   visibleMenu,
 } from "../menu";
@@ -126,5 +127,69 @@ describe("visibleMenu pins", () => {
     const tabs = visibleMenu(buildMenu(posts));
     const work = tabs.find((t) => t.id === "work");
     expect(work?.groups.map((g) => g.id)).not.toContain("games");
+  });
+});
+
+describe("musicGroups", () => {
+  const url = "https://open.spotify.com/x";
+  const song = (title: string) => ({
+    title,
+    artist: "A",
+    url: `${url}/${title}`,
+  });
+  const top = {
+    artists: [{ name: "A", url, genres: ["jazz"] }],
+    tracks: [song("Top")],
+    genres: ["jazz"],
+  };
+  const stats = {
+    top: {
+      short_term: top,
+      medium_term: { ...top, tracks: [song("Mid")] },
+      long_term: top,
+    },
+    recent: [
+      { ...song("Last"), at: "2026-11-14T07:50:00Z", minutes: 3 },
+      { ...song("Before"), at: "2026-11-14T07:40:00Z", minutes: 4 },
+    ],
+    profile: url,
+  };
+  const now = new Date("2026-11-14T08:00:00Z");
+
+  it("is empty with nothing from Spotify", () => {
+    expect(musicGroups(null, null, "short_term", now)).toEqual([]);
+  });
+
+  it("shows the last played song once, then today's total and recent plays", () => {
+    const listening = {
+      track: { ...song("Last"), playing: false },
+      profile: url,
+    };
+    const [first] = musicGroups(stats, listening, "short_term", now);
+    expect(first?.items.map((i) => i.title ?? i.id)).toEqual([
+      "Last",
+      "today",
+      "Before",
+      "spotifyProfile",
+    ]);
+    expect(first?.items[1]?.vars).toEqual({ plays: "2+", minutes: 7 });
+    expect(first?.items[2]?.value).toBe("A · 20M");
+  });
+
+  it("tags a live song and follows the chosen span", () => {
+    const listening = {
+      track: { ...song("Now"), playing: true },
+      profile: url,
+    };
+    const groups = musicGroups(stats, listening, "medium_term", now);
+    expect(groups[0]?.items[0]?.flag).toBe("live");
+    expect(groups.find((g) => g.id === "topTracks")?.items[0]?.title).toBe(
+      "Mid",
+    );
+    expect(groups.filter((g) => g.ranged).map((g) => g.id)).toEqual([
+      "topArtists",
+      "topTracks",
+      "genres",
+    ]);
   });
 });

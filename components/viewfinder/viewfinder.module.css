@@ -307,8 +307,13 @@ a.ro {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-a.box {
+a.box,
+.boxBtn {
   display: block;
+}
+.boxBtn {
+  width: 100%;
+  text-align: left;
 }
 .trk em {
   font-style: normal;
@@ -864,6 +869,47 @@ a.box {
 .it.on.off .v {
   color: var(--faint);
 }
+/* Music tab: a LIVE tag on what plays now, and the Spotify span switch over the top lists */
+.it .v i.live {
+  color: #000;
+  background: var(--af);
+  border-color: var(--af);
+  opacity: 1;
+}
+.span {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 4px 20px 10px;
+  border: 0;
+  border-bottom: 1px solid #161818;
+  min-width: 0;
+}
+.span button {
+  font: 600 13px / 1 var(--hud);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid var(--faint);
+  padding: 6px 10px;
+  color: var(--dim);
+}
+.span button:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.span button.on {
+  background: #b07bff;
+  border-color: #b07bff;
+  color: #000;
+}
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .empty {
   padding: 40px 20px;
   color: var(--dim);
@@ -1263,7 +1309,7 @@ a.box {
     height: 100%;
     box-shadow: none;
     border: 0;
-    grid-template-rows: auto 56px minmax(0, 1fr) 40px;
+    grid-template-rows: auto 56px auto minmax(0, 1fr) 40px;
   }
   .mh {
     flex-wrap: wrap;
@@ -1310,11 +1356,31 @@ a.box {
     width: auto;
     height: 3px;
   }
+  /* one group needs no picker; several sit in a row under the tabs */
   .groups {
     display: none;
+    grid-row: 3;
+  }
+  .groups.many {
+    display: flex;
+    overflow-x: auto;
+    padding: 0;
+    border-right: 0;
+    border-bottom: 1px solid #1d1f1f;
+    scrollbar-width: none;
+  }
+  .groups.many > * {
+    width: auto;
+    flex: none;
+    gap: 6px;
+    padding: 12px 14px;
+    font-size: 15px;
+  }
+  .groups.many > .on {
+    box-shadow: inset 0 -3px 0 var(--tc);
   }
   .items {
-    grid-row: 3;
+    grid-row: 4;
   }
   .it {
     font-size: 16px;
@@ -1324,7 +1390,7 @@ a.box {
     display: none;
   }
   .mf {
-    grid-row: 4;
+    grid-row: 5;
   }
   .mf .keys2 {
     display: none;
