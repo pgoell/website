@@ -173,3 +173,7 @@ export function roadKm(trip: Trip): number {
   }
   return Math.round(km / 10) * 10;
 }
+
+/** 1280 as "1,280", or "1.280" in German. By hand: Intl differs between server and browser. */
+export const grouped = (n: number, locale: string) =>
+  String(n).replace(/\B(?=(\d{3})+$)/g, locale === "de" ? "." : ",");

@@ -23,8 +23,11 @@ function typing(target: EventTarget | null): boolean {
   );
 }
 
-/** One trip on screen: which day is picked, what the map shows, and the look. */
-export function useTrip(trip: Trip) {
+/**
+ * One trip on screen: which day is picked, what the map shows, and the look.
+ * While `busy` (a form, a pin or a line on the map), the arrow keys rest.
+ */
+export function useTrip(trip: Trip, busy = false) {
   const days = useMemo(
     () =>
       daysBetween(trip.startDate, trip.endDate).map((d) => dayPlan(trip, d)),
@@ -80,13 +83,14 @@ export function useTrip(trip: Trip) {
 
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
-      if (e.metaKey || e.ctrlKey || e.altKey || typing(e.target)) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || typing(e.target) || busy)
+        return;
       if (e.key === "ArrowRight") step(1);
       if (e.key === "ArrowLeft") step(-1);
     };
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [step]);
+  }, [step, busy]);
 
   useEffect(() => {
     if (!playing) return;
@@ -122,6 +126,9 @@ export function useTrip(trip: Trip) {
     focus,
     lines,
     pad: narrow ? NARROW_PAD : WIDE_PAD,
+    narrow,
+    /** Every stop: the view of the whole trip. */
+    all,
     look,
     setLook,
     playing,

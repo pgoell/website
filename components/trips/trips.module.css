@@ -592,3 +592,611 @@
   color: var(--sony);
   border-color: var(--sony);
 }
+
+/* ---------- for someone signed in: tabs, lists, forms and the route editor ---------- */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--edge);
+}
+.tabs button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 42px;
+  font: 600 13px / 1 var(--hud);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--dim);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.tabs button:hover {
+  color: var(--ink);
+}
+.tabs button[aria-pressed="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--af);
+}
+.tabs i {
+  font: 500 10px / 1 var(--mono);
+  font-style: normal;
+  letter-spacing: 0;
+  color: var(--sony);
+}
+.stack {
+  display: grid;
+  gap: 12px;
+  overflow-wrap: anywhere;
+}
+.inline {
+  display: flex;
+  gap: 8px;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+:where(.shell) .btn,
+:where(.shell) .btnMain {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 10px;
+  border: 1px solid var(--edge);
+  font: 500 13px / 1 var(--hud);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-align: center;
+  color: var(--ink);
+  text-decoration: none;
+  cursor: pointer;
+}
+:where(.shell) .btn {
+  background: transparent;
+}
+:where(.shell) .btn:hover {
+  border-color: var(--sony);
+  color: var(--sony);
+}
+:where(.shell) .btnMain {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--bg);
+}
+:where(.shell) .btnMain:hover {
+  border-color: var(--sony);
+  background: var(--sony);
+}
+:where(.shell) :is(.btn, .btnMain):disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+.field {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--edge);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font: 400 14px / 1.4 var(--semi);
+  outline: none;
+}
+.field:focus {
+  border-color: var(--sony);
+}
+.field option {
+  background: var(--bg);
+  color: var(--ink);
+}
+.noteField {
+  font-size: 15px;
+  line-height: 1.45;
+  resize: vertical;
+}
+.formTitle {
+  font: 600 24px / 1 var(--hud);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.groupHead {
+  padding-top: 4px;
+  font: 500 11px / 1 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.placeCard {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid var(--edge);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.placeHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.placeHead h3,
+.cardTitle {
+  min-width: 0;
+  margin: 0;
+  font: 600 18px / 1.1 var(--hud);
+  letter-spacing: 0.02em;
+}
+.placeHead h3 button:hover {
+  color: var(--sony);
+}
+.placeHead span {
+  flex: none;
+  font: 500 11px / 1.3 var(--mono);
+  color: var(--dim);
+}
+.placeLink {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--teal);
+  text-decoration: underline;
+}
+.facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 0;
+}
+.facts dt {
+  padding-top: 2px;
+  font: 500 10px / 1.4 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.facts dd {
+  margin: 0;
+}
+.contents {
+  display: contents;
+}
+.mono {
+  font: 500 13px / 1.4 var(--mono);
+}
+.checkIn {
+  font-size: 14px;
+}
+.checkIn b {
+  font-weight: 500;
+}
+.gap {
+  margin-top: 20px;
+}
+.dayPlaces {
+  margin-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.dayPlaces li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 15px;
+}
+.dayPlaces li > span:first-child {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--teal);
+  background: var(--teal);
+  color: var(--bg);
+  font: 500 11px / 1 var(--mono);
+}
+.dayPlaces li > span[data-idea] {
+  border-color: var(--sony);
+  background: transparent;
+  color: var(--sony);
+}
+.pick {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.25;
+}
+.pick:hover {
+  color: var(--sony);
+}
+.dayPlaces small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: var(--dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dayPlaces em {
+  flex: none;
+  font: 500 11px / 1 var(--mono);
+  font-style: normal;
+  color: var(--dim);
+}
+.order {
+  display: flex;
+  flex: none;
+}
+:where(.shell) .order button {
+  width: 26px;
+  height: 26px;
+  text-align: center;
+  color: var(--dim);
+}
+.order button:hover:not(:disabled) {
+  color: var(--sony);
+}
+.order button:disabled {
+  color: var(--faint);
+  cursor: default;
+}
+.notice {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--edge);
+  font-size: 14px;
+}
+.warn {
+  border-color: var(--sony);
+  color: var(--sony);
+}
+.foot {
+  margin-top: 22px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  font: 500 11px / 1.5 var(--mono);
+  color: var(--dim);
+}
+.google {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--edge);
+}
+.banner {
+  position: absolute;
+  left: 48px;
+  top: 96px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: min(36rem, calc(100% - 520px));
+  padding: 10px 14px;
+  border: 1px solid var(--sony);
+  background: var(--glass);
+  backdrop-filter: blur(14px);
+  font-size: 14px;
+}
+/* a tick per planned place, under the weekday */
+.frame {
+  position: relative;
+}
+.ticks {
+  position: absolute;
+  bottom: 3px;
+  height: 2px;
+  background: var(--teal);
+}
+.phoneOnly {
+  display: none;
+}
+
+/* a leg's line while it is bent: its bar, and the menu of a picked point */
+.routeBar {
+  position: absolute;
+  z-index: 3;
+  left: 48px;
+  top: 96px;
+  max-width: calc(100% - 520px);
+  display: grid;
+  grid-template-columns: auto auto;
+  border: 1px solid var(--sony);
+  background: var(--glass);
+  backdrop-filter: blur(14px);
+}
+.routeHead {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+  padding: 0 16px;
+  border-right: 1px solid var(--edge);
+}
+.routeTitle {
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+  font: 600 15px / 1 var(--hud);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.routeTitle b {
+  color: var(--sony);
+}
+.routeTitle span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.routeStats {
+  font: 500 12px / 1 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.routeStats small {
+  margin-left: 10px;
+  font-size: 11px;
+  color: var(--dim);
+}
+.routeKeys {
+  display: flex;
+  align-items: stretch;
+}
+.routeKeys p {
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  font-size: 14px;
+}
+:where(.shell) .routeKeys button {
+  min-height: 44px;
+  padding: 0 14px;
+  border-left: 1px solid var(--edge);
+  font: 500 13px / 1 var(--hud);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+:where(.shell) .routeKeys > :first-child {
+  border-left: 0;
+}
+.routeKeys button:hover:not(:disabled) {
+  color: var(--sony);
+}
+.routeKeys button:disabled {
+  color: var(--faint);
+  cursor: default;
+}
+:where(.shell) .routeKeys .routeDone,
+:where(.shell) .routeKeys .routeDone:hover:not(:disabled) {
+  padding: 0 18px;
+  background: var(--sony);
+  color: var(--bg);
+  font-weight: 600;
+  font-size: 14px;
+}
+.routeStatus {
+  grid-column: 1 / -1;
+  padding: 7px 16px;
+  border-top: 1px solid var(--edge);
+  font: 400 11px / 1.45 var(--mono);
+  color: var(--dim);
+}
+.routeBar[data-warn] .routeStatus {
+  color: var(--sony);
+}
+.routeMenu {
+  position: absolute;
+  z-index: 3;
+  width: 256px;
+  transform: translate(-50%, calc(-100% - 22px));
+}
+.routeMenu[data-below] {
+  transform: translate(-50%, 22px);
+}
+.routeMenuBox {
+  position: relative;
+  border: 1px solid var(--sony);
+  background: var(--bg);
+}
+.routeMenuBox::after {
+  content: "";
+  position: absolute;
+  left: calc(50% + var(--tip, 0px) - 6px);
+  bottom: -7px;
+  width: 12px;
+  height: 12px;
+  background: var(--bg);
+  border: solid var(--sony);
+  border-width: 0 1px 1px 0;
+  transform: rotate(45deg);
+}
+.routeMenu[data-below] .routeMenuBox::after {
+  top: -7px;
+  bottom: auto;
+  border-width: 1px 0 0 1px;
+}
+.routeMenuBox h4 {
+  margin: 0;
+  padding: 11px 12px 0;
+  font: 600 14px / 1 var(--hud);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.routeMenuBox p {
+  padding: 8px 12px 0;
+  font: 400 11px / 1.4 var(--mono);
+  color: var(--dim);
+}
+.routeWays {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  margin: 8px 12px 0;
+  border: 1px solid var(--edge);
+}
+:where(.shell) .routeWays button {
+  min-height: 38px;
+  padding: 0 6px;
+  font: 500 12.5px / 1 var(--hud);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--dim);
+}
+.routeWays button:hover {
+  color: var(--ink);
+}
+.routeWays button[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--bg);
+}
+:where(.shell) .routeRemove {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-height: 40px;
+  margin-top: 11px;
+  padding: 0 12px;
+  border-top: 1px solid var(--edge);
+  font: 500 13px / 1 var(--hud);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.routeRemove:hover:not(:disabled) {
+  color: var(--sony);
+}
+.routeRemove:disabled {
+  color: var(--faint);
+  cursor: default;
+}
+
+@media (max-width: 900px) {
+  /* Signed in: the map, the strip, then the card with its tabs, as in the app. */
+  .shell[data-edit] .dock {
+    order: 1;
+  }
+  .shell[data-edit] .card {
+    order: 2;
+    position: relative;
+    top: auto;
+    right: auto;
+    display: flex;
+    flex: none;
+    width: auto;
+    max-height: none;
+    height: var(--panel);
+    border: 0;
+    background: var(--bg);
+    backdrop-filter: none;
+    transition: height 0.2s;
+  }
+  .shell[data-tapping] .card,
+  .shell[data-editing] .whole {
+    display: none;
+  }
+  /* Finding yourself stays a tap away; two fingers zoom. */
+  .shell[data-edit] :global(.maplibregl-ctrl-top-right) {
+    display: block;
+    top: 104px;
+    right: 0;
+  }
+  .shell[data-edit]
+    :global(.maplibregl-ctrl-top-right > .maplibregl-ctrl-group:first-child) {
+    display: none;
+  }
+  .shell[data-edit] .cardScroll {
+    padding: 16px 16px 20px;
+  }
+  .tabs button {
+    min-height: 44px;
+  }
+  /* On a phone every control is at least 44 px high, a fingertip. */
+  :where(.shell) :is(.btn, .btnMain) {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 14px;
+  }
+  /* 16 px: iOS zooms the page into any field with smaller text, and stays zoomed. */
+  .field {
+    min-height: 44px;
+    font-size: 16px;
+  }
+  :where(.shell) .order button {
+    width: 40px;
+    height: 40px;
+  }
+  .rare {
+    display: none;
+  }
+  .phoneOnly {
+    display: inline-flex;
+  }
+  .banner {
+    left: 16px;
+    right: 16px;
+    top: 62px;
+    max-width: none;
+  }
+  /* Under the thumb: the bar sits at the foot of the map, over the strip. */
+  .routeBar {
+    left: 10px;
+    right: 10px;
+    top: auto;
+    bottom: 10px;
+    max-width: none;
+    grid-template-columns: 1fr;
+    background: var(--bg);
+    backdrop-filter: none;
+  }
+  .routeHead {
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 12px 9px;
+    border-right: 0;
+  }
+  .routeStats small {
+    display: none;
+  }
+  .routeStatus {
+    grid-row: 2;
+    padding: 0 12px 9px;
+    border-top: 0;
+  }
+  .routeKeys {
+    border-top: 1px solid var(--edge);
+  }
+  :where(.shell) .routeKeys button {
+    flex: 1;
+    min-height: 46px;
+    padding: 0 8px;
+  }
+  .routeKeys p {
+    flex: 2;
+    padding: 8px 12px;
+    font-size: 13.5px;
+    line-height: 1.3;
+  }
+  :where(.shell) .routeKeys .routeDone {
+    flex: 1.3;
+  }
+  .shell[data-routing] :global(.maplibregl-ctrl-bottom-right) {
+    bottom: 138px;
+  }
+  :where(.shell) .routeWays button,
+  :where(.shell) .routeRemove {
+    min-height: 44px;
+  }
+}
