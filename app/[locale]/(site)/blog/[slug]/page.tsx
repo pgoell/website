@@ -7,20 +7,12 @@ import { isValidElement, type ReactNode } from "react";
 import { FrameTitle } from "@/components/frame/frame-title";
 import s from "@/components/site/site.module.css";
 import { cx } from "@/components/viewfinder/cx";
-import { locales } from "@/i18n/config";
-import { getAllPosts, getPostBySlug, getPostSlugs } from "@/lib/posts";
+import { getAllPosts, getPostBySlug } from "@/lib/posts";
 import { headings, readingMinutes, slugify } from "@/lib/site/sections";
 
-export async function generateStaticParams() {
-  const params: { locale: string; slug: string }[] = [];
-  for (const locale of locales) {
-    const slugs = await getPostSlugs(locale);
-    for (const slug of slugs) {
-      params.push({ locale, slug });
-    }
-  }
-  return params;
-}
+/* Rendered on each request: posts come from Kasten, so none is known at build time,
+   and a page first rendered after the build may not read the request (the locale does). */
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
