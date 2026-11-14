@@ -5,6 +5,8 @@ import { getAllPosts } from "@/lib/posts";
 import { getGithubStats } from "@/lib/stats/github";
 import { getReading } from "@/lib/stats/kasten";
 import { getSpotifyTop } from "@/lib/stats/spotify";
+import { getTrips } from "@/lib/trips/feed";
+import { dayLabel } from "@/lib/trips/plan";
 import { getWeather } from "@/lib/weather/weather";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -18,13 +20,20 @@ export default async function Home({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const [allPosts, github, spotify, weather, book] = await Promise.all([
-    getAllPosts(locale),
-    getGithubStats(),
-    getSpotifyTop(),
-    getWeather(),
-    getReading(),
-  ]);
+  const [allPosts, github, spotify, weather, book, openTrips] =
+    await Promise.all([
+      getAllPosts(locale),
+      getGithubStats(),
+      getSpotifyTop(),
+      getWeather(),
+      getReading(),
+      getTrips(),
+    ]);
+  const trips = openTrips.map((t) => ({
+    slug: t.slug,
+    name: t.name,
+    when: `${dayLabel(t.startDate, locale)} – ${dayLabel(t.endDate, locale)} ${t.endDate.slice(0, 4)}`,
+  }));
   const posts = allPosts.map((p) => ({
     slug: p.slug,
     title: p.title,
@@ -34,6 +43,7 @@ export default async function Home({
   return (
     <ViewfinderHome
       posts={posts}
+      trips={trips}
       github={github}
       spotify={spotify}
       weather={weather}

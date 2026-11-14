@@ -146,7 +146,7 @@
       "all": "ALL",
       "tabs": {
         "main": "Main",
-        "work": "Work",
+        "work": "Travel",
         "writing": "Writing",
         "music": "Music",
         "play": "Play",
@@ -154,14 +154,10 @@
       },
       "groups": {
         "glance": "At a glance",
-        "shortcuts": "Shortcuts",
-        "agents": "Agents",
-        "tools": "Tools",
-        "games": "Games",
+        "trips": "Trips",
         "posts": "Posts",
         "onRepeat": "On repeat",
         "topArtists": "Top artists",
-        "languages": "Languages",
         "inBrowser": "In browser",
         "contact": "Contact"
       },
@@ -193,10 +189,6 @@
         "cv": {
           "t": "CV",
           "v": "PDF"
-        },
-        "github": {
-          "t": "GitHub",
-          "v": "@pgoell"
         },
         "gmail": {
           "t": "Gmail brief agent",
@@ -269,6 +261,10 @@
         "x": {
           "t": "X",
           "v": "@pagoell"
+        },
+        "tripsSignIn": {
+          "t": "Sign in",
+          "v": "more trips"
         }
       }
     }

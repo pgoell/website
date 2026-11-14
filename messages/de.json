@@ -146,7 +146,7 @@
       "all": "ALLE",
       "tabs": {
         "main": "Übersicht",
-        "work": "Arbeit",
+        "work": "Unterwegs",
         "writing": "Texte",
         "music": "Musik",
         "play": "Spielen",
@@ -154,14 +154,10 @@
       },
       "groups": {
         "glance": "Auf einen Blick",
-        "shortcuts": "Abkürzungen",
-        "agents": "Agenten",
-        "tools": "Werkzeuge",
-        "games": "Spiele",
+        "trips": "Reisen",
         "posts": "Beiträge",
         "onRepeat": "In Dauerschleife",
         "topArtists": "Top-Künstler",
-        "languages": "Sprachen",
         "inBrowser": "Im Browser",
         "contact": "Kontakt"
       },
@@ -193,10 +189,6 @@
         "cv": {
           "t": "Lebenslauf",
           "v": "PDF"
-        },
-        "github": {
-          "t": "GitHub",
-          "v": "@pgoell"
         },
         "gmail": {
           "t": "Gmail brief agent",
@@ -269,6 +261,10 @@
         "x": {
           "t": "X",
           "v": "@pagoell"
+        },
+        "tripsSignIn": {
+          "t": "Anmelden",
+          "v": "mehr Reisen"
         }
       }
     }
