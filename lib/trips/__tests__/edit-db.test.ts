@@ -127,8 +127,10 @@ describe.skipIf(!url)("changing a trip in Postgres", () => {
       false,
     );
     await deletePlace(sql, other, placeId);
-    await setGooglePlaceId(sql, other, placeId, "elsewhere");
-    await orderDay(sql, other, "2027-03-21", [placeId]);
+    expect(await setGooglePlaceId(sql, other, placeId, "elsewhere")).toBe(
+      false,
+    );
+    expect(await orderDay(sql, other, "2027-03-21", [placeId])).toBe(false);
     const [p] = (await loadTrip(sql, "one"))?.places ?? [];
     expect(p).toMatchObject({
       name: "A tea house",
@@ -140,7 +142,7 @@ describe.skipIf(!url)("changing a trip in Postgres", () => {
   it("orders a day, and a place moved to another day goes last there", async () => {
     const a = await insertPlace(sql, id, row({ name: "A" }), "Someone");
     const b = await insertPlace(sql, id, row({ name: "B" }), "Someone");
-    await orderDay(sql, id, "2027-03-21", [b, a]);
+    expect(await orderDay(sql, id, "2027-03-21", [b, a])).toBe(true);
     const order = async () =>
       Object.fromEntries(
         ((await loadTrip(sql, "one"))?.places ?? []).map((p) => [
@@ -158,9 +160,20 @@ describe.skipIf(!url)("changing a trip in Postgres", () => {
     expect((await order()).B).toBeNull();
   });
 
+  it("reports a place deleted in the meantime, and keeps a day's order whole", async () => {
+    const a = await insertPlace(sql, id, row({ name: "A" }), "Someone");
+    const b = await insertPlace(sql, id, row({ name: "B" }), "Someone");
+    await deletePlace(sql, id, b);
+    expect(await updatePlace(sql, id, b, row())).toBe(false);
+    expect(await setGooglePlaceId(sql, id, b, "none")).toBe(false);
+    expect(await orderDay(sql, id, "2027-03-21", [a, b])).toBe(false);
+    const [p] = (await loadTrip(sql, "one"))?.places ?? [];
+    expect(p?.dayOrder).toBeNull();
+  });
+
   it("keeps Google's id for a place", async () => {
     const placeId = await insertPlace(sql, id, row(), "Someone");
-    await setGooglePlaceId(sql, id, placeId, "none");
+    expect(await setGooglePlaceId(sql, id, placeId, "none")).toBe(true);
     const [p] = (await loadTrip(sql, "one"))?.places ?? [];
     expect(p?.googlePlaceId).toBe("none");
   });

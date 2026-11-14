@@ -736,7 +736,8 @@
         "offline": "Offline. Änderungen brauchen eine Verbindung.",
         "updatedForm": "Die Website wurde aktualisiert. Lade die Seite neu und speichere dann noch mal.",
         "failed": "Das hat nicht geklappt. Versuch es noch mal und lade die Seite neu, wenn es weiter scheitert.",
-        "noPosition": "Diese Website darf deinen Standort nicht lesen."
+        "noPosition": "Diese Website darf deinen Standort nicht lesen.",
+        "noPlace": "Diesen Ort gibt es nicht mehr; jemand hat ihn gelöscht. Nichts wurde gespeichert."
       }
     }
   }

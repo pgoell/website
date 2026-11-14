@@ -593,7 +593,7 @@ export function TripMap({
   const menuPoint = selected === null ? undefined : points?.[selected];
   useEffect(() => {
     const m = map.current;
-    if (!m || !menuPoint) {
+    if (!loaded || !m || !menuPoint) {
       setMenuAt(null);
       return;
     }
@@ -606,7 +606,7 @@ export function TripMap({
     return () => {
       m.off("move", place);
     };
-  }, [menuPoint]);
+  }, [loaded, menuPoint]);
 
   if (failed) return <p className={s.noMap}>{broken}</p>;
   if (!editing) {

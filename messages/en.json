@@ -736,7 +736,8 @@
         "offline": "Offline. Changes need a connection.",
         "updatedForm": "The site was updated. Reload the page, then save again.",
         "failed": "That did not work. Try again, and reload the page if it keeps failing.",
-        "noPosition": "This site may not read your position."
+        "noPosition": "This site may not read your position.",
+        "noPlace": "This place is gone; someone deleted it. Nothing was saved."
       }
     }
   }

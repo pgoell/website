@@ -37,7 +37,8 @@ export type TripError =
   | "badLink"
   | "badRoute"
   | "roadsDown"
-  | "noRoad";
+  | "noRoad"
+  | "noPlace";
 export type Failed = { error: TripError } | undefined;
 
 type Ready = { sql: Sql; tripId: number; slug: string; user: User };
@@ -66,7 +67,9 @@ export async function savePlace(slug: string, input: unknown): Promise<Failed> {
   const id = (input as { id?: unknown }).id;
   if (id !== undefined && id !== null) {
     if (!isId(id)) return { error: "badInput" };
-    await edit.updatePlace(r.sql, r.tripId, id, row);
+    // Deleted by someone else since the page loaded.
+    if (!(await edit.updatePlace(r.sql, r.tripId, id, row)))
+      return { error: "noPlace" };
   } else {
     await edit.insertPlace(
       r.sql,
@@ -95,7 +98,8 @@ export async function orderDay(
   const r = await begin(slug);
   if ("error" in r) return r;
   if (!isDate(date) || !isIds(ids)) return { error: "badInput" };
-  await edit.orderDay(r.sql, r.tripId, date, ids);
+  if (!(await edit.orderDay(r.sql, r.tripId, date, ids)))
+    return { error: "noPlace" };
   changed(r.slug);
 }
 
@@ -120,7 +124,8 @@ export async function setGooglePlaceId(
   const r = await begin(slug);
   if ("error" in r) return r;
   if (!isId(id) || !isGoogleId(googlePlaceId)) return { error: "badInput" };
-  await edit.setGooglePlaceId(r.sql, r.tripId, id, googlePlaceId);
+  if (!(await edit.setGooglePlaceId(r.sql, r.tripId, id, googlePlaceId)))
+    return { error: "noPlace" };
   changed(r.slug);
 }
 
