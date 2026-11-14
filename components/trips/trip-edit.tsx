@@ -42,6 +42,9 @@ import { useRouteEdit } from "./use-route-edit";
 import { useTrip } from "./use-trip";
 import { TABS, useTripEdit } from "./use-trip-edit";
 
+/** Room a narrow map keeps at its foot for the route bar, which lies over it. */
+const ROUTE_BAR_PAD = 150;
+
 /** A list shows the filter once it holds more than this many places. */
 const FILTER_FROM = 8;
 
@@ -78,6 +81,15 @@ export function TripEditor({
   const dates = useMemo(() => days.map((d) => d.date), [days]);
   const { tab, detail, editing, picking } = e;
   const google = mapsKey && !e.offline ? mapsKey : undefined;
+  // On a phone the route bar covers the foot of the map: both ends stay clear of it.
+  const routing = drawing !== null;
+  const pad = useMemo(
+    () =>
+      routing && v.narrow
+        ? { ...v.pad, bottom: v.pad.bottom + ROUTE_BAR_PAD }
+        : v.pad,
+    [routing, v.narrow, v.pad],
+  );
 
   // A new day, picked any way, opens its plan.
   const { setTab, setDetail, setEditing } = e;
@@ -428,7 +440,7 @@ export function TripEditor({
           picked={mapLines}
           focus={focus.at}
           closeUp={focus.close}
-          pad={v.pad}
+          pad={pad}
           mark={v.mark}
           label={t("map")}
           broken={t("noMap")}

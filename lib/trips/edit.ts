@@ -68,21 +68,33 @@ export async function deletePlace(
   await sql`DELETE FROM trips.place WHERE id = ${id} AND trip_id = ${tripId}`;
 }
 
-/** The order of a day's places: its route. */
+/**
+ * The order of a day's places: its route. False when a place is no longer
+ * on that day; nothing changes then.
+ */
 export async function orderDay(
   sql: Sql,
   tripId: number,
   date: string,
   ids: number[],
-): Promise<void> {
-  await sql.begin(async (tx) => {
-    for (const [n, id] of ids.entries()) {
-      await tx`
-        UPDATE trips.place SET day_order = ${n}
-        WHERE id = ${id} AND trip_id = ${tripId} AND day = ${date}`;
-    }
-  });
+): Promise<boolean> {
+  return sql
+    .begin(async (tx) => {
+      for (const [n, id] of ids.entries()) {
+        const done = await tx`
+          UPDATE trips.place SET day_order = ${n}
+          WHERE id = ${id} AND trip_id = ${tripId} AND day = ${date}`;
+        if (done.count === 0) throw new Gone();
+      }
+      return true;
+    })
+    .catch((err) => {
+      if (err instanceof Gone) return false;
+      throw err;
+    });
 }
+
+class Gone extends Error {}
 
 export async function saveDayNote(
   sql: Sql,
@@ -104,10 +116,11 @@ export async function setGooglePlaceId(
   tripId: number,
   id: number,
   googlePlaceId: string | null,
-): Promise<void> {
-  await sql`
+): Promise<boolean> {
+  const done = await sql`
     UPDATE trips.place SET google_place_id = ${googlePlaceId}
     WHERE id = ${id} AND trip_id = ${tripId}`;
+  return done.count > 0;
 }
 
 /** The trip has a ground leg that leaves on this day under this title. */
