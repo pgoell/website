@@ -7,24 +7,39 @@ import type {
 } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
-import { arc, coords } from "@/lib/trips/plan";
-import type { LngLat, Trip } from "@/lib/trips/types";
+import type { Look } from "@/lib/trips/look";
+import { arc } from "@/lib/trips/plan";
+import type { LngLat, Trip, TripStop } from "@/lib/trips/types";
 import night from "./map-style.json";
+import paper from "./map-style-day.json";
 import s from "./trips.module.css";
 
-const ROUTE = "#5cf07c";
-const PICKED = "#f08a00";
-const PLACE = "#2ec4b6";
-const INK = "#f3f4f1";
-const DARK = "#050606";
+/** The colours drawn over the map, for the dark screen and for paper. */
+const INKS = {
+  night: {
+    route: "#5cf07c",
+    picked: "#f08a00",
+    place: "#2ec4b6",
+    ink: "#f3f4f1",
+    ground: "#050606",
+  },
+  day: {
+    route: "#177a3a",
+    picked: "#c25a00",
+    place: "#0f7f76",
+    ink: "#151716",
+    ground: "#f6f4ec",
+  },
+};
+type Pad = { top: number; right: number; bottom: number; left: number };
 const CREDIT =
   '<a href="https://openfreemap.org" target="_blank" rel="noreferrer">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank" rel="noreferrer">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>';
 
-/** The night style, with tiles and fonts asked from this site, not from OpenFreeMap. */
-function style(): StyleSpecification {
+/** The map style, with tiles and fonts asked from this site, not from OpenFreeMap. */
+function style(look: Look): StyleSpecification {
   const origin = window.location.origin;
   return {
-    ...(night as unknown as StyleSpecification),
+    ...((look === "day" ? paper : night) as unknown as StyleSpecification),
     glyphs: `${origin}/api/map/fonts/{fontstack}/{range}.pbf`,
     sources: {
       openmaptiles: {
@@ -55,19 +70,31 @@ const lines = (paths: LngLat[][]): GeoJSON.Feature => ({
   geometry: { type: "MultiLineString", coordinates: paths },
 });
 
-/** A read-only map of one trip: its line, its stops and its places. */
+/**
+ * A read-only map of one trip: its line, its stops and its places. The map
+ * fills its box and is the page there, so one finger and the wheel move it.
+ * A new look needs a new map: give the component a key that holds the look.
+ */
 export function TripMap({
   trip,
+  look,
   picked,
   focus,
+  pad,
+  mark,
   label,
   broken,
 }: {
   trip: Trip;
   /** The ground lines of the day that is picked, drawn over the trip's. */
   picked: LngLat[][];
+  look: Look;
   /** Points to bring into view. A new array moves the camera. */
   focus: LngLat[];
+  /** Room to keep clear around the view, for what lies on the map. */
+  pad: Pad;
+  /** The stop to ring and to name. The other stops show their number only. */
+  mark: TripStop | null;
   label: string;
   /** What to say when the map cannot start. */
   broken: string;
@@ -77,9 +104,8 @@ export function TripMap({
   const lib = useRef<typeof import("maplibre-gl") | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [at, setAt] = useState<{ lat: number; lng: number; zoom: number }>();
   // The map is built once and reads the first trip and view from here.
-  const first = useRef({ trip, focus });
+  const first = useRef({ trip, focus, pad, look });
 
   useEffect(() => {
     let gone = false;
@@ -87,18 +113,17 @@ export function TripMap({
     import("maplibre-gl").then((gl) => {
       if (gone || !container.current) return;
       lib.current = gl;
-      const { trip, focus } = first.current;
+      const { trip, focus, pad, look } = first.current;
+      const { route, picked: hot, place, ink, ground: paperTone } = INKS[look];
       const bounds = new gl.LngLatBounds();
       for (const p of focus) bounds.extend(p);
       try {
         m = new gl.Map({
           container: container.current,
-          style: style(),
+          style: style(look),
           bounds,
-          fitBoundsOptions: { padding: 48, maxZoom: 12 },
+          fitBoundsOptions: { padding: pad, maxZoom: 12 },
           attributionControl: { compact: true },
-          // The page scrolls past the map: one finger scrolls, two move the map.
-          cooperativeGestures: true,
         });
       } catch {
         // No WebGL. The plan beside the map still works.
@@ -107,17 +132,17 @@ export function TripMap({
       }
       const made = m;
       map.current = made;
-      made.addControl(new gl.NavigationControl({ visualizePitch: true }));
-      const read = () => {
-        const c = made.getCenter();
-        setAt({ lat: c.lat, lng: c.lng, zoom: made.getZoom() });
-      };
-      made.on("move", read);
-      read();
+      made.addControl(new gl.NavigationControl({ showCompass: false }));
 
       made.on("load", () => {
-        made.addImage("stop", square(24, DARK, ROUTE), { pixelRatio: 2 });
-        made.addImage("place", square(13, PLACE, DARK), { pixelRatio: 2 });
+        // On a narrow map the credit starts folded behind its button.
+        if (window.innerWidth <= 760) {
+          container.current
+            ?.querySelector(".maplibregl-ctrl-attrib")
+            ?.classList.remove("maplibregl-compact-show");
+        }
+        made.addImage("stop", square(24, paperTone, route), { pixelRatio: 2 });
+        made.addImage("place", square(13, place, paperTone), { pixelRatio: 2 });
         const flights = trip.legs.filter((l) => l.mode === "flight");
         const ground = trip.legs.filter((l) => l.mode === "ground");
         made.addSource("flights", {
@@ -133,6 +158,10 @@ export function TripMap({
           data: lines(ground.map((l) => l.path)),
         });
         made.addSource("picked", { type: "geojson", data: lines([]) });
+        made.addSource("mark", {
+          type: "geojson",
+          data: { type: "FeatureCollection", features: [] },
+        });
         made.addSource("stops", {
           type: "geojson",
           data: {
@@ -170,9 +199,9 @@ export function TripMap({
             layout: { "line-join": "round", "line-cap": "round" },
             paint: {
               "line-color": color,
-              "line-width": 10,
+              "line-width": 7,
               "line-blur": 8,
-              "line-opacity": 0.4,
+              "line-opacity": 0.16,
             },
           });
         const line = (id: string, source: string, color: string) =>
@@ -188,16 +217,38 @@ export function TripMap({
           type: "line",
           source: "flights",
           paint: {
-            "line-color": INK,
+            "line-color": ink,
             "line-width": 1.2,
             "line-dasharray": [3, 3],
             "line-opacity": 0.6,
           },
         });
-        glow("ground-glow", "ground", ROUTE);
-        line("ground", "ground", ROUTE);
-        glow("picked-glow", "picked", PICKED);
-        line("picked", "picked", PICKED);
+        glow("ground-glow", "ground", route);
+        line("ground", "ground", route);
+        glow("picked-glow", "picked", hot);
+        line("picked", "picked", hot);
+        made.addLayer({
+          id: "mark-glow",
+          type: "circle",
+          source: "mark",
+          paint: {
+            "circle-radius": 30,
+            "circle-color": hot,
+            "circle-opacity": 0.16,
+            "circle-blur": 0.6,
+          },
+        });
+        made.addLayer({
+          id: "mark",
+          type: "circle",
+          source: "mark",
+          paint: {
+            "circle-radius": 19,
+            "circle-color": "rgba(0,0,0,0)",
+            "circle-stroke-color": hot,
+            "circle-stroke-width": 2,
+          },
+        });
         made.addLayer({
           id: "places",
           type: "symbol",
@@ -219,8 +270,8 @@ export function TripMap({
             "text-anchor": "top",
           },
           paint: {
-            "text-color": INK,
-            "text-halo-color": DARK,
+            "text-color": ink,
+            "text-halo-color": paperTone,
             "text-halo-width": 1.5,
           },
         });
@@ -236,13 +287,14 @@ export function TripMap({
             "text-size": 12,
             "text-allow-overlap": true,
           },
-          paint: { "text-color": ROUTE },
+          paint: { "text-color": route },
         });
         made.addLayer({
           id: "stop-names",
           type: "symbol",
           source: "stops",
-          minzoom: 4,
+          // Only the marked stop is named, so the map stays calm.
+          filter: ["==", ["get", "label"], ""],
           layout: {
             "text-field": ["get", "name"],
             "text-font": ["Noto Sans Bold"],
@@ -254,8 +306,8 @@ export function TripMap({
             "text-optional": true,
           },
           paint: {
-            "text-color": ROUTE,
-            "text-halo-color": DARK,
+            "text-color": route,
+            "text-halo-color": paperTone,
             "text-halo-width": 2,
           },
         });
@@ -276,29 +328,48 @@ export function TripMap({
 
   useEffect(() => {
     const m = map.current;
+    if (!loaded || !m) return;
+    m.getSource<GeoJSONSource>("mark")?.setData({
+      type: "FeatureCollection",
+      features: mark
+        ? [
+            {
+              type: "Feature",
+              properties: {},
+              geometry: { type: "Point", coordinates: [mark.lng, mark.lat] },
+            },
+          ]
+        : [],
+    });
+    m.setFilter("stop-names", [
+      "==",
+      ["get", "label"],
+      mark ? String(mark.position) : "",
+    ]);
+  }, [loaded, mark]);
+
+  useEffect(() => {
+    const m = map.current;
     const gl = lib.current;
     if (!loaded || !m || !gl || focus.length === 0) return;
     const bounds = new gl.LngLatBounds();
     for (const p of focus) bounds.extend(p);
-    const one = focus.length === 1;
-    const zoom = one
-      ? 13
-      : m.cameraForBounds(bounds, { padding: 56, maxZoom: 14 })?.zoom;
-    if (zoom === undefined) return;
-    // Close views arrive tilted, so the buildings stand up. Overviews stay flat.
-    m.flyTo({ center: bounds.getCenter(), zoom, pitch: zoom >= 13.5 ? 50 : 0 });
-  }, [loaded, focus]);
+    // One point is a stop in open country: stay far enough out to see where it lies.
+    const cam = m.cameraForBounds(bounds, {
+      padding: pad,
+      maxZoom: focus.length === 1 ? 9.5 : 14,
+    });
+    if (!cam?.center || cam.zoom === undefined) return;
+    const to = { center: cam.center, zoom: cam.zoom, pitch: 0 };
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      m.jumpTo(to);
+    } else {
+      m.flyTo(to);
+    }
+  }, [loaded, focus, pad]);
 
   if (failed) return <p className={s.noMap}>{broken}</p>;
   return (
-    <>
-      <div ref={container} className={s.map} role="img" aria-label={label} />
-      {at && (
-        <p className={s.readout} aria-hidden="true">
-          <span>{coords(at.lat, at.lng)}</span>
-          <small>Z {at.zoom.toFixed(1)}</small>
-        </p>
-      )}
-    </>
+    <div ref={container} className={s.map} role="img" aria-label={label} />
   );
 }
