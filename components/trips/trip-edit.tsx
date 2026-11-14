@@ -9,9 +9,11 @@ import {
   useState,
 } from "react";
 import {
+  addLeg,
   deletePlace,
   drawLeg,
   orderDay,
+  removeLeg,
   saveDayNote,
   setGooglePlaceId,
 } from "@/app/[locale]/(site)/trips/actions";
@@ -71,9 +73,22 @@ export function TripEditor({
   // A ground leg whose line is bent on the map.
   const bend = useRouteEdit(trip.slug);
   const drawing = bend.state;
+  // A route being added to a day: named, and waiting for a tap on the map.
+  const [adding, setAdding] = useState<{
+    date: string;
+    title: string;
+    back: boolean;
+  } | null>(null);
+  // The route just added. Its editor opens as soon as the trip holds it.
+  const [added, setAdded] = useState<{ date: string; title: string } | null>(
+    null,
+  );
   const v = useTrip(
     trip,
-    e.picking !== null || drawing !== null || e.editing !== null,
+    e.picking !== null ||
+      adding !== null ||
+      drawing !== null ||
+      e.editing !== null,
   );
   const { days, chapters, picked } = v;
   const total = days.length;
@@ -180,6 +195,18 @@ export function TripEditor({
     const x = trip.stops.find((st) => st.position === position);
     if (x) open({ stop: position }, [[x.lng, x.lat]]);
   };
+
+  const startBend = bend.start;
+  useEffect(() => {
+    if (!added || drawing) return;
+    const leg = trip.legs.find(
+      (l) => l.leaveDate === added.date && l.title === added.title,
+    );
+    if (!leg) return;
+    setAdded(null);
+    startBend(leg);
+    if (leg.path.length) setFocusState({ at: leg.path, close: false });
+  }, [added, drawing, trip.legs, startBend]);
 
   const bent = drawing?.points;
   const bentAt = useMemo(() => bent?.map((p) => p.at) ?? [], [bent]);
@@ -307,6 +334,8 @@ export function TripEditor({
         onUndraw={(leg) =>
           e.run(() => drawLeg(trip.slug, leg.leaveDate, leg.title, []))
         }
+        onAdd={(title, back) => setAdding({ date, title, back })}
+        onRemove={(leg) => e.run(() => removeLeg(trip.slug, leg.id))}
         onSelectPlace={selectPlace}
         onOrder={(ids) => e.run(() => orderDay(trip.slug, date, ids))}
         onNote={(note) => e.run(() => saveDayNote(trip.slug, date, note))}
@@ -419,7 +448,13 @@ export function TripEditor({
   // On a phone the card takes more room for the form, and none while the map
   // is tapped to set a pin or draw a line.
   const panel =
-    picking || drawing ? "0px" : editing ? "68dvh" : detail ? "54dvh" : "46dvh";
+    picking || adding || drawing
+      ? "0px"
+      : editing
+        ? "68dvh"
+        : detail
+          ? "54dvh"
+          : "46dvh";
 
   return (
     <div
@@ -427,7 +462,7 @@ export function TripEditor({
       data-look={v.look}
       data-frame="fill"
       data-edit
-      data-tapping={picking || drawing ? true : undefined}
+      data-tapping={picking || adding || drawing ? true : undefined}
       data-routing={drawing ? true : undefined}
       data-editing={editing ? true : undefined}
       style={{ "--panel": panel } as CSSProperties}
@@ -446,7 +481,7 @@ export function TripEditor({
           broken={t("noMap")}
           editing={{
             numbered: route !== null,
-            picking: picking !== null,
+            picking: picking !== null || adding !== null,
             edit,
             menu:
               drawing && drawing.selected !== null && !drawing.dragging ? (
@@ -456,6 +491,15 @@ export function TripEditor({
             onSelectStop: selectStop,
             onMiss: () => setDetail(null),
             onPick: (lng, lat) => {
+              if (adding) {
+                const { date: day, title, back } = adding;
+                e.run(
+                  () => addLeg(trip.slug, day, title, [lng, lat], back),
+                  () => setAdded({ date: day, title }),
+                );
+                setAdding(null);
+                return;
+              }
               if (!picking) return;
               e.save({ ...picking, lat, lng });
               e.setPicking(null);
@@ -465,7 +509,18 @@ export function TripEditor({
         {drawing && <RouteBar route={bend} state={drawing} locale={locale} />}
       </div>
 
-      {drawing ? null : picking ? (
+      {drawing ? null : adding ? (
+        <div className={s.banner}>
+          <span>{t("edit.routeHint", { name: adding.title })}</span>
+          <button
+            type="button"
+            className={s.linkButton}
+            onClick={() => setAdding(null)}
+          >
+            {t("edit.cancel")}
+          </button>
+        </div>
+      ) : picking ? (
         <div className={s.banner}>
           <span>{t("edit.pinHint", { name: picking.name })}</span>
           <button

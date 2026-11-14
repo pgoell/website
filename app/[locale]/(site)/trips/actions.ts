@@ -16,10 +16,11 @@ import {
   isSlug,
   isText,
   placeRow,
+  spot,
 } from "@/lib/trips/input";
 import { roadsThrough } from "@/lib/trips/road";
 import { missingRuns, pathOf, type Road, roadKey } from "@/lib/trips/route";
-import type { LngLat } from "@/lib/trips/types";
+import type { DrawnPoint, LngLat } from "@/lib/trips/types";
 import { fillFromLink } from "@/lib/trips/unfurl";
 
 /*
@@ -38,7 +39,10 @@ export type TripError =
   | "badRoute"
   | "roadsDown"
   | "noRoad"
-  | "noPlace";
+  | "noPlace"
+  | "noRouteName"
+  | "routeNameTaken"
+  | "noStop";
 export type Failed = { error: TripError } | undefined;
 
 type Ready = { sql: Sql; tripId: number; slug: string; user: User };
@@ -151,7 +155,18 @@ export async function drawLeg(
   const drawn = drawnPoints(points);
   if (!drawn || !(await edit.hasGroundLeg(r.sql, r.tripId, leaveDate, title)))
     return { error: "badRoute" };
+  const failed = await storeLine(r, leaveDate, title, drawn);
+  if (failed) return failed;
+  changed(r.slug);
+}
 
+/** Looks up the roads of a ground leg's line and keeps the line. */
+async function storeLine(
+  r: Ready,
+  leaveDate: string,
+  title: string,
+  drawn: DrawnPoint[],
+): Promise<Failed> {
   // The roads the editor showed are kept, so most of this asks nobody.
   const roads = new Map<string, Road | null>();
   try {
@@ -166,5 +181,63 @@ export async function drawLeg(
   const path = pathOf(drawn, roads);
   if (!path) return { error: "noRoad" };
   await edit.saveLegPath(r.sql, r.tripId, leaveDate, title, path, drawn);
+}
+
+/**
+ * A route of one's own for a day: from the day's stop to a spot tapped on the
+ * map, and back if asked. It opens in the editor like any other.
+ */
+export async function addLeg(
+  slug: string,
+  date: unknown,
+  name: unknown,
+  to: unknown,
+  back: unknown,
+): Promise<Failed> {
+  const r = await begin(slug);
+  if ("error" in r) return r;
+  if (
+    !isDate(date) ||
+    !isText(name, 80) ||
+    !spot(to) ||
+    typeof back !== "boolean"
+  )
+    return { error: "badInput" };
+  const title = name.trim();
+  if (!title) return { error: "noRouteName" };
+  const stop = await edit.stopOn(r.sql, r.tripId, date);
+  if (!stop) return { error: "noStop" };
+  const points: DrawnPoint[] = [
+    { at: stop.at, road: false },
+    { at: to, road: true },
+    ...(back ? [{ at: stop.at, road: true }] : []),
+  ];
+  const made = await edit.insertOwnLeg(
+    r.sql,
+    r.tripId,
+    date,
+    title,
+    stop.tz,
+    points.map((p) => p.at),
+  );
+  if (!made) return { error: "routeNameTaken" };
+  // Without a road the route is a straight line, to be bent in the editor.
+  if (await storeLine(r, date, title, points)) {
+    await storeLine(
+      r,
+      date,
+      title,
+      points.map((p) => ({ ...p, road: false })),
+    );
+  }
+  changed(r.slug);
+}
+
+/** Removes a route added in the app. One the trip came with stays. */
+export async function removeLeg(slug: string, id: unknown): Promise<Failed> {
+  const r = await begin(slug);
+  if ("error" in r) return r;
+  if (!isId(id)) return { error: "badInput" };
+  await edit.deleteOwnLeg(r.sql, r.tripId, id);
   changed(r.slug);
 }

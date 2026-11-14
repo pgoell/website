@@ -29,6 +29,8 @@ const calls: [string, () => Promise<unknown>][] = [
   ["saveDayNote", () => actions.saveDayNote("one", "2027-03-21", "x")],
   ["setGooglePlaceId", () => actions.setGooglePlaceId("one", 1, "none")],
   ["drawLeg", () => actions.drawLeg("one", "2027-03-21", "x", [])],
+  ["addLeg", () => actions.addLeg("one", "2027-03-21", "x", [1, 2], true)],
+  ["removeLeg", () => actions.removeLeg("one", 1)],
 ];
 
 describe("signed out", () => {

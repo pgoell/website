@@ -641,6 +641,20 @@
   gap: 6px;
   margin-top: 8px;
 }
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.check input {
+  accent-color: var(--sony);
+}
+@media (max-width: 760px) {
+  .check {
+    min-height: 44px;
+  }
+}
 :where(.shell) .btn,
 :where(.shell) .btnMain {
   display: inline-flex;

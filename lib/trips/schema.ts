@@ -92,6 +92,8 @@ const MIGRATIONS: string[] = [
     PRIMARY KEY (trip_id, date)
   );
   `,
+  // A route added in the app. An import leaves it alone.
+  `ALTER TABLE trips.leg ADD COLUMN own boolean NOT NULL DEFAULT false;`,
 ];
 
 /** Brings the trips schema up to date. Safe to call from several processes. */

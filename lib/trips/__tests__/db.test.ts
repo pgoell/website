@@ -156,7 +156,7 @@ describe.skipIf(!url)("trips in Postgres", () => {
   it("migrates twice without harm", async () => {
     await migrate(sql);
     const [row] = await sql`SELECT max(version) AS v FROM trips.migration`;
-    expect(row?.v).toBe(1);
+    expect(row?.v).toBe(2);
   });
 
   it("imports a trip and reads it back whole", async () => {

@@ -89,6 +89,8 @@ export interface Booking {
 export interface StoredLeg extends TripLeg {
   id: number;
   cost: string | null;
+  /** Added in the app, so it can be removed there. */
+  own: boolean;
   /** The line was drawn in the app and stands in for the imported one. */
   drawn: boolean;
   /** The points it was drawn through. Null for a line from before they were kept. */
@@ -128,7 +130,7 @@ export interface TripImport {
   public: boolean;
   stops: Omit<StoredStop, "id" | "position">[];
   bookings: Omit<Booking, "id">[];
-  legs: Omit<StoredLeg, "id" | "drawn" | "points">[];
+  legs: Omit<StoredLeg, "id" | "own" | "drawn" | "points">[];
   /** Day notes to start with, by date. A note saved in the app wins. */
   dayNotes?: Record<string, string>;
 }

@@ -85,7 +85,9 @@ export function RouteBar({
                 ` ${t("route.byRoad")}`}
             </>
           )}
-          <small>{t("route.was", { length: km(state.was, locale) })}</small>
+          {!state.leg.own && (
+            <small>{t("route.was", { length: km(state.was, locale) })}</small>
+          )}
         </p>
       </div>
       {asking ? (

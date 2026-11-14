@@ -43,7 +43,8 @@ export async function importTrip(sql: Sql, t: TripImport): Promise<number> {
 
     await tx`DELETE FROM trips.stop WHERE trip_id = ${id}`;
     await tx`DELETE FROM trips.booking WHERE trip_id = ${id}`;
-    await tx`DELETE FROM trips.leg WHERE trip_id = ${id}`;
+    // A route added in the app is not the trip file's to replace.
+    await tx`DELETE FROM trips.leg WHERE trip_id = ${id} AND NOT own`;
     for (const [i, s] of t.stops.entries()) {
       await tx`
         INSERT INTO trips.stop (trip_id, position, name, tz, lat, lng, arrive, depart)

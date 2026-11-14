@@ -84,7 +84,8 @@ export function placeRow(
   };
 }
 
-const spot = (p: unknown): p is LngLat =>
+/** A spot on the map: longitude, then latitude. */
+export const spot = (p: unknown): p is LngLat =>
   Array.isArray(p) &&
   p.length === 2 &&
   p.every((n) => typeof n === "number" && Number.isFinite(n)) &&

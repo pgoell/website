@@ -19,7 +19,7 @@ import {
 } from "react";
 import type { Look } from "@/lib/trips/look";
 import { arc } from "@/lib/trips/plan";
-import type { Stretch } from "@/lib/trips/route";
+import { lengthOf, type Stretch } from "@/lib/trips/route";
 import type {
   LngLat,
   PlaceStatus,
@@ -154,6 +154,8 @@ export type MapEditing = {
 
 /** How far around a tap or a press a point or the line still counts as hit. */
 const REACH = { mouse: 9, touch: 20 };
+/** An end of a line this near a stop, in metres, counts as on it. */
+const ON_STOP = 100;
 
 /**
  * A read-only map of one trip: its line, its stops and its places. The map
@@ -265,6 +267,7 @@ export function TripMap({
             ["idea", 13, paperTone, hot],
             ["idea-n", 21, paperTone, hot],
             ["end", 22, hot, paperTone],
+            ["end-stop", 24, paperTone, hot],
           ] as const) {
             made.addImage(name, square(size, fill, stroke), { pixelRatio: 2 });
           }
@@ -556,6 +559,7 @@ export function TripMap({
 
   const stretches = edit?.stretches;
   const points = edit?.points;
+  const stops = trip.stops;
   const selected = edit?.selected ?? null;
   const before = edit?.before;
   useEffect(() => {
@@ -571,17 +575,24 @@ export function TripMap({
     });
     m.getSource<GeoJSONSource>("edit-points")?.setData({
       type: "FeatureCollection",
-      features: (points ?? []).map((p, i, all) => ({
-        type: "Feature",
-        properties: {
-          index: i,
-          selected: i === selected,
-          end: i === 0 ? "A" : i === all.length - 1 ? "B" : "",
-        },
-        geometry: { type: "Point", coordinates: p },
-      })),
+      features: (points ?? []).map((p, i, all) => {
+        const end = i === 0 ? "A" : i === all.length - 1 ? "B" : "";
+        const stop = end
+          ? stops.find((x) => lengthOf([p, [x.lng, x.lat]]) < ON_STOP)
+          : undefined;
+        return {
+          type: "Feature",
+          properties: {
+            index: i,
+            selected: i === selected,
+            end: stop ? String(stop.position) : end,
+            stop: stop !== undefined,
+          },
+          geometry: { type: "Point", coordinates: p },
+        };
+      }),
     });
-  }, [loaded, editable, stretches, points, selected]);
+  }, [loaded, editable, stretches, points, selected, stops]);
   useEffect(() => {
     if (!loaded || !editable) return;
     map.current
@@ -773,14 +784,15 @@ function addEditLayers(
     source: "edit-points",
     filter: ["!=", ["get", "end"], ""],
     layout: {
-      "icon-image": "end",
+      // An end on a stop is that stop's own box and number, in orange.
+      "icon-image": ["case", ["get", "stop"], "end-stop", "end"],
       "icon-allow-overlap": true,
       "text-field": ["get", "end"],
       "text-font": ["Noto Sans Bold"],
       "text-size": 12,
       "text-allow-overlap": true,
     },
-    paint: { "text-color": c.paperTone },
+    paint: { "text-color": ["case", ["get", "stop"], c.hot, c.paperTone] },
   });
 }
 
