@@ -143,6 +143,7 @@
       "open": "öffnen",
       "back": "zurück",
       "soon": "BALD",
+      "private": "PRIVAT",
       "all": "ALLE",
       "tabs": {
         "main": "Übersicht",
@@ -275,6 +276,10 @@
         "spotifyProfile": {
           "t": "Profil auf Spotify",
           "v": "Alle Playlists"
+        },
+        "tripsSignedIn": {
+          "t": "Trips",
+          "v": "angemeldet"
         }
       },
       "live": "LIVE",
@@ -496,9 +501,10 @@
         ]
       },
       {
-        "title": "4. Cookie",
+        "title": "4. Cookies",
         "text": [
-          "Die Website setzt ein Cookie namens „NEXT_LOCALE“. Es merkt sich die gewählte Sprache und verfällt nach einem Jahr. Es ist technisch notwendig und braucht nach § 25 Abs. 2 Nr. 2 TDDDG keine Einwilligung. Weitere Cookies setzt die Website nicht."
+          "Die Website setzt ein Cookie namens „NEXT_LOCALE“. Es merkt sich die gewählte Sprache und verfällt nach einem Jahr. Es ist technisch notwendig und braucht nach § 25 Abs. 2 Nr. 2 TDDDG keine Einwilligung.",
+          "Meine Reise-App unter trips.pgoell.com kann ein zweites Cookie für pgoell.com setzen, namens „trips_signed_in“. Es erhalten nur Personen, die ich zu dieser App eingeladen habe, wenn sie sich dort anmelden. Es enthält nur die Zahl 1 und gilt 90 Tage oder bis zur Abmeldung. Solange es da ist, laden die Reiseseiten dieser Website die privaten Reisen direkt von trips.pgoell.com in deinen Browser, mit der Anmeldung dieser App; der Server dieser Website sieht sie nie. Ohne das Cookie nimmt dein Browser keinen Kontakt zu trips.pgoell.com auf. Es ist für diese Anmeldung technisch notwendig (§ 25 Abs. 2 Nr. 2 TDDDG)."
         ]
       },
       {
@@ -608,7 +614,16 @@
       },
       "out": "Anreise",
       "home": "Heimreise",
-      "strip": "Tage der Reise"
+      "strip": "Tage der Reise",
+      "privateTitle": "Privat",
+      "privateFile": "PRIVAT",
+      "signIn": "Anmelden, um die privaten Reisen zu sehen",
+      "signedInAs": "Angemeldet als {name}",
+      "signOut": "Abmelden",
+      "privateError": "Die privaten Reisen laden gerade nicht.",
+      "privateNeedsSignIn": "Diese Reise ist privat, oder es gibt sie nicht. Melde dich an, um private Reisen zu sehen.",
+      "notFound": "Unter diesem Namen gibt es keine Reise.",
+      "loading": "Die Reise lädt…"
     }
   }
 }

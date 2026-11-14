@@ -36,6 +36,11 @@ export function dayLabel(date: string, locale: string): string {
     : `${week} ${d.getUTCDate()} ${month}`;
 }
 
+/** "Fri 21 Aug – Thu 10 Sep 2026": a trip's dates on one line. */
+export function tripWhen(start: string, end: string, locale: string): string {
+  return `${dayLabel(start, locale)} – ${dayLabel(end, locale)} ${end.slice(0, 4)}`;
+}
+
 /** "Africa/Dar_es_Salaam" to "Dar es Salaam": the place a clock time belongs to. */
 export const zoneName = (tz: string): string =>
   (tz.split("/").at(-1) ?? tz).replace(/_/g, " ");

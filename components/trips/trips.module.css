@@ -570,3 +570,25 @@
     padding: 6px 0;
   }
 }
+
+/* The private trips, under the open ones, for someone signed in. */
+.group {
+  margin: 36px 0 4px;
+  font: 500 11px / 1 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.linkButton {
+  padding: 0;
+  font: inherit;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--faint);
+  cursor: pointer;
+}
+.linkButton:hover {
+  color: var(--sony);
+  border-color: var(--sony);
+}

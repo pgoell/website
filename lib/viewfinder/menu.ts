@@ -12,14 +12,15 @@ import { TRIPS_APP } from "@/lib/trips/feed";
 import { PROJECTS } from "./projects";
 import { berlinParts, sinceLabel } from "./time";
 
-export type MenuFlag = "soon" | "ok" | "live";
+export type MenuFlag = "soon" | "ok" | "live" | "private";
 
 export type MenuAction =
   /** Open a project's playback window. */
   | { kind: "project"; index: number }
   /** Another page of this site, without the locale prefix. */
   | { kind: "route"; path: string }
-  | { kind: "external"; href: string }
+  /** Another site, in a new tab; `sameTab` for a sign-in that comes back here. */
+  | { kind: "external"; href: string; sameTab?: boolean }
   | { kind: "locale" };
 
 export interface MenuItemDef {
@@ -56,12 +57,17 @@ export interface PostLink {
   date: string;
 }
 
-/** An open trip from the trips app, with its dates already written out. */
+/** A trip from the trips app, with its dates already written out. */
 export interface TripLink {
   slug: string;
   name: string;
   when: string;
+  /** Only for someone signed in to the trips app. */
+  private?: boolean;
 }
+
+/** The Sign in row: who is signed in to the trips app, or where to sign in. */
+export type TripsAccount = { name: string } | { signIn: string };
 
 /** Live stats behind the languages and music entries; any may be missing. */
 export interface MenuStats {
@@ -91,6 +97,7 @@ export function buildMenu(
     now = new Date(),
   }: MenuStats = {},
   trips: readonly TripLink[] = [],
+  account: TripsAccount = { signIn: TRIPS_APP },
 ): MenuTabDef[] {
   return [
     {
@@ -124,9 +131,23 @@ export function buildMenu(
               title: trip.name,
               value: trip.when,
               action: route(`/trips/${trip.slug}`),
+              ...(trip.private ? { flag: "private" as const } : {}),
             })),
-            // the private trips only show in the planner, after Google sign-in
-            { id: "tripsSignIn", action: external(TRIPS_APP) },
+            // signed in to the trips app, the private trips join the list above
+            "name" in account
+              ? {
+                  id: "tripsSignedIn",
+                  title: account.name,
+                  action: route("/trips"),
+                }
+              : {
+                  id: "tripsSignIn",
+                  action: {
+                    kind: "external" as const,
+                    href: account.signIn,
+                    sameTab: true,
+                  },
+                },
           ],
         },
       ],

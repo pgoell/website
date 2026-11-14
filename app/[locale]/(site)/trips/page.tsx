@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { FrameTitle } from "@/components/frame/frame-title";
 import s from "@/components/site/site.module.css";
+import { TripRow } from "@/components/trips/trip-row";
+import { PrivateTrips } from "@/components/trips/trips-account";
 import { getTrips } from "@/lib/trips/feed";
-import { dayLabel, daysBetween } from "@/lib/trips/plan";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("site.trips");
@@ -31,35 +31,22 @@ export default async function TripsIndex({
       />
       {trips.length ? (
         <ol className={s.list}>
-          {trips.map((trip, i) => {
-            const n = trips.length - i;
-            return (
-              <li key={trip.slug}>
-                <Link href={`/${locale}/trips/${trip.slug}`} className={s.row}>
-                  <span className={s.idx}>{String(n).padStart(3, "0")}</span>
-                  <div>
-                    <h2>{trip.name}</h2>
-                    {trip.stops.length > 0 && (
-                      <p className={s.ex}>{trip.stops.join(" → ")}</p>
-                    )}
-                  </div>
-                  <div className={s.meta}>
-                    {dayLabel(trip.startDate, locale)} {t("to")}{" "}
-                    {dayLabel(trip.endDate, locale)} {trip.endDate.slice(0, 4)}
-                    <br />
-                    {t("days", {
-                      count: daysBetween(trip.startDate, trip.endDate).length,
-                    })}
-                    <span className={s.file}>{fileName(n)}</span>
-                  </div>
-                </Link>
-              </li>
-            );
-          })}
+          {trips.map((trip, i) => (
+            <TripRow
+              key={trip.slug}
+              trip={trip}
+              locale={locale}
+              idx={String(trips.length - i).padStart(3, "0")}
+              file={fileName(trips.length - i)}
+              to={t("to")}
+              days={(count) => t("days", { count })}
+            />
+          ))}
         </ol>
       ) : (
         <p className={s.empty}>{t("empty")}</p>
       )}
+      <PrivateTrips locale={locale} />
     </>
   );
 }
