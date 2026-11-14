@@ -247,6 +247,9 @@
   color: var(--dim);
   font-style: italic;
 }
+.prose blockquote > :last-child {
+  margin-bottom: 0;
+}
 .prose img {
   max-width: 100%;
   height: auto;
