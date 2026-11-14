@@ -106,3 +106,65 @@ export function coords(lat: number, lng: number): string {
     `${Math.abs(v).toFixed(2)}${v >= 0 ? pos : neg}`;
   return `${part(lat, "N", "S")} ${part(lng, "E", "W")}`;
 }
+
+/** A run of days that belong together: the days at one stop, or the way there or home. */
+export interface Chapter {
+  key: string;
+  kind: "out" | "stop" | "home";
+  /** The stop, or null for the way there and the way home. */
+  stop: TripStop | null;
+  nights: number;
+  /** The days, each with its place in the trip, counted from 0. */
+  days: (DayPlan & { index: number })[];
+}
+
+/** Nights spent at a stop. */
+export const nightsAt = (stop: TripStop): number =>
+  Math.round((Date.parse(stop.depart) - Date.parse(stop.arrive)) / 86400000);
+
+/**
+ * The trip's days in chapters. The day of a move belongs to the stop it leads
+ * to, so each chapter opens with the way to its stop.
+ */
+export function chaptersOf(trip: Trip, days: DayPlan[]): Chapter[] {
+  const out: Chapter[] = [];
+  const first = [...trip.stops].sort((a, b) =>
+    a.arrive.localeCompare(b.arrive),
+  )[0];
+  days.forEach((d, index) => {
+    const stop =
+      trip.stops.find((s) => s.arrive <= d.date && d.date < s.depart) ?? null;
+    const kind = stop
+      ? "stop"
+      : first && d.date < first.arrive
+        ? "out"
+        : "home";
+    const key = stop ? `stop-${stop.position}` : kind;
+    let c = out.find((x) => x.key === key);
+    if (!c) {
+      c = { key, kind, stop, nights: stop ? nightsAt(stop) : 0, days: [] };
+      out.push(c);
+    }
+    c.days.push({ ...d, index });
+  });
+  return out;
+}
+
+/** Kilometres along the trip's ground legs, to the nearest ten. */
+export function roadKm(trip: Trip): number {
+  const rad = Math.PI / 180;
+  let km = 0;
+  for (const leg of trip.legs) {
+    if (leg.mode !== "ground") continue;
+    for (let i = 1; i < leg.path.length; i++) {
+      const [a, b] = [leg.path[i - 1] as LngLat, leg.path[i] as LngLat];
+      const h =
+        Math.sin(((b[1] - a[1]) * rad) / 2) ** 2 +
+        Math.cos(a[1] * rad) *
+          Math.cos(b[1] * rad) *
+          Math.sin(((b[0] - a[0]) * rad) / 2) ** 2;
+      km += 2 * 6371 * Math.asin(Math.sqrt(h));
+    }
+  }
+  return Math.round(km / 10) * 10;
+}

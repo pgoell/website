@@ -492,3 +492,29 @@
 .kv:last-child dd:last-child {
   margin-bottom: 0;
 }
+
+/* A page that is the whole screen, such as a trip's map: only the top bar and the corners stay. */
+.root:has([data-frame="fill"]) :is(.tabs, .foot) {
+  display: none;
+}
+
+/* A page can ask for daylight: paper and ink, and the top bar turns with it. */
+.root:has([data-look="day"]) {
+  --bg: #f1eee5;
+  --ink: #151716;
+  --body: rgba(21, 23, 22, 0.84);
+  --dim: rgba(21, 23, 22, 0.62);
+  --faint: rgba(21, 23, 22, 0.22);
+  --af: #177a3a;
+  --sony: #a85400;
+  --teal: #0f7f76;
+  --line: #dcd8cb;
+  background: var(--bg);
+  color-scheme: light;
+}
+.root:has([data-look="day"]) .corner {
+  border-color: rgba(21, 23, 22, 0.45);
+}
+.root:has([data-look="day"]) :where(kbd) {
+  border-color: rgba(21, 23, 22, 0.35);
+}

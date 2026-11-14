@@ -539,7 +539,8 @@
     "tabs": {
       "writing": "Writing",
       "games": "Games",
-      "tools": "Tools"
+      "tools": "Tools",
+      "trips": "Trips"
     },
     "blog": {
       "title": "Writing",
@@ -554,6 +555,43 @@
       "newer": "Newer",
       "more": "More posts",
       "contents": "Contents"
+    },
+    "trips": {
+      "title": "Trips",
+      "subtitle": "Journeys on a map, day by day",
+      "count": "{count, plural, one {# trip} other {# trips}}",
+      "empty": "No open trips right now.",
+      "days": "{count, plural, one {# day} other {# days}}",
+      "stops": "{count, plural, one {# stop} other {# stops}}",
+      "up": "All trips",
+      "to": "to",
+      "inTheAir": "In the air",
+      "day": "Day",
+      "map": "Map of the trip",
+      "wholeTrip": "Whole trip",
+      "noMap": "The map cannot load here. The plan still works.",
+      "planner": "Made with my trips app",
+      "language": "The notes of a trip are in English.",
+      "overview": "Overview",
+      "stat": {
+        "days": "Days",
+        "stops": "Stops",
+        "km": "Km by road",
+        "flights": "Flights"
+      },
+      "nights": "{count, plural, one {# night} other {# nights}}",
+      "prev": "Prev",
+      "next": "Next",
+      "play": "Play trip",
+      "pause": "Pause",
+      "display": "Display",
+      "look": {
+        "night": "Night",
+        "day": "Day"
+      },
+      "out": "Getting there",
+      "home": "Way home",
+      "strip": "Days of the trip"
     }
   }
 }

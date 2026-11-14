@@ -1,6 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { toTrip, toTripCard } from "../feed";
-import { arc, coords, dayLabel, dayPlan, daysBetween, zoneName } from "../plan";
+import { isLook } from "../look";
+import {
+  arc,
+  chaptersOf,
+  coords,
+  dayLabel,
+  dayPlan,
+  daysBetween,
+  nightsAt,
+  roadKm,
+  zoneName,
+} from "../plan";
 
 const raw = {
   slug: "tanzania",
@@ -145,6 +156,49 @@ describe("plan", () => {
   it("writes coordinates with their hemisphere", () => {
     expect(coords(-2.814, 35.66)).toBe("2.81S 35.66E");
     expect(coords(50.2, -9.19)).toBe("50.20N 9.19W");
+  });
+});
+
+describe("chapters", () => {
+  const trip = toTrip(raw) as NonNullable<ReturnType<typeof toTrip>>;
+  const days = daysBetween(trip.startDate, trip.endDate).map((d) =>
+    dayPlan(trip, d),
+  );
+  it("groups the days by stop, with the way there and the way home", () => {
+    const chapters = chaptersOf(trip, days);
+    expect(chapters.map((c) => c.key)).toEqual([
+      "out",
+      "stop-1",
+      "stop-2",
+      "home",
+    ]);
+    expect(chapters.map((c) => c.days.map((d) => d.index))).toEqual([
+      [0],
+      [1],
+      [2],
+      [3],
+    ]);
+    // The day of the move opens the chapter of the stop it leads to.
+    expect(chapters[2]?.days[0]?.legs[0]?.title).toBe("Rivertrees to Burunge");
+    expect(chapters[1]?.nights).toBe(1);
+    expect(chapters[0]?.stop).toBeNull();
+  });
+  it("counts nights and road kilometres", () => {
+    expect(nightsAt(trip.stops[0] as (typeof trip.stops)[number])).toBe(1);
+    const km = roadKm(trip);
+    expect(km % 10).toBe(0);
+    expect(km).toBeGreaterThan(100);
+    expect(km).toBeLessThan(150);
+    expect(roadKm({ ...trip, legs: [] })).toBe(0);
+  });
+});
+
+describe("look", () => {
+  it("accepts only the looks it knows", () => {
+    expect(isLook("night")).toBe(true);
+    expect(isLook("day")).toBe(true);
+    expect(isLook("print")).toBe(false);
+    expect(isLook(null)).toBe(false);
   });
 });
 

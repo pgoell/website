@@ -1,235 +1,42 @@
-/* The trips section on the camera screen. Colours and fonts come from the frame (frame.module.css). */
+/*
+ * One trip on the camera screen. The map is the page: it fills the screen under
+ * the frame's top bar, and the days lie on it. Fonts come from the frame, and
+ * so do the colours; the day look swaps them there (frame.module.css), so the
+ * top bar turns with it.
+ */
 
-/* ---------- one trip: map and days ---------- */
-.trip {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 348px;
-  gap: 28px;
-  align-items: start;
-  /* wider than the text column: a map wants room */
-  margin: 0 -48px;
-}
-.mapBox {
-  position: sticky;
-  top: 92px;
-  height: min(680px, calc(100svh - 124px));
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: #090b0c;
+.shell {
+  --glass: rgba(8, 9, 10, 0.86);
+  --edge: rgba(255, 255, 255, 0.16);
+  --ground: #090b0c;
+  /* the least a day takes in the strip: none on a wide screen, where all days fit */
+  --cell: 0px;
+  position: fixed;
+  inset: 0;
+  z-index: 3;
   overflow: hidden;
-}
-.map {
-  width: 100%;
-  height: 100%;
-}
-.noMap {
-  padding: 20px;
-  color: var(--dim);
-  font: 500 12px / 1.5 var(--mono);
-  letter-spacing: 0.04em;
-}
-.readout {
-  position: absolute;
-  left: 14px;
-  top: 12px;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  font: 600 18px / 1 var(--hud);
-  letter-spacing: 0.02em;
-  text-shadow: 0 0 6px var(--bg);
-  pointer-events: none;
-}
-.readout small {
-  font: 500 10px / 1 var(--semi);
-  letter-spacing: 0.14em;
-  color: var(--dim);
-}
-.whole {
-  position: absolute;
-  left: 14px;
-  top: 56px;
-  padding: 7px 10px;
-  background: rgba(10, 11, 12, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: var(--bg);
   color: var(--ink);
-  font: 600 13px / 1 var(--hud);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
 }
-.whole:hover {
-  border-color: var(--sony);
-  background: rgba(240, 138, 0, 0.16);
-  color: var(--sony);
+.shell[data-look="day"] {
+  --glass: rgba(248, 246, 240, 0.9);
+  --edge: rgba(21, 23, 22, 0.14);
+  --ground: #ecebe3;
 }
-
-/* the map's own buttons, in the look of the frame */
-.mapBox :global(.maplibregl-map) {
-  font-family: var(--semi);
-  background: #090b0c;
-}
-.mapBox :global(.maplibregl-ctrl-group:not(:empty)) {
-  background: rgba(10, 11, 12, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 0;
-  box-shadow: none;
-}
-.mapBox :global(.maplibregl-ctrl-group button + button) {
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
-}
-.mapBox :global(.maplibregl-ctrl-group button:not(:disabled):hover) {
-  background: rgba(240, 138, 0, 0.16);
-}
-.mapBox :global(.maplibregl-ctrl-group button .maplibregl-ctrl-icon) {
-  filter: invert(1);
-}
-.mapBox :global(.maplibregl-ctrl.maplibregl-ctrl-attrib),
-.mapBox :global(.maplibregl-ctrl.maplibregl-ctrl-attrib.maplibregl-compact) {
-  background: rgba(5, 6, 6, 0.75);
-  color: var(--dim);
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  border-radius: 0;
-}
-.mapBox :global(.maplibregl-ctrl-attrib a) {
-  color: var(--dim);
-}
-.mapBox
-  :global(
-    .maplibregl-ctrl-attrib.maplibregl-compact
-    .maplibregl-ctrl-attrib-button
-  ) {
-  background-color: transparent;
-  border-radius: 0;
-  filter: invert(1);
-}
-.mapBox :global(.maplibregl-cooperative-gesture-screen) {
-  font: 500 14px / 1.4 var(--semi);
-  letter-spacing: 0.04em;
-}
-
-.days {
-  list-style: none;
+:where(.shell) button {
   margin: 0;
   padding: 0;
-  display: grid;
-  gap: 6px;
-}
-.day {
-  position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(10, 11, 12, 0.72);
-  transition: border-color 0.12s;
-}
-.day::before,
-.day::after {
-  content: "";
-  position: absolute;
-  width: 11px;
-  height: 11px;
-  border: 0 solid var(--af);
-  opacity: 0;
-  pointer-events: none;
-}
-.day::before {
-  left: -1px;
-  top: -1px;
-  border-top-width: 2px;
-  border-left-width: 2px;
-}
-.day::after {
-  right: -1px;
-  bottom: -1px;
-  border-bottom-width: 2px;
-  border-right-width: 2px;
-}
-.day.on {
-  border-color: rgba(92, 240, 124, 0.6);
-}
-.day.on::before,
-.day.on::after {
-  opacity: 1;
-}
-.dayHead {
-  display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr);
-  gap: 10px;
-  align-items: baseline;
-  width: 100%;
-  padding: 11px 12px 10px;
   background: none;
   border: 0;
   color: inherit;
+  font: inherit;
   text-align: left;
   cursor: pointer;
 }
-.dayHead:hover strong,
-.dayHead:hover .where {
-  color: var(--sony);
-}
-.n {
-  font: 500 12px / 1 var(--mono);
-  color: var(--sony);
-  letter-spacing: 0.04em;
-}
-.dayHead strong {
-  font: 600 18px / 1 var(--hud);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-.where {
-  text-align: right;
-  font: 500 11px / 1.3 var(--semi);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--dim);
-}
-.dayBody {
-  display: grid;
-  gap: 10px;
-  padding: 11px 12px 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
-  font-size: 15px;
-  line-height: 1.45;
-  color: var(--body);
-}
-.dayBody p {
-  margin: 0;
-}
-.legTitle {
-  color: var(--ink);
-  font-weight: 500;
-}
-.dim {
-  color: var(--dim);
-}
-.note {
-  white-space: pre-line;
-}
-.places {
+:where(.shell) :is(p, h1, h2, ol, ul, dl, dd) {
   margin: 0;
   padding: 0;
   list-style: none;
-  display: grid;
-  gap: 4px;
-}
-.places li::before {
-  content: "";
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-right: 9px;
-  background: var(--teal);
-}
-.places a {
-  color: var(--ink);
-  border-bottom: 1px solid var(--faint);
-}
-.places a:hover {
-  color: var(--sony);
-  border-color: var(--sony);
 }
 .sr {
   position: absolute;
@@ -239,40 +46,527 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
-
-.small {
-  margin: 28px 0 0;
-  font: 500 12px / 1.5 var(--mono);
-  color: var(--dim);
-  letter-spacing: 0.02em;
+.ico {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  stroke-linecap: round;
 }
+.dim {
+  color: var(--dim);
+}
+
+/* ---------- the map ---------- */
+.mapBox {
+  position: absolute;
+  inset: 0;
+  background: var(--ground);
+}
+.map {
+  width: 100%;
+  height: 100%;
+}
+.noMap {
+  padding: 150px 48px 0;
+  color: var(--dim);
+  font: 500 12px / 1.5 var(--mono);
+  letter-spacing: 0.04em;
+}
+
+/* the map's own buttons, in the look of the frame */
+.shell :global(.maplibregl-map) {
+  font-family: var(--semi);
+  background: var(--ground);
+}
+.shell :global(.maplibregl-ctrl-top-right) {
+  top: 84px;
+  right: 440px;
+}
+.shell :global(.maplibregl-ctrl-bottom-right) {
+  right: 42px;
+  bottom: 156px;
+}
+.shell :global(.maplibregl-ctrl-group:not(:empty)) {
+  background: var(--glass);
+  border: 1px solid var(--edge);
+  border-radius: 0;
+  box-shadow: none;
+}
+.shell :global(.maplibregl-ctrl-group button + button) {
+  border-top: 1px solid var(--edge);
+}
+.shell :global(.maplibregl-ctrl-group button:not(:disabled):hover) {
+  background: rgba(240, 138, 0, 0.16);
+}
+.shell :global(.maplibregl-ctrl.maplibregl-ctrl-attrib) {
+  background: var(--glass);
+  color: var(--dim);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  border-radius: 0;
+}
+.shell :global(.maplibregl-ctrl-attrib a) {
+  color: var(--dim);
+}
+.shell :global(.maplibregl-ctrl-attrib-button) {
+  background-color: transparent;
+  border-radius: 0;
+}
+/* maplibre draws its icons dark: on the night screen they are turned over */
+.shell[data-look="night"] :global(.maplibregl-ctrl-icon),
+.shell[data-look="night"] :global(.maplibregl-ctrl-attrib-button) {
+  filter: invert(1);
+}
+
+/* ---------- top left: the way back, the trip's name, the look ---------- */
+.bar {
+  position: absolute;
+  left: 48px;
+  top: 96px;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 12px;
+  background: var(--glass);
+  backdrop-filter: blur(14px);
+}
+.back {
+  font: 500 11px / 1 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.back:hover {
+  color: var(--sony);
+}
+.crumb h1 {
+  padding-left: 14px;
+  border-left: 1px solid var(--edge);
+  font: 600 18px / 1 var(--hud);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.looks {
+  display: flex;
+  min-width: 0;
+  margin: 0;
+  padding: 3px;
+  border: 0;
+  background: var(--glass);
+  backdrop-filter: blur(14px);
+}
+.looks legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.looks button {
+  padding: 0 11px;
+  font: 500 11px / 1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.looks button:hover {
+  color: var(--ink);
+}
+.looks button[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--bg);
+}
+.whole {
+  position: absolute;
+  left: 48px;
+  top: 142px;
+  padding: 9px 12px;
+  background: var(--glass);
+  backdrop-filter: blur(14px);
+  font: 600 13px / 1 var(--hud);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.whole:hover {
+  color: var(--sony);
+}
+
+/* ---------- the card: the overview, or one day ---------- */
+.card {
+  position: absolute;
+  right: 48px;
+  top: 96px;
+  width: 380px;
+  max-height: calc(100% - 96px - 186px);
+  display: flex;
+  flex-direction: column;
+  background: var(--glass);
+  border: 1px solid var(--edge);
+  backdrop-filter: blur(14px);
+}
+.cardScroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 24px 26px;
+  scrollbar-width: thin;
+}
+.kicker {
+  font: 500 12px / 1 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.kicker i {
+  font-style: normal;
+  color: var(--faint);
+}
+.big {
+  margin-top: 10px;
+  font: 600 46px / 0.95 var(--hud);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+.sub {
+  margin-top: 10px;
+  font: 500 11px / 1.4 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.where {
+  margin: 10px 0 16px;
+  font: 500 11px / 1.4 var(--semi);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.note {
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--body);
+  white-space: pre-line;
+}
+.leg {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--af);
+}
+.leg .ico {
+  margin-top: 3px;
+}
+.legTitle {
+  color: var(--ink);
+  font-weight: 500;
+}
+.places {
+  display: grid;
+  gap: 4px;
+  margin-top: 12px;
+  font-size: 15px;
+  color: var(--body);
+}
+.places li::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 9px;
+  background: var(--teal);
+}
+.places a,
 .small a {
   color: var(--ink);
   border-bottom: 1px solid var(--faint);
 }
+.places a:hover,
 .small a:hover {
   color: var(--sony);
   border-color: var(--sony);
 }
+.stats {
+  display: flex;
+  gap: 30px;
+  margin-top: 18px;
+}
+.stats dd {
+  font: 600 26px / 1 var(--hud);
+  letter-spacing: 0.02em;
+}
+.stats dt {
+  margin-top: 5px;
+  font: 500 10px / 1.2 var(--semi);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+  white-space: nowrap;
+}
+.stops {
+  margin-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.stops button {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: baseline;
+  width: 100%;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+}
+.stops b {
+  font: 600 13px / 1 var(--mono);
+  color: var(--af);
+}
+.stops span {
+  font-weight: 500;
+  line-height: 1.2;
+}
+.stops small {
+  font: 500 10px / 1 var(--semi);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.stops button:hover span {
+  color: var(--sony);
+}
+.small {
+  margin-top: 16px;
+  font: 500 11px / 1.5 var(--mono);
+  letter-spacing: 0.02em;
+  color: var(--dim);
+}
+.keys {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr 1fr;
+  border-top: 1px solid var(--edge);
+}
+.keys button {
+  padding: 13px 10px;
+  text-align: center;
+  font: 500 14px / 1 var(--hud);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.keys button:hover:not(:disabled) {
+  color: var(--ink);
+}
+.keys button:disabled {
+  color: var(--faint);
+  cursor: default;
+}
+.keys .play,
+.keys .play:hover {
+  color: var(--af);
+}
 
-@media (max-width: 1000px) {
-  .trip {
-    margin: 0;
-    grid-template-columns: minmax(0, 1fr) 300px;
-    gap: 20px;
+/* ---------- the strip: a line per stop over a frame per day ---------- */
+.dock {
+  position: absolute;
+  left: 48px;
+  right: 48px;
+  bottom: 44px;
+}
+.strip {
+  display: block;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: var(--glass);
+  border: 1px solid var(--edge);
+  backdrop-filter: blur(14px);
+}
+.stripGrid {
+  display: grid;
+  padding: 12px 14px 10px;
+}
+.band {
+  display: flex;
+  align-items: flex-end;
+  gap: 7px;
+  min-width: 0;
+  height: 22px;
+  margin: 0 3px 6px;
+  padding: 0 0 6px 1px;
+  border-bottom: 2px solid var(--faint);
+  color: var(--dim);
+  font: 500 11px / 1 var(--semi);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.band b {
+  font: 500 11px / 1 var(--mono);
+  color: var(--af);
+}
+.band span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bandOn {
+  border-bottom-color: var(--af);
+  color: var(--ink);
+}
+.frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+  height: 52px;
+  border: 1px solid transparent;
+}
+.frame strong {
+  font: 500 21px / 1 var(--hud);
+  color: var(--body);
+}
+.frame em {
+  font: 500 9px / 1 var(--semi);
+  font-style: normal;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+@media (hover: hover) {
+  .band:hover {
+    color: var(--ink);
+  }
+  .frame:hover strong {
+    color: var(--af);
   }
 }
-@media (max-width: 760px) {
-  .trip {
-    display: block;
+.frameOn {
+  border-color: var(--af);
+}
+.frameOn strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+/* the cards to swipe belong to the narrow screen */
+.cards {
+  display: none;
+}
+
+/* ---------- narrow: the map on top, the strip, and a card to swipe ---------- */
+@media (max-width: 900px) {
+  .shell {
+    --cell: 46px;
+    display: flex;
+    flex-direction: column;
   }
-  /* The map stays in view while the days scroll under it. */
   .mapBox {
-    top: 64px;
-    z-index: 3;
-    height: 44svh;
-    margin: 0 -16px 14px;
-    border-left: 0;
-    border-right: 0;
+    position: relative;
+    inset: auto;
+    flex: 1;
+    min-height: 0;
+  }
+  .shell :global(.maplibregl-ctrl-top-right) {
+    display: none;
+  }
+  .shell :global(.maplibregl-ctrl-bottom-right) {
+    right: 0;
+    bottom: 0;
+  }
+  .noMap {
+    padding: 120px 16px 0;
+  }
+  .bar {
+    left: 16px;
+    right: 16px;
+    top: 62px;
+    justify-content: space-between;
+  }
+  .crumb {
+    gap: 10px;
+    padding: 8px 10px;
+    min-width: 0;
+  }
+  .back span {
+    display: none;
+  }
+  .crumb h1 {
+    padding-left: 10px;
+    font-size: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .looks button {
+    min-height: 30px;
+    padding: 0 8px;
+  }
+  .whole {
+    left: 16px;
+    top: 106px;
+  }
+  .card {
+    display: none;
+  }
+  .dock {
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    flex: none;
+    background: var(--bg);
+  }
+  .strip {
+    border-width: 1px 0;
+    background: none;
+  }
+  .stripGrid {
+    padding: 10px 8px 6px;
+  }
+  .frame {
+    height: 50px;
+  }
+  .cards {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .cards article {
+    flex: 0 0 100%;
+    box-sizing: border-box;
+    height: 268px;
+    padding: 16px 16px 20px;
+    overflow-y: auto;
+    scroll-snap-align: start;
+  }
+  .big {
+    font-size: 36px;
+  }
+  .sub {
+    margin-top: 6px;
+  }
+  .stats {
+    gap: 22px;
+    margin-top: 12px;
+  }
+  .stats dd {
+    font-size: 22px;
+  }
+  .stops {
+    margin-top: 12px;
+  }
+  .stops button {
+    padding: 6px 0;
   }
 }

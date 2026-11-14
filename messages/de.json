@@ -539,7 +539,8 @@
     "tabs": {
       "writing": "Texte",
       "games": "Spiele",
-      "tools": "Werkzeuge"
+      "tools": "Werkzeuge",
+      "trips": "Reisen"
     },
     "blog": {
       "title": "Texte",
@@ -554,6 +555,43 @@
       "newer": "Neuer",
       "more": "Weitere Beiträge",
       "contents": "Inhalt"
+    },
+    "trips": {
+      "title": "Reisen",
+      "subtitle": "Reisen auf der Karte, Tag für Tag",
+      "count": "{count, plural, one {# Reise} other {# Reisen}}",
+      "empty": "Zurzeit sind keine Reisen offen.",
+      "days": "{count, plural, one {# Tag} other {# Tage}}",
+      "stops": "{count, plural, one {# Station} other {# Stationen}}",
+      "up": "Alle Reisen",
+      "to": "bis",
+      "inTheAir": "In der Luft",
+      "day": "Tag",
+      "map": "Karte der Reise",
+      "wholeTrip": "Ganze Reise",
+      "noMap": "Die Karte lädt hier nicht. Der Plan funktioniert trotzdem.",
+      "planner": "Gemacht mit meiner Reise-App",
+      "language": "Die Notizen einer Reise sind auf Englisch.",
+      "overview": "Überblick",
+      "stat": {
+        "days": "Tage",
+        "stops": "Stationen",
+        "km": "Km Straße",
+        "flights": "Flüge"
+      },
+      "nights": "{count, plural, one {# Nacht} other {# Nächte}}",
+      "prev": "Zurück",
+      "next": "Weiter",
+      "play": "Reise abspielen",
+      "pause": "Pause",
+      "display": "Anzeige",
+      "look": {
+        "night": "Nacht",
+        "day": "Tag"
+      },
+      "out": "Anreise",
+      "home": "Heimreise",
+      "strip": "Tage der Reise"
     }
   }
 }
