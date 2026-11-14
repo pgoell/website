@@ -345,7 +345,6 @@ export function Evf({
                   </span>
                 ))}
               </span>
-              <span className={cx(s.l, s.hideM)}>{t("ro.lang.l")}</span>
             </a>
           </div>
           <div className={cx(s.ro, s.hideM, s.gps)} data-af="10">
@@ -356,7 +355,6 @@ export function Evf({
               </svg>
               Gelnhausen <span className={s.soft}>50.20N 9.19E</span>
             </span>
-            <span className={s.l}>{t("ro.gps.l")}</span>
           </div>
           <div className={s.grp}>
             <button
@@ -378,12 +376,16 @@ export function Evf({
                 </svg>
                 <span className={s.hideM}>{soundOn ? "ON" : "OFF"}</span>
               </span>
-              <span className={cx(s.l, s.hideM)}>{t("ro.sound.l")}</span>
             </button>
             <button
               type="button"
               className={cx(s.ro, s.pick, s.hideM)}
               {...ro("weather")}
+              aria-label={t("ro.weather.l", {
+                cond: weather
+                  ? t(`ro.weather.c.${conditionOf(weather)}`)
+                  : "--",
+              })}
               data-scene=""
               aria-expanded={sceneOpen}
               onClick={onScene}
@@ -394,26 +396,17 @@ export function Evf({
                 </svg>
                 {temperature === null ? "--" : `${Math.round(temperature)}°`}
               </span>
-              <span className={s.l}>
-                {t("ro.weather.l", {
-                  cond: weather
-                    ? t(`ro.weather.c.${conditionOf(weather)}`)
-                    : "--",
-                })}
-              </span>
             </button>
             <button
               type="button"
               className={cx(s.ro, s.pick)}
               data-af="10"
               data-scene=""
+              aria-label={`${clock.time} ${t("ro.clock.l", { zone: clock.zone })}`}
               aria-expanded={sceneOpen}
               onClick={onScene}
             >
               <span className={s.v}>{clock.time}</span>
-              <span className={s.l}>
-                {t("ro.clock.l", { zone: clock.zone })}
-              </span>
             </button>
           </div>
         </div>
@@ -497,7 +490,6 @@ export function Evf({
               <span className={s.v}>
                 AF-C <span style={{ fontWeight: 500 }}>{repo}</span>
               </span>
-              <span className={s.l}>{t("ro.focus.l")}</span>
             </a>
             <a
               className={cx(s.ro, s.big)}
@@ -513,7 +505,6 @@ export function Evf({
               <span className={s.v}>
                 {since} <small>{lastPush?.sha.slice(0, 7)}</small>
               </span>
-              <span className={s.l}>{t("ro.lastCommit.l")}</span>
             </a>
           </div>
           <div className={cx(s.ro, s.scale)} data-af="10">
@@ -528,7 +519,6 @@ export function Evf({
               <div className={s.v}>
                 35<span style={{ fontSize: 15 }}>mm</span>
               </div>
-              <div className={s.l}>{t("ro.body.l")}</div>
             </div>
             <button
               type="button"
@@ -551,7 +541,6 @@ export function Evf({
                   {stop}
                 </span>
               </span>
-              <span className={s.l}>{t("ro.aperture.l")}</span>
             </button>
             <button
               type="button"

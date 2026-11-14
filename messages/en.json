@@ -143,7 +143,6 @@
       "open": "open",
       "back": "back",
       "soon": "SOON",
-      "helpSoon": "Coming soon.",
       "all": "ALL",
       "tabs": {
         "main": "Main",
@@ -181,8 +180,7 @@
         },
         "freelance": {
           "t": "Freelance",
-          "v": "Open",
-          "help": "I take freelance work on AI agents and internal tools."
+          "v": "Open"
         },
         "stack": {
           "t": "Stack",
@@ -190,7 +188,7 @@
         },
         "camera": {
           "t": "Camera",
-          "v": "Sony a7 IV"
+          "v": "Sony α7 IV"
         },
         "cv": {
           "t": "CV",
@@ -202,23 +200,19 @@
         },
         "gmail": {
           "t": "Gmail brief agent",
-          "v": "inbox to brief",
-          "help": "An agent that reads my inbox and writes a short brief."
+          "v": "inbox to brief"
         },
         "klassenzeit": {
           "t": "Klassenzeit",
-          "v": "timetable planner",
-          "help": "Plans school timetables."
+          "v": "timetable planner"
         },
         "slides": {
           "t": "Slides as code",
-          "v": "presentations",
-          "help": "Write decks as code, render them as slides."
+          "v": "presentations"
         },
         "football": {
           "t": "Football forecast",
-          "v": "match model",
-          "help": "A small model that forecasts match results."
+          "v": "match model"
         },
         "wordleMap": {
           "t": "Wordle",
@@ -234,18 +228,15 @@
         },
         "allPosts": {
           "t": "All posts",
-          "v": "blog",
-          "help": "Every post on the blog."
+          "v": "blog"
         },
         "wordle": {
           "t": "Wordle",
-          "v": "word game",
-          "help": "Guess the five-letter word in six tries."
+          "v": "word game"
         },
         "kniffel": {
           "t": "Kniffel",
-          "v": "dice game",
-          "help": "Score sheet for Kniffel, digital or with real dice."
+          "v": "dice game"
         },
         "bingo": {
           "t": "Song bingo",
@@ -253,8 +244,7 @@
         },
         "pomodoro": {
           "t": "Pomodoro",
-          "v": "25 on, 5 off",
-          "help": "A focus timer with presets and stats."
+          "v": "25 on, 5 off"
         },
         "allGames": {
           "t": "All games",

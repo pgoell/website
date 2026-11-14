@@ -145,14 +145,6 @@
   gap: 6px;
   white-space: nowrap;
 }
-.ro .l {
-  font: 500 10px / 1.2 var(--semi);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--dim);
-  margin-top: 2px;
-  white-space: nowrap;
-}
 .ro.big .v {
   font-size: 26px;
 }
@@ -393,7 +385,6 @@ a.box {
   text-transform: uppercase;
 }
 /* DISP modes */
-.evf.values .ro .l,
 .evf.values .col .hd span + span {
   opacity: 0;
 }
@@ -821,6 +812,25 @@ a.box {
   margin-left: 6px;
   opacity: 0.8;
 }
+/* the "open" dot, drawn rather than typed so it sits dead centre in its box */
+.it .v i.dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 15px;
+  padding: 0;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}
+.it .v i.dot::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
 .it .ch {
   color: var(--faint);
 }
@@ -861,6 +871,7 @@ a.box {
 .mf {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 18px;
   padding: 0 16px;
   background: #000;
@@ -868,17 +879,6 @@ a.box {
   font-size: 13px;
   color: var(--dim);
   white-space: nowrap;
-}
-.mf .help {
-  flex: 1;
-  color: var(--ink);
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.mf .help b {
-  color: var(--sony);
-  font-weight: 600;
-  margin-right: 6px;
 }
 .mf kbd {
   margin-right: 4px;
@@ -1072,13 +1072,6 @@ a.box {
 /* scene panel: the weather and clock readouts open it to pick day, time and weather */
 .ro.pick {
   cursor: pointer;
-}
-.ro.pick .l {
-  text-decoration: underline dotted var(--faint);
-  text-underline-offset: 3px;
-}
-.ro.pick:hover .l {
-  color: var(--sony);
 }
 .scenePanel {
   position: absolute;
@@ -1289,7 +1282,7 @@ a.box {
   .search {
     order: 3;
     width: auto;
-    margin: 0 12px 10px;
+    margin: 10px 12px;
     flex: 1 1 100%;
     height: 38px;
   }
