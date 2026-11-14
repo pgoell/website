@@ -410,6 +410,8 @@ export function DayEdit({
   t,
   onDraw,
   onUndraw,
+  onAdd,
+  onRemove,
   onSelectPlace,
   onOrder,
   onNote,
@@ -429,6 +431,10 @@ export function DayEdit({
   /** Bend a ground leg's line, or go back to the one it came with. */
   onDraw: (leg: StoredLeg) => void;
   onUndraw: (leg: StoredLeg) => void;
+  /** Add a route to the day: its name, and whether it comes back. */
+  onAdd: (title: string, back: boolean) => void;
+  /** Remove a route that was added in the app. */
+  onRemove: (leg: StoredLeg) => void;
   onSelectPlace: (id: number) => void;
   onOrder: (ids: number[]) => void;
   onNote: (note: string) => void;
@@ -439,6 +445,12 @@ export function DayEdit({
   const saved = trip.dayNotes[date] ?? "";
   const [note, setNote] = useState(saved);
   const [undrawing, setUndrawing] = useState<number | null>(null);
+  // The form for a new route: its name, or null while closed.
+  const [naming, setNaming] = useState<string | null>(null);
+  // A day at one stop goes out and comes back. A travel day goes one way.
+  const [back, setBack] = useState(stops.length === 1);
+  const title = naming?.trim() ?? "";
+  const taken = legs.some((l) => l.title === title);
 
   const move = (from: number, to: number) => {
     const ids = places.map((p) => p.id);
@@ -489,7 +501,23 @@ export function DayEdit({
                 >
                   {drawing === l.id ? t("edit.drawing") : t("edit.editRoute")}
                 </button>
-                {l.drawn && drawing === null && (
+                {l.own && drawing === null && (
+                  <button
+                    type="button"
+                    className={s.btn}
+                    disabled={pending}
+                    onClick={() => {
+                      // The route is gone after this, so it asks once.
+                      if (undrawing === l.id) onRemove(l);
+                      setUndrawing(undrawing === l.id ? null : l.id);
+                    }}
+                  >
+                    {undrawing === l.id
+                      ? t("edit.sureAgain")
+                      : t("edit.removeRoute")}
+                  </button>
+                )}
+                {!l.own && l.drawn && drawing === null && (
                   <button
                     type="button"
                     className={s.btn}
@@ -509,6 +537,70 @@ export function DayEdit({
             )}
           </div>
         ))}
+        {stops.length > 0 &&
+          drawing === null &&
+          (naming === null ? (
+            <div>
+              <button
+                type="button"
+                className={s.btn}
+                disabled={pending}
+                onClick={() => setNaming("")}
+              >
+                {t("edit.addRoute")}
+              </button>
+            </div>
+          ) : (
+            <form
+              className={s.stack}
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!title || taken) return;
+                onAdd(title, back);
+                setNaming(null);
+              }}
+            >
+              <input
+                className={s.field}
+                placeholder={t("edit.routeName")}
+                aria-label={t("edit.routeNameLabel")}
+                maxLength={80}
+                // biome-ignore lint/a11y/noAutofocus: the form opens on a tap
+                autoFocus
+                value={naming}
+                onChange={(e) => setNaming(e.target.value)}
+              />
+              <label className={s.check}>
+                <input
+                  type="checkbox"
+                  checked={back}
+                  onChange={(e) => setBack(e.target.checked)}
+                />
+                {t("edit.andBack", { stop: stops[0]?.name ?? "" })}
+              </label>
+              {taken && (
+                <p className={cx(s.notice, s.warn)}>
+                  {t("error.routeNameTaken")}
+                </p>
+              )}
+              <div className={s.row}>
+                <button
+                  type="submit"
+                  className={s.btnMain}
+                  disabled={pending || !title || taken}
+                >
+                  {t("edit.pickEnd")}
+                </button>
+                <button
+                  type="button"
+                  className={s.btn}
+                  onClick={() => setNaming(null)}
+                >
+                  {t("edit.cancel")}
+                </button>
+              </div>
+            </form>
+          ))}
         {checkIn && (
           <p className={s.checkIn}>
             <b>⌂ {checkIn.title}</b>

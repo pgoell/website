@@ -42,6 +42,9 @@ export function pgRow(table: Table, row: Row): Row {
     out[col] = typeof v === "string" ? JSON.parse(v) : v;
   }
   if (table === "trip") out.public = out.public === 1 || out.public === true;
+  // A copy from before routes could be added in the app has no such column.
+  if (table === "leg" && "own" in out)
+    out.own = out.own === 1 || out.own === true;
   // SQLite's CURRENT_TIMESTAMP: UTC, no zone, a space for the T.
   if (table === "place" && typeof out.created_at === "string") {
     out.created_at = `${out.created_at.replace(" ", "T")}Z`;

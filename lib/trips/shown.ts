@@ -23,7 +23,7 @@ export function shownTrip(trip: StoredTrip): Trip {
     endDate: trip.endDate,
     stops: trip.stops.map(({ id: _, ...s }) => s),
     legs: trip.legs.map(
-      ({ id: _, cost: __, drawn: ___, points: ____, ...l }) => l,
+      ({ id: _, cost: __, drawn: ___, points: ____, own: _____, ...l }) => l,
     ),
     places: trip.places
       .filter((p) => p.status === "confirmed")

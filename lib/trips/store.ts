@@ -68,7 +68,7 @@ export async function loadTrip(
     sql<StoredLeg[]>`
       SELECT leg.id, mode, leg.title, how, leg.leave_date AS "leaveDate", leave,
         leave_tz AS "leaveTz", arrive_date AS "arriveDate", arrive,
-        arrive_tz AS "arriveTz", cost, note,
+        arrive_tz AS "arriveTz", cost, note, leg.own,
         coalesce(d.path, leg.path) AS path, d.path IS NOT NULL AS drawn, d.points
       FROM trips.leg LEFT JOIN trips.leg_path d ON d.trip_id = leg.trip_id
         AND d.leave_date = leg.leave_date AND d.title = leg.title

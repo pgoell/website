@@ -179,9 +179,20 @@ export function useRouteEdit(slug: string) {
     );
 
   const start = (leg: Leg) => {
+    const from = leg.path[0] as LngLat;
+    const to = leg.path.at(-1) as LngLat;
+    // A way out and back ends where it starts, so it also goes through the
+    // spot farthest out. Without it there would be no line to bend.
+    const far = leg.path.reduce(
+      (best, p) => (lengthOf([from, p]) > lengthOf([from, best]) ? p : best),
+      from,
+    );
     const first: DrawnPoint[] = leg.points ?? [
-      { at: leg.path[0] as LngLat, road: false },
-      { at: leg.path.at(-1) as LngLat, road: true },
+      { at: from, road: false },
+      ...(lengthOf([from, to]) < 100 && far !== from
+        ? [{ at: far, road: true }]
+        : []),
+      { at: to, road: true },
     ];
     stored.current = leg.points ? JSON.stringify(first) : "first";
     setError(null);
@@ -312,7 +323,8 @@ export function useRouteEdit(slug: string) {
         canUndo: open.past.length > 0,
         canRedo: open.future.length > 0,
         /** There is a drawn line to give up for the trip's own. */
-        canReset: open.leg.drawn || stored.current !== "first",
+        canReset:
+          !open.leg.own && (open.leg.drawn || stored.current !== "first"),
         saving:
           wanted && wanted !== stored.current ? ("saving" as const) : saving,
         error,

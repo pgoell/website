@@ -1,6 +1,6 @@
 /**
  * Changes to a trip by someone signed in: places and ideas, a day's order and
- * note, and a ground leg's drawn line. Takes the connection as an argument,
+ * note, a ground leg's drawn line, and routes added to a day. Takes the connection as an argument,
  * like `store.ts`; the caller checks the session and the input. JSON goes as
  * plain values, written for the column's own type. Relative imports only.
  */
@@ -162,4 +162,67 @@ export async function deleteLegPath(
   await sql`
     DELETE FROM trips.leg_path
     WHERE trip_id = ${tripId} AND leave_date = ${leaveDate} AND title = ${title}`;
+}
+
+/** The stop a day is spent at, the first one if it has two. */
+export async function stopOn(
+  sql: Sql,
+  tripId: number,
+  date: string,
+): Promise<{ tz: string; at: LngLat } | undefined> {
+  const [row] = await sql<{ tz: string; lat: number; lng: number }[]>`
+    SELECT tz, lat, lng FROM trips.stop
+    WHERE trip_id = ${tripId} AND arrive <= ${date} AND ${date} <= depart
+    ORDER BY position LIMIT 1`;
+  return row && { tz: row.tz, at: [row.lng, row.lat] };
+}
+
+/**
+ * A route added in the app: a ground leg without times, in the zone of the
+ * day's stop. False when the day already has a leg under this title, since a
+ * drawn line hangs on date and title.
+ */
+export async function insertOwnLeg(
+  sql: Sql,
+  tripId: number,
+  date: string,
+  title: string,
+  tz: string,
+  path: LngLat[],
+): Promise<boolean> {
+  return sql.begin(async (tx) => {
+    // One at a time per trip, so two taps cannot add the same title twice.
+    await tx`SELECT 1 FROM trips.trip WHERE id = ${tripId} FOR UPDATE`;
+    const taken = await tx`
+      SELECT 1 FROM trips.leg
+      WHERE trip_id = ${tripId} AND leave_date = ${date} AND title = ${title}`;
+    if (taken.length) return false;
+    // A line drawn for a leg of this name that an import has since dropped.
+    await tx`
+      DELETE FROM trips.leg_path
+      WHERE trip_id = ${tripId} AND leave_date = ${date} AND title = ${title}`;
+    await tx`
+      INSERT INTO trips.leg (trip_id, mode, title, how, leave_date, leave, leave_tz,
+        arrive_date, arrive, arrive_tz, path, own)
+      VALUES (${tripId}, 'ground', ${title}, '', ${date}, '', ${tz},
+        ${date}, '', ${tz}, ${path as never}, true)`;
+    return true;
+  });
+}
+
+/** Removes a route added in the app, with its drawn line. One the trip came with stays. */
+export async function deleteOwnLeg(
+  sql: Sql,
+  tripId: number,
+  id: number,
+): Promise<void> {
+  await sql.begin(async (tx) => {
+    const [leg] = await tx<{ leaveDate: string; title: string }[]>`
+      DELETE FROM trips.leg WHERE id = ${id} AND trip_id = ${tripId} AND own
+      RETURNING leave_date AS "leaveDate", title`;
+    if (!leg) return;
+    await tx`
+      DELETE FROM trips.leg_path WHERE trip_id = ${tripId}
+        AND leave_date = ${leg.leaveDate} AND title = ${leg.title}`;
+  });
 }

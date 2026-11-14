@@ -2,14 +2,17 @@ import postgres, { type Sql } from "postgres";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
   deleteLegPath,
+  deleteOwnLeg,
   deletePlace,
   hasGroundLeg,
+  insertOwnLeg,
   insertPlace,
   orderDay,
   type PlaceRow,
   saveDayNote,
   saveLegPath,
   setGooglePlaceId,
+  stopOn,
   tripIdOf,
   updatePlace,
 } from "../edit";
@@ -210,5 +213,51 @@ describe.skipIf(!url)("changing a trip in Postgres", () => {
     expect(leg?.drawn).toBe(false);
     expect(leg?.points).toBeNull();
     expect(leg?.path).toHaveLength(2);
+  });
+
+  it("adds a route to a day, keeps it over an import and removes it", async () => {
+    const id = (await tripIdOf(sql, "one")) as number;
+    const stop = await stopOn(sql, id, "2027-03-22");
+    expect(stop?.tz).toBeTruthy();
+    expect(await stopOn(sql, id, "2031-01-01")).toBeUndefined();
+    const at = stop?.at as [number, number];
+    const path: [number, number][] = [at, [at[0] + 0.1, at[1]], at];
+    const add = () =>
+      insertOwnLeg(sql, id, "2027-03-22", "Day out", stop?.tz ?? "", path);
+    expect(await add()).toBe(true);
+    // The same name on the same day would share its drawn line.
+    expect(await add()).toBe(false);
+
+    const own = () =>
+      loadTrip(sql, "one").then((t) =>
+        t?.legs.find((l) => l.title === "Day out"),
+      );
+    expect(await own()).toMatchObject({
+      own: true,
+      mode: "ground",
+      leaveDate: "2027-03-22",
+      leaveTz: stop?.tz,
+      path,
+    });
+    const points: DrawnPoint[] = path.map((p, i) => ({ at: p, road: i > 0 }));
+    await saveLegPath(sql, id, "2027-03-22", "Day out", path, points);
+
+    // The trip file comes in again: its legs are replaced, this one stays.
+    await importTrip(sql, trip("one"));
+    const kept = await own();
+    expect(kept).toMatchObject({ own: true, drawn: true });
+    const all = (await loadTrip(sql, "one"))?.legs ?? [];
+    expect(all.filter((l) => !l.own)).toHaveLength(trip("one").legs.length);
+
+    // A leg the trip came with cannot be removed this way.
+    const first = all.find((l) => !l.own);
+    await deleteOwnLeg(sql, id, first?.id as number);
+    expect((await loadTrip(sql, "one"))?.legs).toHaveLength(all.length);
+
+    await deleteOwnLeg(sql, id, kept?.id as number);
+    expect(await own()).toBeUndefined();
+    const [left] = await sql`
+      SELECT count(*)::int AS n FROM trips.leg_path WHERE title = 'Day out'`;
+    expect(left?.n).toBe(0);
   });
 });
