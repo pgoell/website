@@ -8,7 +8,12 @@ import { getTrips } from "@/lib/trips/db";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("site.trips");
-  return { title: t("title"), description: t("subtitle") };
+  return {
+    title: t("title"),
+    description: t("subtitle"),
+    // The Trips phone app, linked from the trip pages only.
+    manifest: "/trips.webmanifest",
+  };
 }
 
 /** Camera-style file name for the nth trip: TRIP0001.GPX. */

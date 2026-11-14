@@ -45,9 +45,9 @@ function onConnection(change: () => void) {
  * tab, a place opened on its own, the form, a pin to set, near me and the
  * filter, and every change sent to the server.
  */
-export function useTripEdit(trip: StoredTrip) {
+export function useTripEdit(trip: StoredTrip, firstTab: Tab = "plan") {
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>("plan");
+  const [tab, setTab] = useState<Tab>(firstTab);
   const [detail, setDetail] = useState<Detail | null>(null);
   const [editing, setEditing] = useState<PlaceInput | null>(null);
   const [picking, setPicking] = useState<PlaceInput | null>(null);

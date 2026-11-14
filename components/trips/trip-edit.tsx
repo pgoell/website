@@ -61,15 +61,18 @@ export function TripEditor({
   locale,
   userName,
   mapsKey,
+  openIdeas = false,
 }: {
   trip: StoredTrip;
   locale: string;
   userName: string;
   /** Browser key for Google's place card. Without it the card is left out. */
   mapsKey?: string;
+  /** Open on the Ideas tab: where a link shared from the phone lands. */
+  openIdeas?: boolean;
 }) {
   const t = useTranslations("site.trips");
-  const e = useTripEdit(trip);
+  const e = useTripEdit(trip, openIdeas ? "ideas" : "plan");
   // A ground leg whose line is bent on the map.
   const bend = useRouteEdit(trip.slug);
   const drawing = bend.state;
@@ -106,14 +109,33 @@ export function TripEditor({
     [routing, v.narrow, v.pad],
   );
 
-  // A new day, picked any way, opens its plan.
+  // A new day, picked any way, opens its plan. Not on the first render, so a
+  // share that lands on Ideas stays there.
   const { setTab, setDetail, setEditing } = e;
+  const firstDay = useRef(true);
   // biome-ignore lint/correctness/useExhaustiveDependencies: runs when the day changes
   useEffect(() => {
+    if (firstDay.current) {
+      firstDay.current = false;
+      return;
+    }
     setTab("plan");
     setDetail(null);
     setEditing(null);
   }, [picked]);
+
+  // Offline copy for the phone app: public/sw.js saves this page again
+  // whenever the trip changes.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: runs when the trip changes
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "production" || !navigator.serviceWorker) {
+      return;
+    }
+    navigator.serviceWorker.register("/sw.js");
+    navigator.serviceWorker.ready.then((reg) =>
+      reg.active?.postMessage(window.location.pathname),
+    );
+  }, [trip]);
 
   // ---------- where the map looks ----------
 

@@ -511,7 +511,8 @@
       {
         "title": "5. Speicher in Ihrem Browser",
         "text": [
-          "Einige Seiten legen Daten im lokalen Speicher Ihres Browsers (localStorage) ab: das gewählte Farbschema, Spielstand und Tastatur-Einstellung von Wordle, die Tastatur-Einstellung des Wordle-Lösers, den Spielstand von Kniffel sowie Stand und Statistik des Pomodoro-Timers.",
+          "Einige Seiten legen Daten im lokalen Speicher Ihres Browsers (localStorage) ab: das gewählte Farbschema, Spielstand und Tastatur-Einstellung von Wordle, die Tastatur-Einstellung des Wordle-Lösers, den Spielstand von Kniffel, Stand und Statistik des Pomodoro-Timers sowie den Nacht- oder Tag-Look der Reiseseiten.",
+          "Für Personen, die auf den Reiseseiten angemeldet sind, speichert der Browser außerdem eine Kopie der geöffneten Reiseseiten, ihrer Skripte und Stile sowie der gesehenen Kartenteile, damit eine Reise auch ohne Netz öffnet (ein Service Worker mit seinem Cache-Speicher). Die Kopie enthält, was eine angemeldete Person sieht, auch Buchungen, bleibt auf dem Gerät und wird nirgendwohin gesendet. Sie bleibt, bis Sie die Daten der Website in Ihrem Browser löschen.",
           "Diese Daten bleiben auf Ihrem Gerät und gehen nie an den Server. Sie sind nötig, damit die Funktion arbeitet, die Sie aufrufen (§ 25 Abs. 2 Nr. 2 TDDDG). Sie können sie jederzeit in den Einstellungen Ihres Browsers löschen."
         ]
       },

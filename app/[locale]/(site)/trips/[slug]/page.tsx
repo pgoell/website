@@ -6,7 +6,13 @@ import { PrivateTripPage, TripPage } from "@/components/trips/trip-page";
 import { readSession, SESSION_COOKIE } from "@/lib/trips/auth";
 import { getStoredTrip, getTrip } from "@/lib/trips/db";
 
-type Props = { params: Promise<{ locale: string; slug: string }> };
+type Props = {
+  params: Promise<{ locale: string; slug: string }>;
+  searchParams: Promise<{ tab?: string }>;
+};
+
+/** The Trips phone app, linked from the trip pages only. */
+const manifest = "/trips.webmanifest";
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -18,13 +24,17 @@ async function signedIn() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const trip = await getTrip(slug);
-  if (trip) return { title: trip.name };
+  if (trip) return { title: trip.name, manifest };
   // a private trip: keep its address out of search
   const stored = (await signedIn()) ? await getStoredTrip(slug) : null;
-  return { robots: { index: false }, ...(stored && { title: stored.name }) };
+  return {
+    manifest,
+    robots: { index: false },
+    ...(stored && { title: stored.name }),
+  };
 }
 
-export default async function TripRoute({ params }: Props) {
+export default async function TripRoute({ params, searchParams }: Props) {
   const { locale, slug } = await params;
   if (!SLUG.test(slug)) notFound();
   const user = await signedIn();
@@ -37,6 +47,7 @@ export default async function TripRoute({ params }: Props) {
         locale={locale}
         userName={user.name}
         mapsKey={process.env.GOOGLE_MAPS_KEY}
+        openIdeas={(await searchParams).tab === "ideas"}
       />
     );
   }
