@@ -143,7 +143,6 @@
       "open": "öffnen",
       "back": "zurück",
       "soon": "BALD",
-      "helpSoon": "Kommt bald.",
       "all": "ALLE",
       "tabs": {
         "main": "Übersicht",
@@ -181,8 +180,7 @@
         },
         "freelance": {
           "t": "Freiberuflich",
-          "v": "offen",
-          "help": "Ich übernehme freie Aufträge zu KI-Agenten und internen Werkzeugen."
+          "v": "offen"
         },
         "stack": {
           "t": "Stack",
@@ -190,7 +188,7 @@
         },
         "camera": {
           "t": "Kamera",
-          "v": "Sony a7 IV"
+          "v": "Sony α7 IV"
         },
         "cv": {
           "t": "Lebenslauf",
@@ -202,23 +200,19 @@
         },
         "gmail": {
           "t": "Gmail brief agent",
-          "v": "Postfach zu Brief",
-          "help": "Ein Agent, der mein Postfach liest und eine kurze Zusammenfassung schreibt."
+          "v": "Postfach zu Brief"
         },
         "klassenzeit": {
           "t": "Klassenzeit",
-          "v": "Stundenplaner",
-          "help": "Plant Stundenpläne für Schulen."
+          "v": "Stundenplaner"
         },
         "slides": {
           "t": "Slides as code",
-          "v": "Präsentationen",
-          "help": "Folien als Code schreiben und als Präsentation rendern."
+          "v": "Präsentationen"
         },
         "football": {
           "t": "Football forecast",
-          "v": "Spielmodell",
-          "help": "Ein kleines Modell, das Spielergebnisse vorhersagt."
+          "v": "Spielmodell"
         },
         "wordleMap": {
           "t": "Wordle",
@@ -234,18 +228,15 @@
         },
         "allPosts": {
           "t": "Alle Beiträge",
-          "v": "Blog",
-          "help": "Alle Beiträge im Blog."
+          "v": "Blog"
         },
         "wordle": {
           "t": "Wordle",
-          "v": "Wortspiel",
-          "help": "Errate das Wort mit fünf Buchstaben in sechs Versuchen."
+          "v": "Wortspiel"
         },
         "kniffel": {
           "t": "Kniffel",
-          "v": "Würfelspiel",
-          "help": "Punkteblock für Kniffel, digital oder mit echten Würfeln."
+          "v": "Würfelspiel"
         },
         "bingo": {
           "t": "Song-Bingo",
@@ -253,8 +244,7 @@
         },
         "pomodoro": {
           "t": "Pomodoro",
-          "v": "25 an, 5 aus",
-          "help": "Ein Fokus-Timer mit Vorlagen und Statistik."
+          "v": "25 an, 5 aus"
         },
         "allGames": {
           "t": "Alle Spiele",

@@ -151,13 +151,11 @@ export function CameraMenu({ tabs, request, onClose, onAction }: Props) {
 
   const color = qs ? "#f08a00" : tabDef.color;
   const tag = (f?: string) =>
-    f === "soon" ? <i>{t("soon")}</i> : f === "ok" ? <i>●</i> : null;
-  const help = (e: MenuEntry) => {
-    const key = `items.${e.def.id}.help`;
-    if (!e.def.title && t.has(key)) return t(key);
-    if (e.def.flag === "soon") return t("helpSoon");
-    return `${e.title}, ${e.value}.`;
-  };
+    f === "soon" ? (
+      <i>{t("soon")}</i>
+    ) : f === "ok" ? (
+      <i className={s.dot} aria-hidden="true" />
+    ) : null;
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: backdrop click closes the menu
@@ -324,14 +322,6 @@ export function CameraMenu({ tabs, request, onClose, onAction }: Props) {
           </div>
         </div>
         <div className={s.mf}>
-          <span className={s.help} aria-live="polite">
-            {item ? (
-              <>
-                <b>{item.tabName.toUpperCase()}</b>
-                {help(item)}
-              </>
-            ) : null}
-          </span>
           <span className={s.keys2}>
             <kbd>←→</kbd>
             {t("tab")} <kbd>↑↓</kbd>
