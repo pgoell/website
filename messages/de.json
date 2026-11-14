@@ -541,6 +541,7 @@
           "Für Personen, die auf den Reiseseiten angemeldet sind, erreichen einige Dinge fremde Server. Sie gehören zu dem, was die Reiseseiten für eingeladene Personen leisten (Art. 6 Abs. 1 lit. b DSGVO):",
           "Google Maps: Wenn Sie einen Ort öffnen, laden seine Ortskarte und die Ortssuche von Google Maps (Google Ireland Limited, mit Google LLC, USA, zertifiziert nach dem EU-US Data Privacy Framework). Google sieht dabei Ihre IP-Adresse und welchen Ort Sie ansehen. Die Website speichert nur Googles Kennung für den Ort. Wenn Sie nicht angemeldet sind, nimmt Ihr Browser nie Kontakt zu Google Maps auf.",
           "Routen: Wenn Sie eine Route entlang von Straßen zeichnen, schickt der Server die Punkte der Route an den öffentlichen Routenplaner unter router.project-osrm.org, um die Straßen zu finden. Die Anfrage kommt vom Server, nicht von Ihrem Browser; der Routenplaner erfährt also nicht, wer Sie sind.",
+          "Satellitenbilder: Wenn Sie die Karte auf Satellitenbilder umschalten, holt der Server sie von Esri (Environmental Systems Research Institute, USA) und reicht sie weiter. Esri sieht, welcher Kartenausschnitt angefragt wird, und zwar vom Server, nicht von Ihrem Browser.",
           "Links: Wenn Sie einen Link zu einem Ort speichern, öffnet der Server diese Seite einmal, um Titel und Lage zu lesen. Die andere Seite sieht eine Anfrage des Servers, nicht von Ihnen.",
           "Ihr Standort: „In der Nähe“ und der Standort-Knopf der Karte lesen Ihren Standort nur, solange sie eingeschaltet sind. Der Standort bleibt in Ihrem Browser und erreicht nie den Server."
         ]
@@ -693,6 +694,7 @@
         "addPlace": "Ort hinzufügen",
         "near": "In der Nähe",
         "finding": "Suche dich",
+        "satellite": "Satellitenbilder",
         "filter": "Filtern, zum Beispiel kyoto sonnenaufgang oder kaffee",
         "noPin": "Noch ohne Pin",
         "noPlaces": "Noch keine Orte. Füge hier einen hinzu oder bestätige eine Idee.",

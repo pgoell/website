@@ -21,6 +21,7 @@ vi.mock("@/lib/trips/road", () => ({ roadsThrough }));
 
 const actions = await import("@/app/[locale]/(site)/trips/actions");
 const road = await import("@/app/api/trips/road/route");
+const sat = await import("@/app/api/map/satellite/[z]/[x]/[y]/route");
 
 const calls: [string, () => Promise<unknown>][] = [
   ["savePlace", () => actions.savePlace("one", { name: "x", status: "idea" })],
@@ -67,5 +68,16 @@ describe("signed out", () => {
     );
     expect(res.status).toBe(401);
     expect(roadsThrough).not.toHaveBeenCalled();
+  });
+
+  it("satellite tiles answer 401 and ask nobody", async () => {
+    vi.stubEnv("ARCGIS_API_KEY", "a key");
+    const asked = vi.spyOn(globalThis, "fetch");
+    const res = await sat.GET(new Request("http://localhost/"), {
+      params: Promise.resolve({ z: "5", x: "19", y: "16" }),
+    });
+    expect(res.status).toBe(401);
+    expect(asked).not.toHaveBeenCalled();
+    asked.mockRestore();
   });
 });

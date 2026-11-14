@@ -20,6 +20,7 @@ import {
 import type { Look } from "@/lib/trips/look";
 import { arc } from "@/lib/trips/plan";
 import { lengthOf, type Stretch } from "@/lib/trips/route";
+import { SATELLITE_DEEPEST } from "@/lib/trips/tiles";
 import type {
   LngLat,
   PlaceStatus,
@@ -145,6 +146,8 @@ export type MapEditing = {
   edit: RouteOnMap | null;
   /** What to show at the picked point of that line. */
   menu: ReactNode;
+  /** Satellite images in place of the drawn map. Left out when the server has none. */
+  satellite?: { on: boolean; label: string; onToggle: () => void };
   onPick: (lng: number, lat: number) => void;
   onSelectPlace: (id: number) => void;
   onSelectStop: (position: number) => void;
@@ -153,6 +156,8 @@ export type MapEditing = {
 };
 
 /** How far around a tap or a press a point or the line still counts as hit. */
+const SATELLITE_CREDIT =
+  "Esri, Maxar, Earthstar Geographics, and the GIS User Community";
 const REACH = { mouse: 9, touch: 20 };
 /** An end of a line this near a stop, in metres, counts as on it. */
 const ON_STOP = 100;
@@ -208,6 +213,7 @@ export function TripMap({
   // Its handlers read the latest editing props from here.
   const live = useRef(editing);
   live.current = editing;
+  const satButton = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     let gone = false;
@@ -252,7 +258,40 @@ export function TripMap({
         );
       }
 
+      if (editable && live.current?.satellite) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = s.satButton ?? "";
+        button.textContent = "SAT";
+        button.onclick = () => live.current?.satellite?.onToggle();
+        const box = document.createElement("div");
+        box.className = "maplibregl-ctrl maplibregl-ctrl-group";
+        box.append(button);
+        made.addControl({ onAdd: () => box, onRemove: () => box.remove() });
+        satButton.current = button;
+      }
+
       made.on("load", () => {
+        if (editable && live.current?.satellite) {
+          made.addSource("satellite", {
+            type: "raster",
+            tiles: [`${window.location.origin}/api/map/satellite/{z}/{x}/{y}`],
+            tileSize: 256,
+            maxzoom: SATELLITE_DEEPEST,
+            attribution: SATELLITE_CREDIT,
+          });
+          // Under everything but the ground colour. Hidden until asked for,
+          // so no tile is fetched before that.
+          made.addLayer(
+            {
+              id: "satellite",
+              type: "raster",
+              source: "satellite",
+              layout: { visibility: "none" },
+            },
+            made.getStyle().layers.find((l) => l.type !== "background")?.id,
+          );
+        }
         // On a narrow map the credit starts folded behind its button.
         if (window.innerWidth <= 760) {
           container.current
@@ -556,6 +595,31 @@ export function TripMap({
     if (!loaded || !m || !editable) return;
     m.getCanvas().style.cursor = picking ? "crosshair" : "";
   }, [loaded, editable, picking]);
+
+  // Satellite images take the place of the drawn land, water and roads. The
+  // names stay, and so does everything of the trip.
+  const satOn = editing?.satellite?.on ?? false;
+  const satLabel = editing?.satellite?.label;
+  useEffect(() => {
+    const button = satButton.current;
+    if (button && satLabel) {
+      button.setAttribute("aria-pressed", String(satOn));
+      button.setAttribute("aria-label", satLabel);
+      button.title = satLabel;
+    }
+    const m = map.current;
+    if (!loaded || !m?.getLayer("satellite")) return;
+    for (const l of m.getStyle().layers) {
+      if (l.id === "satellite")
+        m.setLayoutProperty(l.id, "visibility", satOn ? "visible" : "none");
+      else if (
+        "source" in l &&
+        l.source === "openmaptiles" &&
+        l.type !== "symbol"
+      )
+        m.setLayoutProperty(l.id, "visibility", satOn ? "none" : "visible");
+    }
+  }, [loaded, satOn, satLabel]);
 
   const stretches = edit?.stretches;
   const points = edit?.points;

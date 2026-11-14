@@ -47,6 +47,7 @@ export default async function TripRoute({ params, searchParams }: Props) {
         locale={locale}
         userName={user.name}
         mapsKey={process.env.GOOGLE_MAPS_KEY}
+        satellite={!!process.env.ARCGIS_API_KEY}
         openIdeas={(await searchParams).tab === "ideas"}
       />
     );
