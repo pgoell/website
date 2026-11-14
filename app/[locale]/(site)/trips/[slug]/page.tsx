@@ -1,22 +1,46 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
+import { TripEditor } from "@/components/trips/trip-edit";
 import { PrivateTripPage, TripPage } from "@/components/trips/trip-page";
-import { getTrip } from "@/lib/trips/db";
+import { readSession, SESSION_COOKIE } from "@/lib/trips/auth";
+import { getStoredTrip, getTrip } from "@/lib/trips/db";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+/** Someone signed in, read from the session cookie. The hint cookie proves nothing. */
+async function signedIn() {
+  return readSession((await cookies()).get(SESSION_COOKIE)?.value);
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const trip = await getTrip(slug);
-  // a private trip renders in the browser only; keep its address out of search
-  return trip ? { title: trip.name } : { robots: { index: false } };
+  if (trip) return { title: trip.name };
+  // a private trip: keep its address out of search
+  const stored = (await signedIn()) ? await getStoredTrip(slug) : null;
+  return { robots: { index: false }, ...(stored && { title: stored.name }) };
 }
 
 export default async function TripRoute({ params }: Props) {
   const { locale, slug } = await params;
   if (!SLUG.test(slug)) notFound();
+  const user = await signedIn();
+  // Signed in: the whole trip, open or private, with everything to change it.
+  const stored = user ? await getStoredTrip(slug) : null;
+  if (user && stored) {
+    return (
+      <TripEditor
+        trip={stored}
+        locale={locale}
+        userName={user.name}
+        mapsKey={process.env.GOOGLE_MAPS_KEY}
+      />
+    );
+  }
+  // A visitor: the open trip as `shownTrip` trims it, nothing more.
   const trip = await getTrip(slug);
   // not in the open feed: maybe a private trip, which only the browser may ask for
   if (!trip) return <PrivateTripPage slug={slug} locale={locale} />;

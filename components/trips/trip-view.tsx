@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef } from "react";
+import { type ReactNode, type RefObject, useEffect, useRef } from "react";
 import { cx } from "@/components/viewfinder/cx";
-import { LOOKS } from "@/lib/trips/look";
+import { LOOKS, type Look } from "@/lib/trips/look";
 import {
   type Chapter,
   type DayPlan,
   dayLabel,
+  grouped,
   roadKm,
   zoneName,
 } from "@/lib/trips/plan";
@@ -17,9 +18,9 @@ import { TripMap } from "./trip-map";
 import s from "./trips.module.css";
 import { useTrip } from "./use-trip";
 
-type T = ReturnType<typeof useTranslations>;
+export type T = ReturnType<typeof useTranslations>;
 
-const Plane = () => (
+export const Plane = () => (
   <svg viewBox="0 0 24 24" className={s.ico} aria-hidden="true">
     <path d="M3 13.5 21 4l-5.5 17-3.6-7.2L3 13.5Z" />
   </svg>
@@ -32,15 +33,21 @@ const Road = () => (
   </svg>
 );
 
-const two = (n: number) => String(n).padStart(2, "0");
-/** 1280 as "1,280", or "1.280" in German. By hand: Intl differs between server and browser. */
-const grouped = (n: number, locale: string) =>
-  String(n).replace(/\B(?=(\d{3})+$)/g, locale === "de" ? "." : ",");
+export const two = (n: number) => String(n).padStart(2, "0");
 
 const chapterName = (c: Chapter, t: T) =>
   c.stop ? c.stop.name : t(c.kind === "out" ? "out" : "home");
 
-function Leg({ leg, locale }: { leg: TripLeg; locale: string }) {
+/** A leg of the day. Only someone signed in passes its cost. */
+export function Leg({
+  leg,
+  locale,
+  cost,
+}: {
+  leg: TripLeg;
+  locale: string;
+  cost?: string | null;
+}) {
   return (
     <div className={s.leg}>
       {leg.mode === "flight" ? <Plane /> : <Road />}
@@ -55,6 +62,7 @@ function Leg({ leg, locale }: { leg: TripLeg; locale: string }) {
                 ? `, ${dayLabel(leg.arriveDate, locale)}`
                 : ""
             }`}
+          {cost && `. ${cost}`}
         </p>
         {leg.note && <p className={s.dim}>{leg.note}</p>}
       </div>
@@ -149,50 +157,15 @@ export function TripView({ trip, locale }: { trip: Trip; locale: string }) {
     el.scrollTo({ left: ((picked ?? -1) + 1) * el.clientWidth });
   }, [picked]);
 
-  const stats: [string, string][] = [
-    [String(total), t("stat.days")],
-    [String(trip.stops.length), t("stat.stops")],
-    [grouped(roadKm(trip), locale), t("stat.km")],
-    [
-      String(trip.legs.filter((l) => l.mode === "flight").length),
-      t("stat.flights"),
-    ],
-  ];
   const overview = (
-    <>
-      <p className={s.kicker}>{t("overview")}</p>
-      <h2 className={s.big}>{trip.name}</h2>
-      <p className={s.sub}>
-        {dayLabel(trip.startDate, locale)} {t("to")}{" "}
-        {dayLabel(trip.endDate, locale)}
-      </p>
-      <dl className={s.stats}>
-        {stats.map(([value, label]) => (
-          <div key={label}>
-            <dd>{value}</dd>
-            <dt>{label}</dt>
-          </div>
-        ))}
-      </dl>
-      <ol className={s.stops}>
-        {chapters.map(
-          (c) =>
-            c.stop && (
-              <li key={c.key}>
-                <button
-                  type="button"
-                  onClick={() => v.pick(c.days[0]?.index ?? 0)}
-                >
-                  <b>{c.stop.position}</b>
-                  <span>{c.stop.name}</span>
-                  <small>{t("nights", { count: c.nights })}</small>
-                </button>
-              </li>
-            ),
-        )}
-      </ol>
-      {locale !== "en" && <p className={s.small}>{t("language")}</p>}
-    </>
+    <Overview
+      trip={trip}
+      total={total}
+      chapters={chapters}
+      locale={locale}
+      t={t}
+      onPick={v.pick}
+    />
   );
   const card = (d: DayPlan, i: number) => (
     <DayCard day={d} index={i} total={total} locale={locale} t={t} />
@@ -214,27 +187,13 @@ export function TripView({ trip, locale }: { trip: Trip; locale: string }) {
         />
       </div>
 
-      <div className={s.bar}>
-        <header className={s.crumb}>
-          <Link href={`/${locale}/trips`} className={s.back}>
-            ◂ <span>{t("up")}</span>
-          </Link>
-          <h1>{trip.name}</h1>
-        </header>
-        <fieldset className={s.looks}>
-          <legend>{t("display")}</legend>
-          {LOOKS.map((k) => (
-            <button
-              type="button"
-              key={k}
-              aria-pressed={v.look === k}
-              onClick={() => v.setLook(k)}
-            >
-              {t(`look.${k}`)}
-            </button>
-          ))}
-        </fieldset>
-      </div>
+      <TripBar
+        name={trip.name}
+        locale={locale}
+        look={v.look}
+        setLook={v.setLook}
+        t={t}
+      />
       {picked !== null && (
         <button type="button" className={s.whole} onClick={v.whole}>
           ◂ {t("wholeTrip")}
@@ -271,50 +230,15 @@ export function TripView({ trip, locale }: { trip: Trip; locale: string }) {
       </aside>
 
       <div className={s.dock}>
-        <nav className={s.strip} aria-label={t("strip")} ref={strip}>
-          <div
-            className={s.stripGrid}
-            style={{
-              gridTemplateColumns: `repeat(${total}, minmax(var(--cell), 1fr))`,
-            }}
-          >
-            {chapters.map((c) => (
-              <button
-                type="button"
-                key={c.key}
-                className={cx(
-                  s.band,
-                  picked !== null &&
-                    c.days.some((d) => d.index === picked) &&
-                    s.bandOn,
-                )}
-                style={{ gridColumn: `span ${c.days.length}` }}
-                title={chapterName(c, t)}
-                onClick={() => v.pick(c.days[0]?.index ?? 0)}
-              >
-                {c.stop ? <b>{c.stop.position}</b> : <Plane />}
-                <span className={cx(!c.stop && s.sr)}>{chapterName(c, t)}</span>
-              </button>
-            ))}
-            {days.map((d, i) => {
-              const [week, num] = dayLabel(d.date, locale).split(" ");
-              const on = i === picked;
-              return (
-                <button
-                  type="button"
-                  key={d.date}
-                  data-day={i}
-                  className={cx(s.frame, on && s.frameOn)}
-                  aria-pressed={on}
-                  onClick={() => v.pick(on ? null : i)}
-                >
-                  <strong>{Number.parseInt(num ?? "", 10)}</strong>
-                  <em>{week}</em>
-                </button>
-              );
-            })}
-          </div>
-        </nav>
+        <Strip
+          days={days}
+          chapters={chapters}
+          picked={picked}
+          locale={locale}
+          t={t}
+          onPick={v.pick}
+          stripRef={strip}
+        />
         <div className={s.cards} ref={cards} onScroll={onSwipe}>
           <article>{overview}</article>
           {days.map((d, i) => (
@@ -323,5 +247,196 @@ export function TripView({ trip, locale }: { trip: Trip; locale: string }) {
         </div>
       </div>
     </div>
+  );
+}
+
+/** The overview of the whole trip. Someone signed in adds a line under it. */
+export function Overview({
+  trip,
+  total,
+  chapters,
+  locale,
+  t,
+  onPick,
+  children,
+}: {
+  trip: Trip;
+  total: number;
+  chapters: Chapter[];
+  locale: string;
+  t: T;
+  onPick: (day: number) => void;
+  children?: ReactNode;
+}) {
+  const stats: [string, string][] = [
+    [String(total), t("stat.days")],
+    [String(trip.stops.length), t("stat.stops")],
+    [grouped(roadKm(trip), locale), t("stat.km")],
+    [
+      String(trip.legs.filter((l) => l.mode === "flight").length),
+      t("stat.flights"),
+    ],
+  ];
+  return (
+    <>
+      <p className={s.kicker}>{t("overview")}</p>
+      <h2 className={s.big}>{trip.name}</h2>
+      <p className={s.sub}>
+        {dayLabel(trip.startDate, locale)} {t("to")}{" "}
+        {dayLabel(trip.endDate, locale)}
+      </p>
+      <dl className={s.stats}>
+        {stats.map(([value, label]) => (
+          <div key={label}>
+            <dd>{value}</dd>
+            <dt>{label}</dt>
+          </div>
+        ))}
+      </dl>
+      <ol className={s.stops}>
+        {chapters.map(
+          (c) =>
+            c.stop && (
+              <li key={c.key}>
+                <button
+                  type="button"
+                  onClick={() => onPick(c.days[0]?.index ?? 0)}
+                >
+                  <b>{c.stop.position}</b>
+                  <span>{c.stop.name}</span>
+                  <small>{t("nights", { count: c.nights })}</small>
+                </button>
+              </li>
+            ),
+        )}
+      </ol>
+      {children}
+      {locale !== "en" && <p className={s.small}>{t("language")}</p>}
+    </>
+  );
+}
+
+/** Top left: the way back, the trip's name and the look. */
+export function TripBar({
+  name,
+  locale,
+  look,
+  setLook,
+  t,
+}: {
+  name: string;
+  locale: string;
+  look: Look;
+  setLook: (look: Look) => void;
+  t: T;
+}) {
+  return (
+    <div className={s.bar}>
+      <header className={s.crumb}>
+        <Link href={`/${locale}/trips`} className={s.back}>
+          ◂ <span>{t("up")}</span>
+        </Link>
+        <h1>{name}</h1>
+      </header>
+      <fieldset className={s.looks}>
+        <legend>{t("display")}</legend>
+        {LOOKS.map((k) => (
+          <button
+            type="button"
+            key={k}
+            aria-pressed={look === k}
+            onClick={() => setLook(k)}
+          >
+            {t(`look.${k}`)}
+          </button>
+        ))}
+      </fieldset>
+    </div>
+  );
+}
+
+/**
+ * The strip: a line per stop over a frame per day. Someone signed in sees a
+ * tick per planned place under each day.
+ */
+export function Strip({
+  days,
+  chapters,
+  picked,
+  locale,
+  t,
+  onPick,
+  stripRef,
+  places,
+}: {
+  days: DayPlan[];
+  chapters: Chapter[];
+  picked: number | null;
+  locale: string;
+  t: T;
+  onPick: (day: number | null) => void;
+  stripRef: RefObject<HTMLElement | null>;
+  /** How many places each day holds. */
+  places?: (day: DayPlan) => number;
+}) {
+  const total = days.length;
+  return (
+    <nav className={s.strip} aria-label={t("strip")} ref={stripRef}>
+      <div
+        className={s.stripGrid}
+        style={{
+          gridTemplateColumns: `repeat(${total}, minmax(var(--cell), 1fr))`,
+        }}
+      >
+        {chapters.map((c) => (
+          <button
+            type="button"
+            key={c.key}
+            className={cx(
+              s.band,
+              picked !== null &&
+                c.days.some((d) => d.index === picked) &&
+                s.bandOn,
+            )}
+            style={{ gridColumn: `span ${c.days.length}` }}
+            title={chapterName(c, t)}
+            onClick={() => onPick(c.days[0]?.index ?? 0)}
+          >
+            {c.stop ? <b>{c.stop.position}</b> : <Plane />}
+            <span className={cx(!c.stop && s.sr)}>{chapterName(c, t)}</span>
+          </button>
+        ))}
+        {days.map((d, i) => {
+          const label = dayLabel(d.date, locale);
+          const [week, num] = label.split(" ");
+          const on = i === picked;
+          const count = places?.(d) ?? 0;
+          return (
+            <button
+              type="button"
+              key={d.date}
+              data-day={i}
+              className={cx(s.frame, on && s.frameOn)}
+              aria-pressed={on}
+              aria-label={
+                places
+                  ? `${label}${count ? `, ${t("edit.placeCount", { count })}` : ""}`
+                  : undefined
+              }
+              onClick={() => onPick(on ? null : i)}
+            >
+              <strong>{Number.parseInt(num ?? "", 10)}</strong>
+              <em>{week}</em>
+              {count > 0 && (
+                <u
+                  className={s.ticks}
+                  style={{ width: Math.min(count, 8) * 3 }}
+                />
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </nav>
   );
 }

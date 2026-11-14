@@ -63,8 +63,11 @@ export interface Trip extends Omit<TripCard, "stops"> {
  * gets the `Trip` above, made by `shownTrip`.
  */
 
-/** A point tapped for a leg's line, and how the stretch from the one before runs. */
-export type DrawnPoint = { at: LngLat; road: boolean };
+/**
+ * A point of a leg's line, and how the stretch from the one before runs:
+ * along roads, straight, or along a line drawn by hand.
+ */
+export type DrawnPoint = { at: LngLat; road: boolean; line?: LngLat[] };
 
 export interface StoredStop extends TripStop {
   id: number;
