@@ -511,7 +511,8 @@
       {
         "title": "5. Storage in your browser",
         "text": [
-          "Some pages keep data in your browser's local storage (localStorage): the colour theme you chose, the game state and keyboard setting of Wordle, the keyboard setting of the Wordle solver, the game state of Kniffel, and the state and statistics of the Pomodoro timer.",
+          "Some pages keep data in your browser's local storage (localStorage): the colour theme you chose, the game state and keyboard setting of Wordle, the keyboard setting of the Wordle solver, the game state of Kniffel, the state and statistics of the Pomodoro timer, and the Night or Day look of the trip pages.",
+          "For people signed in to the trip pages, the browser also keeps a copy of the trip pages they open, their scripts and styles, and the map parts they have seen, so a trip still opens without a network (a service worker with its cache storage). The copy holds what a signed-in person sees, bookings included, stays on the device and is never sent anywhere. It stays until you clear the site's data in your browser.",
           "This data stays on your device and never goes to the server. The feature you open needs it to work (§ 25(2) no. 2 TDDDG). You can delete it at any time in your browser settings."
         ]
       },
