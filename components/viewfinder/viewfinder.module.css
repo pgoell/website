@@ -648,6 +648,10 @@ a.box,
   overflow: hidden;
   animation: pop 0.14s ease-out;
 }
+/* the menu takes keyboard focus as a whole; its lit row shows where you are */
+.menu:focus-visible {
+  outline: 0;
+}
 @keyframes pop {
   from {
     opacity: 0;
@@ -731,15 +735,6 @@ a.box,
   opacity: 1;
   background: var(--panel2);
 }
-.tabs button.on::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 8px;
-  bottom: 8px;
-  width: 3px;
-  background: var(--tc);
-}
 .tabs button:hover {
   opacity: 1;
 }
@@ -772,7 +767,6 @@ a.box,
 .groups > .on {
   color: var(--ink);
   background: #1f2222;
-  box-shadow: inset 3px 0 0 var(--tc);
 }
 .items {
   overflow: auto;
@@ -1348,14 +1342,6 @@ a.box,
     min-width: 46px;
     flex: 1;
   }
-  .tabs button.on::before {
-    left: 8px;
-    right: 8px;
-    top: auto;
-    bottom: 0;
-    width: auto;
-    height: 3px;
-  }
   /* one group needs no picker; several sit in a row under the tabs */
   .groups {
     display: none;
@@ -1375,9 +1361,6 @@ a.box,
     gap: 6px;
     padding: 12px 14px;
     font-size: 15px;
-  }
-  .groups.many > .on {
-    box-shadow: inset 0 -3px 0 var(--tc);
   }
   .items {
     grid-row: 4;
