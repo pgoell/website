@@ -14,9 +14,8 @@ import type { Trip } from "@/lib/trips/types";
 export type Pending = { state: "pending" };
 
 /**
- * Who is signed in to the trips app and every trip they may see. Without the
- * trips app's hint cookie this asks nobody, so a visitor's browser never
- * contacts trips.pgoell.com.
+ * Who is signed in and every trip they may see. Without the hint cookie this
+ * asks nobody, so a visitor's browser makes no extra request.
  */
 export function usePrivateTrips():
   | Pending
@@ -41,7 +40,7 @@ export function usePrivateTrips():
   return got;
 }
 
-/** One trip that the open feed does not have, asked of the trips app. */
+/** One trip that is not open, asked of `/api/trips/private`. */
 export function usePrivateTrip(
   slug: string,
 ): Pending | Reading<{ trip: Trip }> {

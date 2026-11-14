@@ -112,16 +112,7 @@ function DayCard({
  * One open trip. The map is the page; the days lie on it as a strip, and one
  * day at a time shows in a card. On a narrow screen the card is swiped.
  */
-export function TripView({
-  trip,
-  locale,
-  planner,
-}: {
-  trip: Trip;
-  locale: string;
-  /** Where the trip is planned, linked from the overview. */
-  planner: string;
-}) {
+export function TripView({ trip, locale }: { trip: Trip; locale: string }) {
   const t = useTranslations("site.trips");
   const v = useTrip(trip);
   const { days, chapters, picked, day } = v;
@@ -200,10 +191,7 @@ export function TripView({
             ),
         )}
       </ol>
-      <p className={s.small}>
-        <a href={planner}>{t("planner")}</a>
-        {locale !== "en" && ` · ${t("language")}`}
-      </p>
+      {locale !== "en" && <p className={s.small}>{t("language")}</p>}
     </>
   );
   const card = (d: DayPlan, i: number) => (

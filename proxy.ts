@@ -20,5 +20,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/(en|de)/:path*"],
+  // `/trips` without a locale is where trips.pgoell.com redirects to.
+  matcher: ["/", "/(en|de)/:path*", "/trips", "/trips/:path*"],
 };

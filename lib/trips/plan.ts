@@ -125,7 +125,7 @@ export interface Chapter {
 
 /** Nights spent at a stop. */
 export const nightsAt = (stop: TripStop): number =>
-  Math.round((Date.parse(stop.depart) - Date.parse(stop.arrive)) / 86400000);
+  Math.round((Date.parse(stop.depart) - Date.parse(stop.arrive)) / 86_400_000);
 
 /**
  * The trip's days in chapters. The day of a move belongs to the stop it leads

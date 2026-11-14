@@ -8,7 +8,6 @@ import {
   type Range,
   type SpotifyStats,
 } from "@/lib/stats/spotify";
-import { TRIPS_APP } from "@/lib/trips/feed";
 import { PROJECTS } from "./projects";
 import { berlinParts, sinceLabel } from "./time";
 
@@ -57,16 +56,16 @@ export interface PostLink {
   date: string;
 }
 
-/** A trip from the trips app, with its dates already written out. */
+/** A trip, with its dates already written out. */
 export interface TripLink {
   slug: string;
   name: string;
   when: string;
-  /** Only for someone signed in to the trips app. */
+  /** Only for someone signed in. */
   private?: boolean;
 }
 
-/** The Sign in row: who is signed in to the trips app, or where to sign in. */
+/** The Sign in row: who is signed in, or where to sign in. */
 export type TripsAccount = { name: string } | { signIn: string };
 
 /** Live stats behind the languages and music entries; any may be missing. */
@@ -97,7 +96,7 @@ export function buildMenu(
     now = new Date(),
   }: MenuStats = {},
   trips: readonly TripLink[] = [],
-  account: TripsAccount = { signIn: TRIPS_APP },
+  account: TripsAccount = { signIn: "/auth/login" },
 ): MenuTabDef[] {
   return [
     {
@@ -133,7 +132,7 @@ export function buildMenu(
               action: route(`/trips/${trip.slug}`),
               ...(trip.private ? { flag: "private" as const } : {}),
             })),
-            // signed in to the trips app, the private trips join the list above
+            // once signed in, the private trips join the list above
             "name" in account
               ? {
                   id: "tripsSignedIn",

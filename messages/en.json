@@ -481,7 +481,7 @@
   "datenschutz": {
     "link": "Privacy",
     "title": "Privacy notice",
-    "date": "Last updated: October 2026",
+    "date": "Last updated: November 2026",
     "controller": "1. Controller",
     "private": "pgoell.com is a private, non-commercial website. There is no data protection officer, and the law does not require one.",
     "sections": [
@@ -504,7 +504,8 @@
         "title": "4. Cookies",
         "text": [
           "The website sets one cookie named \"NEXT_LOCALE\". It remembers the language you chose and expires after one year. It is technically necessary and needs no consent under § 25(2) no. 2 TDDDG.",
-          "My trips app at trips.pgoell.com can set a second cookie for pgoell.com, named \"trips_signed_in\". Only people I have invited to that app receive it, when they sign in there. It holds only the number 1 and lasts 90 days or until sign-out. While it is there, the trips pages of this website load the private trips straight from trips.pgoell.com into your browser, with that app's own sign-in; this website's server never sees them. Without the cookie, your browser does not contact trips.pgoell.com. It is technically necessary for that sign-in (§ 25(2) no. 2 TDDDG)."
+          "The trip pages have a sign-in for people I have invited. You sign in with your Google account. Google (Google Ireland Limited, with Google LLC, USA, certified under the EU-US Data Privacy Framework) runs the sign-in, sees your IP address while you sign in and sends this website your basic profile. The website uses your email address to check that you are invited and your first name to show who added a place or an idea (Art. 6(1)(b) GDPR). Three cookies then hold the sign-in: \"trips_session\" holds your name and email address, signed so that nobody can change them; \"trips_signed_in\" holds only the number 1, so the pages know to load the private trips; both last 90 days or until you sign out. A third cookie guards the sign-in itself and lasts ten minutes. All three are technically necessary for the sign-in (§ 25(2) no. 2 TDDDG).",
+          "The places, ideas and notes that signed-in people enter sit in a database on this website's server, each place and idea with the first name of who added it. On a trip open to all, anyone can see the route, the places and the day notes; bookings and ideas stay behind the sign-in. Entries stay until someone on the trip deletes them, or until you ask me to. The server backs up the database at most once an hour and keeps the newest 48 copies; once a night a copy also goes to a storage box rented from Hetzner, kept for up to a year."
         ]
       },
       {
@@ -593,7 +594,6 @@
       "map": "Map of the trip",
       "wholeTrip": "Whole trip",
       "noMap": "The map cannot load here. The plan still works.",
-      "planner": "Made with my trips app",
       "language": "The notes of a trip are in English.",
       "overview": "Overview",
       "stat": {

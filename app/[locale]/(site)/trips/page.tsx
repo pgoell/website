@@ -4,7 +4,7 @@ import { FrameTitle } from "@/components/frame/frame-title";
 import s from "@/components/site/site.module.css";
 import { TripRow } from "@/components/trips/trip-row";
 import { PrivateTrips } from "@/components/trips/trips-account";
-import { getTrips } from "@/lib/trips/feed";
+import { getTrips } from "@/lib/trips/db";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("site.trips");

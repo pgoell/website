@@ -9,6 +9,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    # A throwaway database for the trips tests.
+    services:
+      postgres:
+        image: postgres:17.11-alpine3.24
+        env:
+          POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -23,6 +34,8 @@ jobs:
 
       - name: Run tests
         run: bun run test
+        env:
+          TEST_DATABASE_URL: postgres://postgres:test@localhost:5432/postgres
 
       - name: Build the project
         run: bun run build

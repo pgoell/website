@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { toTrip, toTripCard } from "../feed";
 import { isLook } from "../look";
 import {
   arc,
@@ -12,35 +11,72 @@ import {
   roadKm,
   zoneName,
 } from "../plan";
+import { shownTrip } from "../shown";
+import type { StoredTrip } from "../types";
 
-const raw = {
+const stop = {
+  tz: "Africa/Dar_es_Salaam",
+};
+
+const place = {
+  url: null,
+  note: null,
+  tags: null,
+  day: null,
+  dayOrder: null,
+  lat: null,
+  lng: null,
+  status: "confirmed" as const,
+  googlePlaceId: null,
+  createdBy: "Pascal",
+};
+
+const stored: StoredTrip = {
+  id: 1,
   slug: "tanzania",
   name: "Tanzania 2026",
   startDate: "2026-08-21",
   endDate: "2026-08-24",
+  public: true,
   stops: [
     {
-      position: 2,
-      name: "Burunge",
-      tz: "Africa/Dar_es_Salaam",
-      lat: -3.87,
-      lng: 35.85,
-      arrive: "2026-08-23",
-      depart: "2026-08-24",
-    },
-    {
+      ...stop,
+      id: 1,
       position: 1,
       name: "Rivertrees",
-      tz: "Africa/Dar_es_Salaam",
       lat: -3.37,
       lng: 36.86,
       arrive: "2026-08-22",
       depart: "2026-08-23",
     },
-    { position: 3, name: "No place" },
+    {
+      ...stop,
+      id: 2,
+      position: 2,
+      name: "Burunge",
+      lat: -3.87,
+      lng: 35.85,
+      arrive: "2026-08-23",
+      depart: "2026-08-24",
+    },
+  ],
+  bookings: [
+    {
+      id: 1,
+      stopPosition: 1,
+      kind: "hotel",
+      title: "Rivertrees",
+      startAt: "2026-08-22T14:00",
+      startTz: "Africa/Dar_es_Salaam",
+      endAt: "2026-08-23T10:00",
+      endTz: "Africa/Dar_es_Salaam",
+      confirmation: "SECRET",
+      detail: { Price: "a price" },
+    },
   ],
   legs: [
     {
+      id: 1,
       mode: "flight",
       title: "Frankfurt to Addis Ababa",
       how: "ET 707",
@@ -50,72 +86,89 @@ const raw = {
       arriveDate: "2026-08-22",
       arrive: "05:55",
       arriveTz: "Africa/Addis_Ababa",
+      cost: "a price",
       note: null,
       path: [
         [8.57, 50.03],
         [38.8, 8.98],
       ],
+      drawn: false,
+      points: null,
     },
     {
+      id: 2,
       mode: "ground",
       title: "Rivertrees to Burunge",
       how: "By car",
       leaveDate: "2026-08-23",
+      leave: "",
+      leaveTz: "Africa/Dar_es_Salaam",
+      arriveDate: "2026-08-23",
+      arrive: "",
+      arriveTz: "Africa/Dar_es_Salaam",
+      cost: null,
+      note: null,
       path: [
         [36.86, -3.37],
         [36.2, -3.6],
         [35.85, -3.87],
       ],
+      drawn: true,
+      points: [{ at: [36.86, -3.37], road: true }],
     },
-    { mode: "boat", title: "Not a leg", leaveDate: "2026-08-23", path: [] },
   ],
   places: [
-    { name: "Second", day: "2026-08-23", dayOrder: 2, lat: -3.5, lng: 36.5 },
-    { name: "First", day: "2026-08-23", dayOrder: 1, url: "javascript:x" },
-    { note: "no name" },
+    {
+      ...place,
+      id: 3,
+      name: "Second",
+      day: "2026-08-23",
+      dayOrder: 2,
+      lat: -3.5,
+      lng: 36.5,
+    },
+    {
+      ...place,
+      id: 2,
+      name: "First",
+      day: "2026-08-23",
+      dayOrder: 1,
+      url: "javascript:x",
+    },
+    { ...place, id: 1, name: "An idea", status: "idea" },
   ],
-  dayNotes: { "2026-08-22": "Coffee walk.", nonsense: "x", "2026-08-23": "" },
+  dayNotes: { "2026-08-22": "Coffee walk." },
 };
 
-describe("toTripCard", () => {
-  it("reads a card and drops broken ones", () => {
-    expect(toTripCard({ ...raw, stops: ["A", "B", 3] })).toEqual({
-      slug: "tanzania",
-      name: "Tanzania 2026",
-      startDate: "2026-08-21",
-      endDate: "2026-08-24",
-      stops: ["A", "B"],
-    });
-    expect(toTripCard({ ...raw, slug: "../etc" })).toBeNull();
-    expect(toTripCard({ ...raw, endDate: "2026-08-01" })).toBeNull();
-    expect(toTripCard({ ...raw, endDate: "2036-08-01" })).toBeNull();
-    expect(toTripCard(null)).toBeNull();
-  });
-});
-
-describe("toTrip", () => {
-  const trip = toTrip(raw);
-  it("keeps the well-formed parts, in order", () => {
-    expect(trip?.stops.map((s) => s.name)).toEqual(["Rivertrees", "Burunge"]);
-    expect(trip?.legs.map((l) => l.title)).toEqual([
+describe("shownTrip", () => {
+  const trip = shownTrip(stored);
+  it("keeps the plan and drops what a visitor may not see", () => {
+    expect(trip.stops.map((s) => s.name)).toEqual(["Rivertrees", "Burunge"]);
+    expect(trip.legs.map((l) => l.title)).toEqual([
       "Frankfurt to Addis Ababa",
       "Rivertrees to Burunge",
     ]);
-    expect(trip?.legs[1]?.arriveDate).toBe("2026-08-23");
-    expect(trip?.places.map((p) => p.name)).toEqual(["Second", "First"]);
-    expect(trip?.dayNotes).toEqual({ "2026-08-22": "Coffee walk." });
+    expect(trip.places.map((p) => p.name)).toEqual(["Second", "First"]);
+    expect(trip.dayNotes).toEqual({ "2026-08-22": "Coffee walk." });
+    const text = JSON.stringify(trip);
+    for (const hidden of [
+      "bookings",
+      "SECRET",
+      "a price",
+      "Pascal",
+      "points",
+      "An idea",
+    ]) {
+      expect(text).not.toContain(hidden);
+    }
   });
   it("lets only web links through", () => {
-    expect(trip?.places[1]?.url).toBeNull();
-  });
-  it("needs at least one stop", () => {
-    expect(toTrip({ ...raw, stops: [] })).toBeNull();
+    expect(trip.places[1]?.url).toBeNull();
   });
 });
 
 describe("plan", () => {
-  const trip = toTrip(raw);
-  if (!trip) throw new Error("fixture");
+  const trip = shownTrip(stored);
   it("lists the days, both ends included", () => {
     expect(daysBetween("2026-08-30", "2026-09-02")).toEqual([
       "2026-08-30",
@@ -160,7 +213,7 @@ describe("plan", () => {
 });
 
 describe("chapters", () => {
-  const trip = toTrip(raw) as NonNullable<ReturnType<typeof toTrip>>;
+  const trip = shownTrip(stored);
   const days = daysBetween(trip.startDate, trip.endDate).map((d) =>
     dayPlan(trip, d),
   );
