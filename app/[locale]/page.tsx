@@ -4,7 +4,7 @@ import { ViewfinderHome } from "@/components/viewfinder/viewfinder-home";
 import { getAllPosts } from "@/lib/posts";
 import { getGithubStats } from "@/lib/stats/github";
 import { getReading } from "@/lib/stats/kasten";
-import { getSpotifyTop } from "@/lib/stats/spotify";
+import { getSpotifyStats } from "@/lib/stats/spotify";
 import { getTrips } from "@/lib/trips/feed";
 import { dayLabel } from "@/lib/trips/plan";
 import { getWeather } from "@/lib/weather/weather";
@@ -24,7 +24,7 @@ export default async function Home({
     await Promise.all([
       getAllPosts(locale),
       getGithubStats(),
-      getSpotifyTop(),
+      getSpotifyStats(),
       getWeather(),
       getReading(),
       getTrips(),

@@ -156,8 +156,10 @@
         "glance": "At a glance",
         "trips": "Trips",
         "posts": "Posts",
-        "onRepeat": "On repeat",
+        "listening": "Listening",
         "topArtists": "Top artists",
+        "topTracks": "Top tracks",
+        "genres": "Genres",
         "inBrowser": "In browser",
         "contact": "Contact"
       },
@@ -265,7 +267,22 @@
         "tripsSignIn": {
           "t": "Sign in",
           "v": "more trips"
+        },
+        "today": {
+          "t": "Today",
+          "v": "{plays} plays · {minutes} min"
+        },
+        "spotifyProfile": {
+          "t": "Profile on Spotify",
+          "v": "All playlists"
         }
+      },
+      "live": "LIVE",
+      "span": "Time span",
+      "range": {
+        "short_term": "4 weeks",
+        "medium_term": "6 months",
+        "long_term": "1 year"
       }
     }
   },
@@ -539,7 +556,8 @@
     "tabs": {
       "writing": "Writing",
       "games": "Games",
-      "tools": "Tools"
+      "tools": "Tools",
+      "trips": "Trips"
     },
     "blog": {
       "title": "Writing",

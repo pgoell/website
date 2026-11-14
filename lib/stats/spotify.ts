@@ -1,4 +1,4 @@
-/** Spotify stats: what plays now (or last) and the top tracks and artists of the last four weeks. */
+/** Spotify stats: what plays now (or last), the last plays, and top tracks, artists and genres over three spans. */
 
 const DAY = 86400;
 
@@ -13,15 +13,40 @@ export interface NowPlaying extends Track {
   playing: boolean;
 }
 
-export interface SpotifyTop {
-  tracks: Track[];
-  artists: { name: string; url: string }[];
-}
-
 interface ApiTrack {
   name: string;
   artists: { name: string }[];
   external_urls: { spotify: string };
+  duration_ms?: number;
+}
+
+interface ApiArtist {
+  name: string;
+  genres?: string[];
+  external_urls: { spotify: string };
+}
+
+/** The time spans Spotify ranks top artists and tracks over. */
+export const RANGES = ["short_term", "medium_term", "long_term"] as const;
+export type Range = (typeof RANGES)[number];
+
+export interface Artist {
+  name: string;
+  url: string;
+  genres: string[];
+}
+
+export interface Play extends Track {
+  /** ISO time the play finished. */
+  at: string;
+  minutes: number;
+}
+
+/** What the stats panel shows: top lists for each span and the last plays. */
+export interface SpotifyStats {
+  top: Record<Range, { artists: Artist[]; tracks: Track[]; genres: string[] }>;
+  recent: Play[];
+  profile: string | null;
 }
 
 interface ApiEpisode {
@@ -131,25 +156,81 @@ export async function getProfileUrl(): Promise<string | null> {
   }
 }
 
-export async function getSpotifyTop(): Promise<SpotifyTop | null> {
+const toArtist = (a: ApiArtist): Artist => ({
+  name: a.name,
+  url: a.external_urls.spotify,
+  genres: a.genres ?? [],
+});
+
+/** Genres of the top artists, weighted so the higher an artist ranks the more its genres count. */
+export function topGenres(artists: readonly Artist[], n = 5): string[] {
+  const score = new Map<string, number>();
+  artists.forEach((a, i) => {
+    for (const g of a.genres)
+      score.set(g, (score.get(g) ?? 0) + (artists.length - i));
+  });
+  return [...score]
+    .sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0]))
+    .slice(0, n)
+    .map(([g]) => g);
+}
+
+/** Plays and minutes on the given Berlin day; `capped` when every fetched play is that day, so there were more. */
+export function dayTotals(
+  plays: readonly Play[],
+  day: string,
+  dayOf: (iso: string) => string,
+): { plays: number; minutes: number; capped: boolean } {
+  const today = plays.filter((p) => dayOf(p.at) === day);
+  return {
+    plays: today.length,
+    minutes: Math.round(today.reduce((m, p) => m + p.minutes, 0)),
+    capped: today.length > 0 && today.length === plays.length,
+  };
+}
+
+async function topFor(range: Range) {
+  const [tracks, artists] = await Promise.all([
+    api<{ items: ApiTrack[] }>(
+      `/me/top/tracks?time_range=${range}&limit=10`,
+      DAY,
+    ),
+    api<{ items: ApiArtist[] }>(
+      `/me/top/artists?time_range=${range}&limit=20`,
+      DAY,
+    ),
+  ]);
+  if (!tracks || !artists) return null;
+  const all = artists.items.map(toArtist);
+  return {
+    tracks: tracks.items.map(toTrack),
+    artists: all.slice(0, 10),
+    genres: topGenres(all),
+  };
+}
+
+/** Everything the stats panel shows; null without credentials or when Spotify fails. */
+export async function getSpotifyStats(): Promise<SpotifyStats | null> {
   try {
-    const [tracks, artists] = await Promise.all([
-      api<{ items: ApiTrack[] }>(
-        "/me/top/tracks?time_range=short_term&limit=5",
-        DAY,
+    const [short, medium, long, recent, profile] = await Promise.all([
+      topFor("short_term"),
+      topFor("medium_term"),
+      topFor("long_term"),
+      api<{ items: { track: ApiTrack; played_at: string }[] }>(
+        "/me/player/recently-played?limit=50",
+        300,
       ),
-      api<{ items: { name: string; external_urls: { spotify: string } }[] }>(
-        "/me/top/artists?time_range=short_term&limit=3",
-        DAY,
-      ),
+      getProfileUrl(),
     ]);
-    if (!tracks || !artists) return null;
+    if (!short || !medium || !long) return null;
     return {
-      tracks: tracks.items.map(toTrack),
-      artists: artists.items.map((a) => ({
-        name: a.name,
-        url: a.external_urls.spotify,
+      top: { short_term: short, medium_term: medium, long_term: long },
+      recent: (recent?.items ?? []).map((i) => ({
+        ...toTrack(i.track),
+        at: i.played_at,
+        minutes: (i.track.duration_ms ?? 0) / 60_000,
       })),
+      profile,
     };
   } catch {
     return null;

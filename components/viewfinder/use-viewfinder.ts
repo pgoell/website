@@ -46,7 +46,7 @@ export function useViewfinder() {
   const [playback, setPlayback] = useState<number | null>(null);
   const curtainRef = useRef<HTMLDivElement | null>(null);
 
-  // light follows the real sun now; ?time=HH[:MM] and ?date=YYYY-MM-DD (Berlin local) pin it, ?weather= fixes the weather, ?state= opens a view for review
+  // light follows the real sun now; ?time=HH[:MM] and ?date=YYYY-MM-DD (Berlin local) pin it, ?weather= fixes the weather, ?state= opens a view for review (menu, search, play, music)
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
     const w = q.get("weather");
@@ -62,6 +62,7 @@ export function useViewfinder() {
     if (state === "search")
       later(() => setMenu({ tab: "search", query: "agent" }));
     if (state === "play") later(() => setPlayback(1));
+    if (state === "music") later(() => setMenu({ tab: "music" }));
     return () => {
       for (const t of timers) clearTimeout(t);
     };

@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import type { GithubStats } from "@/lib/stats/github";
 import type { Book } from "@/lib/stats/kasten";
-import type { SpotifyTop } from "@/lib/stats/spotify";
+import type { Range, SpotifyStats } from "@/lib/stats/spotify";
 import {
   buildMenu,
   type PostLink,
@@ -17,7 +17,7 @@ import { cx } from "./cx";
 import { Evf } from "./evf";
 import { hudFont, monoFont, semiFont } from "./fonts";
 import { PlaybackWindow } from "./playback-window";
-import { useWeather } from "./readouts";
+import { useNowPlaying, useWeather } from "./readouts";
 import { ScenePanel } from "./scene-panel";
 import { useAmbience } from "./use-ambience";
 import { useViewfinder } from "./use-viewfinder";
@@ -40,7 +40,7 @@ export function ViewfinderHome({
   posts: PostLink[];
   trips: TripLink[];
   github: GithubStats | null;
-  spotify: SpotifyTop | null;
+  spotify: SpotifyStats | null;
   weather: Weather | null;
   book: Book | null;
 }) {
@@ -52,9 +52,14 @@ export function ViewfinderHome({
   const onPowerOn = useCallback(() => setPowered(true), []);
   const { setSceneOpen } = vf;
   const closeScene = useCallback(() => setSceneOpen(false), [setSceneOpen]);
+  const listening = useNowPlaying();
+  const [range, setRange] = useState<Range>("short_term");
   const tabs = useMemo(
-    () => visibleMenu(buildMenu(posts, { spotify }, trips)),
-    [posts, spotify, trips],
+    () =>
+      visibleMenu(
+        buildMenu(posts, { spotify, listening, range, now: new Date() }, trips),
+      ),
+    [posts, spotify, listening, range, trips],
   );
 
   return (
@@ -73,6 +78,8 @@ export function ViewfinderHome({
         weather={sky}
         mode={vf.mode}
         onMenu={() => vf.openMenu({ tab: "main" })}
+        listening={listening}
+        onMusic={() => vf.openMenu({ tab: "music" })}
         onCycleMode={vf.cycleMode}
         onPowerOn={onPowerOn}
         github={github}
@@ -100,6 +107,8 @@ export function ViewfinderHome({
           request={vf.menu}
           onClose={vf.closeMenu}
           onAction={vf.runAction}
+          range={range}
+          onRange={setRange}
         />
       ) : null}
       {vf.playback !== null && PROJECTS[vf.playback] ? (

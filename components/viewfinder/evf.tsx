@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { locales } from "@/i18n/config";
 import type { GithubStats } from "@/lib/stats/github";
 import type { Book } from "@/lib/stats/kasten";
+import type { Listening } from "@/lib/stats/spotify";
 import {
   DEFAULT_STOP,
   STOPS,
@@ -20,12 +21,7 @@ import { cls, cx } from "./cx";
 import type { Scene } from "./gelnhausen-engine";
 import { GelnhausenScene } from "./gelnhausen-scene";
 import { ContactIcon } from "./icons";
-import {
-  CommitHistogram,
-  DayScale,
-  LevelMeters,
-  useNowPlaying,
-} from "./readouts";
+import { CommitHistogram, DayScale, LevelMeters } from "./readouts";
 import type { DisplayMode } from "./use-viewfinder";
 import s from "./viewfinder.module.css";
 
@@ -36,6 +32,9 @@ interface Props {
   weather: SceneWeather | null;
   mode: DisplayMode;
   onMenu: () => void;
+  /** What plays on Spotify; the readout opens the menu's Music tab. */
+  listening: Listening | null;
+  onMusic: () => void;
   onCycleMode: () => void;
   onPowerOn: () => void;
   github: GithubStats | null;
@@ -61,6 +60,8 @@ export function Evf({
   weather,
   mode,
   onMenu,
+  listening,
+  onMusic,
   onCycleMode,
   onPowerOn,
   github,
@@ -86,9 +87,7 @@ export function Evf({
   const poweredRef = useRef(false);
   const [guide, setGuide] = useState<Guide>(null);
   const [clock, setClock] = useState({ time: "--:--", zone: "CET" });
-  const listening = useNowPlaying();
   const track = listening?.track ?? null;
-  const trackHref = track?.url ?? listening?.profile ?? undefined;
   const lastPush = github?.lastPush;
   const repo = lastPush?.repo ?? "--";
   const [since, setSince] = useState("--");
@@ -423,12 +422,12 @@ export function Evf({
             </div>
             <CommitHistogram weeks={github?.weeks} />
           </div>
-          <a
-            className={cx(s.box, s.ro)}
-            href={trackHref}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            className={cx(s.box, s.ro, s.pick, s.boxBtn)}
             data-af="10"
+            aria-haspopup="dialog"
+            onClick={onMusic}
           >
             <div className={s.hd}>
               <span>
@@ -448,7 +447,7 @@ export function Evf({
                 "--"
               )}
             </div>
-          </a>
+          </button>
           {book && (
             <div className={cx(s.box, s.ro)} data-af="10">
               <div className={s.hd}>
