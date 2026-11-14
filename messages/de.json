@@ -225,6 +225,10 @@
           "t": "Alle Beiträge",
           "v": "Blog"
         },
+        "allTrips": {
+          "t": "Alle Trips",
+          "v": "Karte"
+        },
         "wordle": {
           "t": "Wordle",
           "v": "Wortspiel"

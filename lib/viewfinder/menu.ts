@@ -125,13 +125,13 @@ export function buildMenu(
         {
           id: "posts",
           items: [
+            { id: "allPosts", action: route("/blog") },
             ...posts.map((p) => ({
               id: `post-${p.slug}`,
               title: p.title,
               value: p.date,
               action: route(`/blog/${p.slug}`),
             })),
-            { id: "allPosts", action: route("/blog") },
           ],
         },
       ],
@@ -144,6 +144,7 @@ export function buildMenu(
         {
           id: "trips",
           items: [
+            { id: "allTrips", action: route("/trips") },
             ...trips.map((trip) => ({
               id: `trip-${trip.slug}`,
               title: trip.name,

@@ -53,6 +53,7 @@ describe("buildMenu", () => {
     );
     const items = tripsGroup(signedIn);
     expect(items.map((i) => [i.id, i.flag])).toEqual([
+      ["allTrips", undefined],
       ["trip-japan", "private"],
       ["trip-tanzania", undefined],
       ["tripsSignedIn", undefined],
@@ -66,6 +67,10 @@ describe("buildMenu", () => {
   it("lists blog posts under writing", () => {
     const items = tabs.find((t) => t.id === "writing")?.groups[0]?.items ?? [];
     expect(items[0]).toMatchObject({
+      id: "allPosts",
+      action: { kind: "route", path: "/blog" },
+    });
+    expect(items[1]).toMatchObject({
       title: "Hello World",
       action: { kind: "route", path: "/blog/hello-world" },
     });
