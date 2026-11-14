@@ -164,8 +164,7 @@
         "topArtists": "Top artists",
         "languages": "Languages",
         "inBrowser": "In browser",
-        "contact": "Contact",
-        "display": "Display"
+        "contact": "Contact"
       },
       "items": {
         "name": {
@@ -280,29 +279,6 @@
         "x": {
           "t": "X",
           "v": "@pagoell"
-        },
-        "light": {
-          "t": "Light",
-          "v": "follows Gelnhausen time",
-          "help": "The picture follows local time in Gelnhausen. Try ?time=21."
-        },
-        "readouts": {
-          "t": "Readouts",
-          "v": "live"
-        },
-        "histogram": {
-          "t": "Histogram",
-          "v": "commits, 52 weeks"
-        },
-        "language": {
-          "t": "Language",
-          "v": "English",
-          "help": "Switch the site to German."
-        },
-        "trips": {
-          "t": "Trips",
-          "v": "on a map",
-          "help": "Trips I have made, drawn on a map day by day."
         }
       }
     }
@@ -577,8 +553,7 @@
     "tabs": {
       "writing": "Writing",
       "games": "Games",
-      "tools": "Tools",
-      "trips": "Trips"
+      "tools": "Tools"
     },
     "blog": {
       "title": "Writing",
@@ -593,24 +568,6 @@
       "newer": "Newer",
       "more": "More posts",
       "contents": "Contents"
-    },
-    "trips": {
-      "title": "Trips",
-      "subtitle": "Journeys on a map, day by day",
-      "count": "{count, plural, one {# trip} other {# trips}}",
-      "empty": "No open trips right now.",
-      "days": "{count, plural, one {# day} other {# days}}",
-      "stops": "{count, plural, one {# stop} other {# stops}}",
-      "up": "All trips",
-      "to": "to",
-      "inTheAir": "In the air",
-      "day": "Day",
-      "map": "Map of the trip",
-      "wholeTrip": "Whole trip",
-      "showDay": "Show this day on the map",
-      "noMap": "The map cannot load here. The plan below still works.",
-      "planner": "Made with my trips app",
-      "language": "The notes of a trip are in English."
     }
   }
 }

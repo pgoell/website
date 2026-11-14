@@ -19,11 +19,10 @@ interface Props {
   request: MenuRequest;
   onClose: () => void;
   onAction: (a: MenuAction) => void;
-  onTab: (id: MenuTabDef["id"]) => void;
 }
 
 /** Sony-style camera menu: tabs down the side, groups, items; type anywhere to search everything. */
-export function CameraMenu({ tabs, request, onClose, onAction, onTab }: Props) {
+export function CameraMenu({ tabs, request, onClose, onAction }: Props) {
   const t = useTranslations("home.menu");
   const startTab = Math.max(
     0,
@@ -77,7 +76,6 @@ export function CameraMenu({ tabs, request, onClose, onAction, onTab }: Props) {
     setGrp(0);
     setSel(0);
     setQ("");
-    onTab((tabs[next] as MenuTabDef).id);
   };
   const enter = (e?: MenuEntry) => {
     const it = e ?? item;
@@ -272,31 +270,54 @@ export function CameraMenu({ tabs, request, onClose, onAction, onTab }: Props) {
           </div>
           <div className={s.items} ref={itemsRef}>
             {list.length ? (
-              list.map((it, i) => (
-                <button
-                  type="button"
-                  key={`${it.tab}-${it.def.id}`}
-                  data-s={i}
-                  className={cx(
-                    s.it,
-                    i === cur && s.on,
-                    it.def.flag === "soon" && s.off,
-                  )}
-                  aria-disabled={it.def.flag === "soon"}
-                  onMouseMove={() => i !== cur && setSel(i)}
-                  onFocus={() => setSel(i)}
-                  onClick={() => enter(it)}
-                >
-                  <span className={s.n}>{String(i + 1).padStart(2, "0")}</span>
-                  <span className={s.t}>{it.title}</span>
-                  <span className={s.v}>
-                    {qs ? `${it.tabName} / ` : ""}
-                    {it.value}
-                    {tag(it.def.flag)}
-                  </span>
-                  <span className={s.ch}>›</span>
-                </button>
-              ))
+              list.map((it, i) => {
+                const row = (
+                  <>
+                    <span className={s.n}>
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className={s.t}>{it.title}</span>
+                    <span className={s.v}>
+                      {qs ? `${it.tabName} / ` : ""}
+                      {it.value}
+                      {tag(it.def.flag)}
+                    </span>
+                  </>
+                );
+                const key = `${it.tab}-${it.def.id}`;
+                // entries that open nothing are plain facts: no chevron, no pointer, no orange bar
+                if (!actionFor(it.def))
+                  return (
+                    // biome-ignore lint/a11y/noStaticElementInteractions: hover only moves the keyboard cursor
+                    <div
+                      key={key}
+                      data-s={i}
+                      className={cx(
+                        s.it,
+                        s.info,
+                        i === cur && s.on,
+                        it.def.flag === "soon" && s.off,
+                      )}
+                      onMouseMove={() => i !== cur && setSel(i)}
+                    >
+                      {row}
+                    </div>
+                  );
+                return (
+                  <button
+                    type="button"
+                    key={key}
+                    data-s={i}
+                    className={cx(s.it, i === cur && s.on)}
+                    onMouseMove={() => i !== cur && setSel(i)}
+                    onFocus={() => setSel(i)}
+                    onClick={() => enter(it)}
+                  >
+                    {row}
+                    <span className={s.ch}>›</span>
+                  </button>
+                );
+              })
             ) : (
               <div className={s.empty}>{t("empty")}</div>
             )}

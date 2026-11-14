@@ -833,13 +833,26 @@ a.box {
 .it.on .ch {
   color: rgba(0, 0, 0, 0.72);
 }
+/* facts, not links: the cursor still lands on them so the footer can read them out, but quietly */
+.it.info {
+  cursor: default;
+}
+.it.info.on {
+  background: #1c1f1f;
+  color: inherit;
+  box-shadow: inset 3px 0 0 var(--faint);
+}
+.it.info.on .v,
+.it.info.on .n {
+  color: var(--dim);
+}
 .it.off,
 .it.off .v {
   color: var(--faint);
 }
 .it.on.off,
 .it.on.off .v {
-  color: rgba(0, 0, 0, 0.6);
+  color: var(--faint);
 }
 .empty {
   padding: 40px 20px;
