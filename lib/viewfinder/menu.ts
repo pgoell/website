@@ -3,6 +3,7 @@
 import { isHiddenPage } from "@/lib/hidden-pages";
 import type { GithubStats } from "@/lib/stats/github";
 import type { SpotifyTop } from "@/lib/stats/spotify";
+import { TRIPS_APP } from "@/lib/trips/feed";
 import { PROJECTS } from "./projects";
 
 export type MenuFlag = "soon" | "ok";
@@ -45,6 +46,13 @@ export interface PostLink {
   date: string;
 }
 
+/** An open trip from the trips app, with its dates already written out. */
+export interface TripLink {
+  slug: string;
+  name: string;
+  when: string;
+}
+
 /** Live stats behind the languages and music entries; either may be missing. */
 export interface MenuStats {
   github?: GithubStats | null;
@@ -58,11 +66,11 @@ export const X = "https://x.com/pagoell";
 
 const route = (path: string): MenuAction => ({ kind: "route", path });
 const external = (href: string): MenuAction => ({ kind: "external", href });
-const project = (index: number): MenuAction => ({ kind: "project", index });
 
 export function buildMenu(
   posts: readonly PostLink[],
-  { github, spotify }: MenuStats = {},
+  { spotify }: MenuStats = {},
+  trips: readonly TripLink[] = [],
 ): MenuTabDef[] {
   return [
     {
@@ -81,10 +89,6 @@ export function buildMenu(
             { id: "camera" },
           ],
         },
-        {
-          id: "shortcuts",
-          items: [{ id: "trips", action: route("/trips") }],
-        },
       ],
     },
     {
@@ -93,36 +97,16 @@ export function buildMenu(
       color: "#ff4d7a",
       groups: [
         {
-          id: "agents",
-          items: [{ id: "gmail", action: project(1) }],
-        },
-        {
-          id: "tools",
+          id: "trips",
           items: [
-            { id: "klassenzeit", action: project(0) },
-            { id: "slides", action: project(2) },
-            { id: "football", action: project(3) },
-          ],
-        },
-        ...(github?.languages.length
-          ? [
-              {
-                id: "languages",
-                items: github.languages.map((l) => ({
-                  id: `lang-${l.name}`,
-                  title: l.name,
-                  value: `${Math.round(l.share * 100)}%`,
-                  action: external(GITHUB),
-                })),
-              },
-            ]
-          : []),
-        {
-          id: "games",
-          items: [
-            { id: "wordleMap", action: project(4) },
-            { id: "kniffelMap", action: project(4) },
-            { id: "pomodoroMap", action: project(4) },
+            ...trips.map((trip) => ({
+              id: `trip-${trip.slug}`,
+              title: trip.name,
+              value: trip.when,
+              action: route(`/trips/${trip.slug}`),
+            })),
+            // the private trips only show in the planner, after Google sign-in
+            { id: "tripsSignIn", action: external(TRIPS_APP) },
           ],
         },
       ],

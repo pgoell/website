@@ -4,7 +4,12 @@ import { useCallback, useMemo, useState } from "react";
 import type { GithubStats } from "@/lib/stats/github";
 import type { Book } from "@/lib/stats/kasten";
 import type { SpotifyTop } from "@/lib/stats/spotify";
-import { buildMenu, type PostLink, visibleMenu } from "@/lib/viewfinder/menu";
+import {
+  buildMenu,
+  type PostLink,
+  type TripLink,
+  visibleMenu,
+} from "@/lib/viewfinder/menu";
 import { PROJECTS } from "@/lib/viewfinder/projects";
 import type { Weather } from "@/lib/weather/weather";
 import { CameraMenu } from "./camera-menu";
@@ -26,12 +31,14 @@ const ART_FONTS = {
 /** The home page: a camera viewfinder over Gelnhausen, with the contact links laid over it. */
 export function ViewfinderHome({
   posts,
+  trips,
   github,
   spotify,
   weather: initialWeather,
   book,
 }: {
   posts: PostLink[];
+  trips: TripLink[];
   github: GithubStats | null;
   spotify: SpotifyTop | null;
   weather: Weather | null;
@@ -46,8 +53,8 @@ export function ViewfinderHome({
   const { setSceneOpen } = vf;
   const closeScene = useCallback(() => setSceneOpen(false), [setSceneOpen]);
   const tabs = useMemo(
-    () => visibleMenu(buildMenu(posts, { github, spotify })),
-    [posts, github, spotify],
+    () => visibleMenu(buildMenu(posts, { spotify }, trips)),
+    [posts, spotify, trips],
   );
 
   return (
