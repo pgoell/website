@@ -62,7 +62,7 @@ export function ViewfinderHome({
   const locale = useLocale();
   const account = usePrivateTrips();
   const tabs = useMemo(() => {
-    // signed in to the trips app, the private trips go first: they lie ahead
+    // once signed in, the private trips go first: they lie ahead
     const shown: TripLink[] =
       account.state === "in"
         ? [

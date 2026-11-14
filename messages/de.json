@@ -481,7 +481,7 @@
   "datenschutz": {
     "link": "Datenschutz",
     "title": "Datenschutzerklärung",
-    "date": "Stand: Oktober 2026",
+    "date": "Stand: November 2026",
     "controller": "1. Verantwortlicher",
     "private": "pgoell.com ist eine private Website ohne kommerzielle Absicht. Ein Datenschutzbeauftragter ist nicht benannt und nicht vorgeschrieben.",
     "sections": [
@@ -504,7 +504,8 @@
         "title": "4. Cookies",
         "text": [
           "Die Website setzt ein Cookie namens „NEXT_LOCALE“. Es merkt sich die gewählte Sprache und verfällt nach einem Jahr. Es ist technisch notwendig und braucht nach § 25 Abs. 2 Nr. 2 TDDDG keine Einwilligung.",
-          "Meine Reise-App unter trips.pgoell.com kann ein zweites Cookie für pgoell.com setzen, namens „trips_signed_in“. Es erhalten nur Personen, die ich zu dieser App eingeladen habe, wenn sie sich dort anmelden. Es enthält nur die Zahl 1 und gilt 90 Tage oder bis zur Abmeldung. Solange es da ist, laden die Reiseseiten dieser Website die privaten Reisen direkt von trips.pgoell.com in deinen Browser, mit der Anmeldung dieser App; der Server dieser Website sieht sie nie. Ohne das Cookie nimmt dein Browser keinen Kontakt zu trips.pgoell.com auf. Es ist für diese Anmeldung technisch notwendig (§ 25 Abs. 2 Nr. 2 TDDDG)."
+          "Die Reiseseiten haben eine Anmeldung für Personen, die ich eingeladen habe. Sie melden sich mit Ihrem Google-Konto an. Google (Google Ireland Limited, mit Google LLC, USA, zertifiziert nach dem EU-US Data Privacy Framework) führt die Anmeldung durch, sieht dabei Ihre IP-Adresse und schickt dieser Website Ihr Basisprofil. Die Website prüft mit Ihrer E-Mail-Adresse, ob Sie eingeladen sind, und zeigt mit Ihrem Vornamen, wer einen Ort oder eine Idee eingetragen hat (Art. 6 Abs. 1 lit. b DSGVO). Danach halten drei Cookies die Anmeldung: „trips_session“ enthält Ihren Namen und Ihre E-Mail-Adresse, signiert, sodass niemand sie ändern kann; „trips_signed_in“ enthält nur die Zahl 1, damit die Seiten wissen, dass sie die privaten Reisen laden sollen; beide gelten 90 Tage oder bis zur Abmeldung. Ein drittes Cookie sichert die Anmeldung selbst und gilt zehn Minuten. Alle drei sind für die Anmeldung technisch notwendig (§ 25 Abs. 2 Nr. 2 TDDDG).",
+          "Die Orte, Ideen und Notizen, die angemeldete Personen eintragen, liegen in einer Datenbank auf dem Server dieser Website, jeder Ort und jede Idee mit dem Vornamen der Person, die sie eingetragen hat. Bei einer Reise, die für alle offen ist, sieht jeder die Route, die Orte und die Tagesnotizen; Buchungen und Ideen bleiben hinter der Anmeldung. Einträge bleiben, bis jemand auf der Reise sie löscht oder Sie mich darum bitten. Der Server sichert die Datenbank höchstens einmal pro Stunde und behält die neuesten 48 Kopien; einmal pro Nacht geht außerdem eine Kopie in eine bei Hetzner gemietete Storage Box und bleibt dort bis zu einem Jahr."
         ]
       },
       {
@@ -593,7 +594,6 @@
       "map": "Karte der Reise",
       "wholeTrip": "Ganze Reise",
       "noMap": "Die Karte lädt hier nicht. Der Plan funktioniert trotzdem.",
-      "planner": "Gemacht mit meiner Reise-App",
       "language": "Die Notizen einer Reise sind auf Englisch.",
       "overview": "Überblick",
       "stat": {

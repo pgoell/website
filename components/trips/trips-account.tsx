@@ -15,7 +15,7 @@ function useHere(fallback: string): string {
   return here;
 }
 
-/** Sign in, or sign out of, the trips app; both come back to this page. */
+/** Sign in or sign out; both come back to this page. */
 export function SignInOut({ name, locale }: { name?: string; locale: string }) {
   const t = useTranslations("site.trips");
   const here = useHere(`https://pgoell.com/${locale}/trips`);
@@ -37,9 +37,8 @@ export function SignInOut({ name, locale }: { name?: string; locale: string }) {
 }
 
 /**
- * The private trips under the open ones, for someone signed in to the trips
- * app, and the line to sign in or out. The list comes straight from
- * trips.pgoell.com into the browser.
+ * The private trips under the open ones, for someone signed in, and the line
+ * to sign in or out.
  */
 export function PrivateTrips({ locale }: { locale: string }) {
   const t = useTranslations("site.trips");

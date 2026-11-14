@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PrivateTripPage, TripPage } from "@/components/trips/trip-page";
-import { getTrip } from "@/lib/trips/feed";
+import { getTrip } from "@/lib/trips/db";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
