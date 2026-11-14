@@ -18,7 +18,12 @@ export function db(): Promise<Sql> {
   if (!ready) {
     const url = process.env.DATABASE_URL;
     if (!url) return Promise.reject(new Error("DATABASE_URL is not set"));
-    const sql = postgres(url, { max: 5, onnotice: () => {} });
+    const sql = postgres(url, {
+      max: 5,
+      connect_timeout: 3,
+      idle_timeout: 60,
+      onnotice: () => {},
+    });
     ready = migrate(sql).then(
       () => sql,
       (err) => {
@@ -30,7 +35,13 @@ export function db(): Promise<Sql> {
   return ready;
 }
 
-/** A read that fails quietly, like the feed it replaces: a page without trips beats no page. */
+/** How long a page waits for the database before it goes on without trips. */
+const READ_MS = 2000;
+
+/**
+ * A read that fails quietly, like the feed it replaces: a page without trips
+ * beats no page, and the home page must not hang on a stuck database.
+ */
 async function read<T>(
   what: string,
   fallback: T,
@@ -38,11 +49,20 @@ async function read<T>(
 ): Promise<T> {
   // `next build` prerenders without a database.
   if (!process.env.DATABASE_URL) return fallback;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const late = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error(`no answer in ${READ_MS}ms`)),
+      READ_MS,
+    );
+  });
   try {
-    return await run(await db());
+    return await Promise.race([db().then(run), late]);
   } catch (err) {
     console.error(`Trips: reading ${what} failed:`, err);
     return fallback;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
