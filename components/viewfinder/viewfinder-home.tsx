@@ -1,13 +1,18 @@
 "use client";
 
+import { useLocale } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
+import { usePrivateTrips } from "@/components/trips/use-private-trips";
 import type { GithubStats } from "@/lib/stats/github";
 import type { Book } from "@/lib/stats/kasten";
 import type { Range, SpotifyStats } from "@/lib/stats/spotify";
+import { tripWhen } from "@/lib/trips/plan";
+import { signInHref } from "@/lib/trips/private";
 import {
   buildMenu,
   type PostLink,
   type TripLink,
+  type TripsAccount,
   visibleMenu,
 } from "@/lib/viewfinder/menu";
 import { PROJECTS } from "@/lib/viewfinder/projects";
@@ -54,13 +59,43 @@ export function ViewfinderHome({
   const closeScene = useCallback(() => setSceneOpen(false), [setSceneOpen]);
   const listening = useNowPlaying();
   const [range, setRange] = useState<Range>("short_term");
-  const tabs = useMemo(
-    () =>
-      visibleMenu(
-        buildMenu(posts, { spotify, listening, range, now: new Date() }, trips),
+  const locale = useLocale();
+  const account = usePrivateTrips();
+  const tabs = useMemo(() => {
+    // signed in to the trips app, the private trips go first: they lie ahead
+    const shown: TripLink[] =
+      account.state === "in"
+        ? [
+            ...account.trips
+              .filter((t) => !t.public)
+              .map((t) => ({
+                slug: t.slug,
+                name: t.name,
+                when: tripWhen(t.startDate, t.endDate, locale),
+                private: true,
+              })),
+            ...trips,
+          ]
+        : trips;
+    const who: TripsAccount =
+      account.state === "in"
+        ? { name: account.name }
+        : {
+            signIn: signInHref(
+              typeof window === "undefined"
+                ? `https://pgoell.com/${locale}`
+                : `${window.location.origin}/${locale}`,
+            ),
+          };
+    return visibleMenu(
+      buildMenu(
+        posts,
+        { spotify, listening, range, now: new Date() },
+        shown,
+        who,
       ),
-    [posts, spotify, listening, range, trips],
-  );
+    );
+  }, [posts, spotify, listening, range, trips, account, locale]);
 
   return (
     <div

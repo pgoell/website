@@ -143,6 +143,7 @@
       "open": "open",
       "back": "back",
       "soon": "SOON",
+      "private": "PRIVATE",
       "all": "ALL",
       "tabs": {
         "main": "Main",
@@ -275,6 +276,10 @@
         "spotifyProfile": {
           "t": "Profile on Spotify",
           "v": "All playlists"
+        },
+        "tripsSignedIn": {
+          "t": "Trips",
+          "v": "signed in"
         }
       },
       "live": "LIVE",
@@ -496,9 +501,10 @@
         ]
       },
       {
-        "title": "4. Cookie",
+        "title": "4. Cookies",
         "text": [
-          "The website sets one cookie named \"NEXT_LOCALE\". It remembers the language you chose and expires after one year. It is technically necessary and needs no consent under § 25(2) no. 2 TDDDG. The website sets no other cookies."
+          "The website sets one cookie named \"NEXT_LOCALE\". It remembers the language you chose and expires after one year. It is technically necessary and needs no consent under § 25(2) no. 2 TDDDG.",
+          "My trips app at trips.pgoell.com can set a second cookie for pgoell.com, named \"trips_signed_in\". Only people I have invited to that app receive it, when they sign in there. It holds only the number 1 and lasts 90 days or until sign-out. While it is there, the trips pages of this website load the private trips straight from trips.pgoell.com into your browser, with that app's own sign-in; this website's server never sees them. Without the cookie, your browser does not contact trips.pgoell.com. It is technically necessary for that sign-in (§ 25(2) no. 2 TDDDG)."
         ]
       },
       {
@@ -608,7 +614,16 @@
       },
       "out": "Getting there",
       "home": "Way home",
-      "strip": "Days of the trip"
+      "strip": "Days of the trip",
+      "privateTitle": "Private",
+      "privateFile": "PRIVATE",
+      "signIn": "Sign in to see the private trips",
+      "signedInAs": "Signed in as {name}",
+      "signOut": "Sign out",
+      "privateError": "The private trips cannot load right now.",
+      "privateNeedsSignIn": "This trip is private, or there is none by that name. Sign in to see private trips.",
+      "notFound": "There is no trip by that name.",
+      "loading": "Loading the trip…"
     }
   }
 }

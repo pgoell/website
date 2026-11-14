@@ -127,7 +127,7 @@ export function useViewfinder() {
           shoot(action.path);
           break;
         case "external":
-          if (action.href.startsWith("mailto:"))
+          if (action.href.startsWith("mailto:") || action.sameTab)
             window.location.href = action.href;
           else window.open(action.href, "_blank", "noopener,noreferrer");
           break;

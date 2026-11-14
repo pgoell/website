@@ -164,6 +164,8 @@ export function CameraMenu({
   const tag = (f?: string) =>
     f === "soon" ? (
       <i>{t("soon")}</i>
+    ) : f === "private" ? (
+      <i>{t("private")}</i>
     ) : f === "ok" ? (
       <i className={s.dot} aria-hidden="true" />
     ) : f === "live" ? (

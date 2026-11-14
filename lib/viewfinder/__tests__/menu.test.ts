@@ -32,6 +32,37 @@ describe("buildMenu", () => {
     expect(visibleMenu(tabs).map((t) => t.id)).not.toContain("music");
   });
 
+  it("signs in to the trips app in the same tab, then shows who is in", () => {
+    const tripsGroup = (t: ReturnType<typeof buildMenu>) =>
+      t.find((x) => x.id === "work")?.groups[0]?.items ?? [];
+    const out = buildMenu(posts, {}, [], {
+      signIn: "https://trips.pgoell.com/auth/login?next=x",
+    });
+    expect(tripsGroup(out).at(-1)).toMatchObject({
+      id: "tripsSignIn",
+      action: { kind: "external", sameTab: true },
+    });
+    const signedIn = buildMenu(
+      posts,
+      {},
+      [
+        { slug: "japan", name: "Japan 2027", when: "Mar", private: true },
+        { slug: "tanzania", name: "Tanzania 2026", when: "Aug" },
+      ],
+      { name: "Pascal" },
+    );
+    const items = tripsGroup(signedIn);
+    expect(items.map((i) => [i.id, i.flag])).toEqual([
+      ["trip-japan", "private"],
+      ["trip-tanzania", undefined],
+      ["tripsSignedIn", undefined],
+    ]);
+    expect(items.at(-1)).toMatchObject({
+      title: "Pascal",
+      action: { kind: "route", path: "/trips" },
+    });
+  });
+
   it("lists blog posts under writing", () => {
     const items = tabs.find((t) => t.id === "writing")?.groups[0]?.items ?? [];
     expect(items[0]).toMatchObject({

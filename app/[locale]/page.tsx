@@ -6,7 +6,7 @@ import { getGithubStats } from "@/lib/stats/github";
 import { getReading } from "@/lib/stats/kasten";
 import { getSpotifyStats } from "@/lib/stats/spotify";
 import { getTrips } from "@/lib/trips/feed";
-import { dayLabel } from "@/lib/trips/plan";
+import { tripWhen } from "@/lib/trips/plan";
 import { getWeather } from "@/lib/weather/weather";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -32,7 +32,7 @@ export default async function Home({
   const trips = openTrips.map((t) => ({
     slug: t.slug,
     name: t.name,
-    when: `${dayLabel(t.startDate, locale)} – ${dayLabel(t.endDate, locale)} ${t.endDate.slice(0, 4)}`,
+    when: tripWhen(t.startDate, t.endDate, locale),
   }));
   const posts = allPosts.map((p) => ({
     slug: p.slug,
