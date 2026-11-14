@@ -43,7 +43,6 @@ export function useViewfinder() {
   const [mode, setMode] = useState<DisplayMode>(0);
   const [shots, setShots] = useState(1284);
   const [menu, setMenu] = useState<MenuRequest | null>(null);
-  const [lastTab, setLastTab] = useState<MenuTabDef["id"]>("work");
   const [playback, setPlayback] = useState<number | null>(null);
   const curtainRef = useRef<HTMLDivElement | null>(null);
 
@@ -59,7 +58,7 @@ export function useViewfinder() {
     const timers: number[] = [];
     const state = q.get("state");
     const later = (fn: () => void) => timers.push(window.setTimeout(fn, 1300));
-    if (state === "menu") later(() => setMenu({ tab: "work" }));
+    if (state === "menu") later(() => setMenu({ tab: "main" }));
     if (state === "search")
       later(() => setMenu({ tab: "search", query: "agent" }));
     if (state === "play") later(() => setPlayback(1));
@@ -141,10 +140,7 @@ export function useViewfinder() {
     [shoot, openPlayback, router, locale, pathname],
   );
 
-  const openMenu = useCallback((req: MenuRequest) => {
-    if (req.tab !== "search") setLastTab(req.tab);
-    setMenu(req);
-  }, []);
+  const openMenu = useCallback((req: MenuRequest) => setMenu(req), []);
   const closeMenu = useCallback(() => setMenu(null), []);
   const cycleMode = useCallback(
     () => setMode((m) => ((m + 1) % 3) as DisplayMode),
@@ -170,20 +166,12 @@ export function useViewfinder() {
       const t = e.target as HTMLElement | null;
       if (t?.closest?.("input, textarea, select, [contenteditable]")) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.key === "m" || e.key === "M") openMenu({ tab: lastTab });
+      if (e.key === "m" || e.key === "M") openMenu({ tab: "main" });
       else if (e.key === "d" || e.key === "D") cycleMode();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [
-    menu,
-    playback,
-    lastTab,
-    openMenu,
-    closePlayback,
-    openPlayback,
-    cycleMode,
-  ]);
+  }, [menu, playback, openMenu, closePlayback, openPlayback, cycleMode]);
 
   return {
     at,
@@ -200,11 +188,9 @@ export function useViewfinder() {
     menu,
     openMenu,
     closeMenu,
-    lastTab,
     playback,
     openPlayback,
     closePlayback,
     curtainRef,
-    setLastTab,
   };
 }

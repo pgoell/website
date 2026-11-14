@@ -65,7 +65,7 @@ export function ViewfinderHome({
         temperature={weather?.temperature ?? null}
         weather={sky}
         mode={vf.mode}
-        onMenu={() => vf.openMenu({ tab: vf.lastTab })}
+        onMenu={() => vf.openMenu({ tab: "main" })}
         onCycleMode={vf.cycleMode}
         onPowerOn={onPowerOn}
         github={github}
@@ -93,7 +93,6 @@ export function ViewfinderHome({
           request={vf.menu}
           onClose={vf.closeMenu}
           onAction={vf.runAction}
-          onTab={vf.setLastTab}
         />
       ) : null}
       {vf.playback !== null && PROJECTS[vf.playback] ? (

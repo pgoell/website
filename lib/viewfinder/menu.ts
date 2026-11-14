@@ -59,7 +59,6 @@ export const X = "https://x.com/pagoell";
 const route = (path: string): MenuAction => ({ kind: "route", path });
 const external = (href: string): MenuAction => ({ kind: "external", href });
 const project = (index: number): MenuAction => ({ kind: "project", index });
-const contact = external(MAIL);
 
 export function buildMenu(
   posts: readonly PostLink[],
@@ -77,17 +76,14 @@ export function buildMenu(
             { id: "name" },
             { id: "role" },
             { id: "based" },
-            { id: "freelance", flag: "ok", action: contact },
+            { id: "freelance", flag: "ok" },
             { id: "stack" },
             { id: "camera" },
           ],
         },
         {
           id: "shortcuts",
-          items: [
-            { id: "github", action: external(GITHUB) },
-            { id: "trips", action: route("/trips") },
-          ],
+          items: [{ id: "trips", action: route("/trips") }],
         },
       ],
     },
@@ -208,15 +204,6 @@ export function buildMenu(
             { id: "githubContact", action: external(GITHUB) },
             { id: "linkedin", action: external(LINKEDIN) },
             { id: "x", action: external(X) },
-          ],
-        },
-        {
-          id: "display",
-          items: [
-            { id: "light" },
-            { id: "readouts" },
-            { id: "histogram" },
-            { id: "language", action: { kind: "locale" } },
           ],
         },
       ],

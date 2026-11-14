@@ -164,8 +164,7 @@
         "topArtists": "Top-Künstler",
         "languages": "Sprachen",
         "inBrowser": "Im Browser",
-        "contact": "Kontakt",
-        "display": "Anzeige"
+        "contact": "Kontakt"
       },
       "items": {
         "name": {
@@ -280,29 +279,6 @@
         "x": {
           "t": "X",
           "v": "@pagoell"
-        },
-        "light": {
-          "t": "Licht",
-          "v": "folgt der Zeit in Gelnhausen",
-          "help": "Das Bild folgt der Ortszeit in Gelnhausen. Probier ?time=21."
-        },
-        "readouts": {
-          "t": "Anzeigen",
-          "v": "live"
-        },
-        "histogram": {
-          "t": "Histogramm",
-          "v": "Commits, 52 Wochen"
-        },
-        "language": {
-          "t": "Sprache",
-          "v": "Deutsch",
-          "help": "Die Seite auf Englisch umstellen."
-        },
-        "trips": {
-          "t": "Reisen",
-          "v": "auf der Karte",
-          "help": "Reisen, die ich gemacht habe, Tag für Tag auf einer Karte."
         }
       }
     }
@@ -577,8 +553,7 @@
     "tabs": {
       "writing": "Texte",
       "games": "Spiele",
-      "tools": "Werkzeuge",
-      "trips": "Reisen"
+      "tools": "Werkzeuge"
     },
     "blog": {
       "title": "Texte",
@@ -593,24 +568,6 @@
       "newer": "Neuer",
       "more": "Weitere Beiträge",
       "contents": "Inhalt"
-    },
-    "trips": {
-      "title": "Reisen",
-      "subtitle": "Reisen auf der Karte, Tag für Tag",
-      "count": "{count, plural, one {# Reise} other {# Reisen}}",
-      "empty": "Zurzeit sind keine Reisen offen.",
-      "days": "{count, plural, one {# Tag} other {# Tage}}",
-      "stops": "{count, plural, one {# Station} other {# Stationen}}",
-      "up": "Alle Reisen",
-      "to": "bis",
-      "inTheAir": "In der Luft",
-      "day": "Tag",
-      "map": "Karte der Reise",
-      "wholeTrip": "Ganze Reise",
-      "showDay": "Diesen Tag auf der Karte zeigen",
-      "noMap": "Die Karte lädt hier nicht. Der Plan darunter funktioniert trotzdem.",
-      "planner": "Gemacht mit meiner Reise-App",
-      "language": "Die Notizen einer Reise sind auf Englisch."
     }
   }
 }
