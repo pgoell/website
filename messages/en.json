@@ -541,6 +541,7 @@
           "For people signed in to the trip pages, a few things do reach other servers. They are part of what the trip pages do for invited people (Art. 6(1)(b) GDPR):",
           "Google Maps: when you open a place, its place card and place search load from Google Maps (Google Ireland Limited, with Google LLC, USA, certified under the EU-US Data Privacy Framework). Google then sees your IP address and which place you look at. The website keeps only Google's ID for the place. If you are not signed in, your browser never contacts Google Maps.",
           "Routes: if you draw a route along roads, the server sends the route's points to the public router at router.project-osrm.org to find the roads. The request comes from the server, not from your browser, so the router does not learn who you are.",
+          "Satellite images: if you switch the map to satellite images, the server fetches them from Esri (Environmental Systems Research Institute, USA) and passes them on. Esri sees which part of the map is asked for, from the server, not from your browser.",
           "Links: if you save a link to a place, the server opens that page once to read its title and location. The other site sees a request from the server, not from you.",
           "Your position: \"Near me\" and the map's location button read your position only while they are switched on. The position stays in your browser and never reaches the server."
         ]
@@ -693,6 +694,7 @@
         "addPlace": "Add place",
         "near": "Near me",
         "finding": "Finding you",
+        "satellite": "Satellite images",
         "filter": "Filter, for example kyoto sunrise or coffee",
         "noPin": "No pin yet",
         "noPlaces": "No places yet. Add one here, or confirm an idea.",

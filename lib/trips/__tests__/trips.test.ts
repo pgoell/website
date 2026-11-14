@@ -267,6 +267,39 @@ describe("tiles", () => {
     expect(isTile(2, 1.5, 0)).toBe(false);
     expect(isTile(Number.NaN, 0, 0)).toBe(false);
   });
+  it("lets satellite tiles go deeper", async () => {
+    const { isSatelliteTile } = await import("../tiles");
+    expect(isSatelliteTile(19, 0, 0)).toBe(true);
+    expect(isSatelliteTile(20, 0, 0)).toBe(false);
+    expect(isSatelliteTile(3, 8, 0)).toBe(false);
+  });
+  it("asks Esri for a row before a column and passes only images on", async () => {
+    const { satellite } = await import("../tiles");
+    const asked: string[] = [];
+    const real = globalThis.fetch;
+    try {
+      globalThis.fetch = (async (url: string) => {
+        asked.push(url);
+        return new Response(new Uint8Array([1, 2, 3]), {
+          headers: { "Content-Type": "image/jpeg" },
+        });
+      }) as unknown as typeof fetch;
+      const ok = await satellite(5, 19, 16, "a key&more");
+      expect(asked[0]).toMatch(/\/tile\/5\/16\/19\?token=a%20key%26more$/);
+      expect(ok.status).toBe(200);
+      expect(ok.headers.get("Content-Type")).toBe("image/jpeg");
+      expect(ok.headers.get("Cache-Control")).toContain("private");
+
+      // A refused key answers 200 with JSON. That is no tile.
+      globalThis.fetch = (async () =>
+        new Response('{"error":{"code":499}}', {
+          headers: { "Content-Type": "text/plain" },
+        })) as unknown as typeof fetch;
+      expect((await satellite(5, 19, 16, "k")).status).toBe(502);
+    } finally {
+      globalThis.fetch = real;
+    }
+  });
   it("accepts only whole glyph blocks", async () => {
     const { isGlyphRange } = await import("../tiles");
     expect(isGlyphRange("0-255.pbf")).toBe(true);

@@ -61,6 +61,7 @@ export function TripEditor({
   locale,
   userName,
   mapsKey,
+  satellite = false,
   openIdeas = false,
 }: {
   trip: StoredTrip;
@@ -68,6 +69,8 @@ export function TripEditor({
   userName: string;
   /** Browser key for Google's place card. Without it the card is left out. */
   mapsKey?: string;
+  /** The server has a key for satellite images, so the map offers them. */
+  satellite?: boolean;
   /** Open on the Ideas tab: where a link shared from the phone lands. */
   openIdeas?: boolean;
 }) {
@@ -76,6 +79,8 @@ export function TripEditor({
   // A ground leg whose line is bent on the map.
   const bend = useRouteEdit(trip.slug);
   const drawing = bend.state;
+  // Satellite images under the plan, to see where a track really runs.
+  const [fromAbove, setFromAbove] = useState(false);
   // A route being added to a day: named, and waiting for a tap on the map.
   const [adding, setAdding] = useState<{
     date: string;
@@ -504,6 +509,13 @@ export function TripEditor({
           editing={{
             numbered: route !== null,
             picking: picking !== null || adding !== null,
+            satellite: satellite
+              ? {
+                  on: fromAbove,
+                  label: t("edit.satellite"),
+                  onToggle: () => setFromAbove((on) => !on),
+                }
+              : undefined,
             edit,
             menu:
               drawing && drawing.selected !== null && !drawing.dragging ? (

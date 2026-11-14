@@ -96,6 +96,22 @@
   border-radius: 0;
   box-shadow: none;
 }
+.shell :global(.maplibregl-ctrl-group) .satButton {
+  font-family: var(--font-hud, inherit);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: #151716;
+}
+.shell[data-look="night"] :global(.maplibregl-ctrl-group) .satButton {
+  color: #fff;
+}
+.shell :global(.maplibregl-ctrl-group) .satButton[aria-pressed="true"],
+.shell :global(.maplibregl-ctrl-group) .satButton[aria-pressed="true"]:hover {
+  background: var(--sony);
+  color: #000;
+}
 .shell :global(.maplibregl-ctrl-group button + button) {
   border-top: 1px solid var(--edge);
 }
