@@ -147,9 +147,9 @@ describe("visibleMenu", () => {
   });
 
   it("drops tabs left empty", () => {
-    expect(tabs.map((t) => t.id)).not.toContain("writing");
     expect(tabs.map((t) => t.id)).not.toContain("play");
     expect(tabs.map((t) => t.id)).toContain("work");
+    expect(tabs.map((t) => t.id)).toContain("writing");
   });
 });
 

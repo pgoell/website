@@ -3,7 +3,7 @@
  * stay in the repo; the proxy sends visitors home and no link points at them.
  * Remove an entry to bring a section back.
  */
-export const HIDDEN_PAGES: readonly string[] = ["/blog", "/games", "/tools"];
+export const HIDDEN_PAGES: readonly string[] = ["/games", "/tools"];
 
 /** True when a path without the locale prefix falls under a hidden section. */
 export function isHiddenPage(path: string): boolean {
