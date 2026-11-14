@@ -118,6 +118,25 @@ export function buildMenu(
       ],
     },
     {
+      id: "writing",
+      icon: "pen",
+      color: "#ff9d2e",
+      groups: [
+        {
+          id: "posts",
+          items: [
+            ...posts.map((p) => ({
+              id: `post-${p.slug}`,
+              title: p.title,
+              value: p.date,
+              action: route(`/blog/${p.slug}`),
+            })),
+            { id: "allPosts", action: route("/blog") },
+          ],
+        },
+      ],
+    },
+    {
       id: "work",
       icon: "cam",
       color: "#ff4d7a",
@@ -147,25 +166,6 @@ export function buildMenu(
                     sameTab: true,
                   },
                 },
-          ],
-        },
-      ],
-    },
-    {
-      id: "writing",
-      icon: "pen",
-      color: "#ff9d2e",
-      groups: [
-        {
-          id: "posts",
-          items: [
-            ...posts.map((p) => ({
-              id: `post-${p.slug}`,
-              title: p.title,
-              value: p.date,
-              action: route(`/blog/${p.slug}`),
-            })),
-            { id: "allPosts", action: route("/blog") },
           ],
         },
       ],

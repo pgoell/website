@@ -19,8 +19,8 @@ describe("buildMenu", () => {
   it("has the six camera tabs", () => {
     expect(tabs.map((t) => t.id)).toEqual([
       "main",
-      "work",
       "writing",
+      "work",
       "music",
       "play",
       "setup",
