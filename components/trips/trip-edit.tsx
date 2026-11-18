@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
   type CSSProperties,
@@ -456,6 +457,9 @@ export function TripEditor({
           );
         }}
       />
+      <Link href={`/${locale}/trips/${trip.slug}/swipe`} className={s.btn}>
+        {t("pick.open")} →
+      </Link>
       {e.count("idea") === 0 && <p className={s.small}>{t("edit.noIdeas")}</p>}
       {e.count("idea") > 0 && <div className={s.inline}>{nearButton}</div>}
       {e.count("idea") > FILTER_FROM && filterBox}
