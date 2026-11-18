@@ -33,7 +33,7 @@ import paper from "./map-style-day.json";
 import s from "./trips.module.css";
 
 /** The colours drawn over the map, for the dark screen and for paper. */
-const INKS = {
+export const INKS = {
   night: {
     route: "#5cf07c",
     picked: "#f08a00",
@@ -56,7 +56,7 @@ const CREDIT =
   '<a href="https://openfreemap.org" target="_blank" rel="noreferrer">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank" rel="noreferrer">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>';
 
 /** The map style, with tiles and fonts asked from this site, not from OpenFreeMap. */
-function style(look: Look): StyleSpecification {
+export function style(look: Look): StyleSpecification {
   const origin = window.location.origin;
   return {
     ...((look === "day" ? paper : night) as unknown as StyleSpecification),
@@ -73,7 +73,7 @@ function style(look: Look): StyleSpecification {
 }
 
 /** A square marker, drawn here so the map needs no sprite. */
-function square(size: number, fill: string, stroke: string) {
+export function square(size: number, fill: string, stroke: string) {
   const c = document.createElement("canvas");
   c.width = c.height = size * 2;
   const g = c.getContext("2d") as CanvasRenderingContext2D;
