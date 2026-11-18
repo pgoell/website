@@ -755,6 +755,85 @@
         "failed": "Das hat nicht geklappt. Versuch es noch mal und lade die Seite neu, wenn es weiter scheitert.",
         "noPosition": "Diese Website darf deinen Standort nicht lesen.",
         "noPlace": "Diesen Ort gibt es nicht mehr; jemand hat ihn gelöscht. Nichts wurde gespeichert."
+      },
+      "pick": {
+        "title": "Swipen",
+        "open": "Orte swipen",
+        "steps": "Schritte",
+        "tab": {
+          "area": "Gegend",
+          "swipe": "Swipen",
+          "matches": "Matches"
+        },
+        "step": "Schritt {n} / 3",
+        "areaTitle": "Wo suchen",
+        "areaNote": "Tippe auf die Karte, um die Nadel zu setzen, und wähle, wie weit drumherum und welche Arten von Orten. Google schickt, was dort ist, und ihr swipt beide.",
+        "radius": "Um die Nadel",
+        "kinds": "Arten von Orten",
+        "kind": {
+          "sight": "Sehenswert",
+          "food": "Essen",
+          "shop": "Läden",
+          "green": "Grün",
+          "museum": "Museen",
+          "view": "Aussicht"
+        },
+        "foundHere": "Hier gefunden",
+        "notSeen": "Nicht geswipt",
+        "atMost": "Höchstens",
+        "search": "Orte hier finden",
+        "searching": "Frage Google…",
+        "cost": "{n, plural, one {Eine Suche} other {# Suchen}} bei Google, je etwa 20 Orte.",
+        "left": "{n} von {total} übrig",
+        "allDone": "Alles geswipt",
+        "matchCount": "{n, plural, =0 {Noch keine Matches} one {Ein Match} other {# Matches}}",
+        "allDoneNote": "Du hast alle bisher gefundenen Orte geswipt. Setz die Nadel woanders hin oder schau, was ihr beide wollt.",
+        "movePin": "Nadel versetzen",
+        "seeMatches": "Matches ansehen",
+        "undo": "Zurücknehmen",
+        "vote": {
+          "yes": "Ja",
+          "no": "Nein",
+          "must": "Muss"
+        },
+        "keys": "← nein · ↑ muss · → ja · Z nimmt zurück.",
+        "hidden": "{name} sieht deine Antwort erst nach der eigenen, und umgekehrt.",
+        "loading": "Lädt…",
+        "fromPin": "{d} {dir} der Nadel",
+        "openMaps": "In Google Maps öffnen",
+        "match": "Match",
+        "theyMust": "auch als Muss markiert",
+        "around": "Rund um {name}",
+        "anArea": "Eine Gegend",
+        "bothWant": "{n, plural, =0 {Noch nichts, was ihr beide wollt} one {Ein Ort, den ihr beide wollt} other {# Orte, die ihr beide wollt}}",
+        "youWant": "{n, plural, =0 {Noch nichts gemocht} one {Ein Ort, den du magst} other {# Orte, die du magst}}",
+        "filter": {
+          "both": "Beide",
+          "liked": "Gemocht",
+          "mine": "Nur ich",
+          "only": "Nur {name}",
+          "wait": "Noch nicht gesehen"
+        },
+        "noneYet": "Hier ist noch nichts.",
+        "places": "{n, plural, one {# Ort} other {# Orte}}",
+        "time": {
+          "hours": "ein paar Stunden",
+          "half": "ein halber Tag",
+          "day": "ein Tag"
+        },
+        "roughDays": "Grobe Tage, nach Gegend",
+        "roughNote": "Nur danach gruppiert, wo die Orte liegen. Öffnungszeiten und Züge kommen später.",
+        "dayN": "Tag {n}",
+        "problem": {
+          "signedOut": "Du bist abgemeldet. Melde dich wieder an, um weiterzuswipen.",
+          "badInput": "Das hat nicht geklappt. Lade die Seite neu und versuch es noch einmal.",
+          "noTrip": "Diese Reise gibt es nicht mehr.",
+          "noPlace": "Dieser Ort ist nicht mehr im Stapel. Lade die Seite neu.",
+          "noKey": "Für die Suche braucht der Server den Google-Maps-Schlüssel.",
+          "searchFailed": "Google hat nicht geantwortet. Prüf die Verbindung und versuch es noch einmal.",
+          "nothingFound": "Google hat hier nichts dieser Arten gefunden. Versuch einen größeren Kreis oder andere Arten."
+        },
+        "apart": "Für sich"
       }
     }
   }

@@ -94,6 +94,34 @@ const MIGRATIONS: string[] = [
   `,
   // A route added in the app. An import leaves it alone.
   `ALTER TABLE trips.leg ADD COLUMN own boolean NOT NULL DEFAULT false;`,
+  // Swipe: places Google found near a pin, and each person's yes, no or must.
+  // Google's terms let us keep the place ID for good and its coordinates for
+  // 30 days, nothing else it shows: names, photos and ratings come live.
+  `
+  CREATE TABLE trips.pick_place (
+    trip_id integer NOT NULL REFERENCES trips.trip(id) ON DELETE CASCADE,
+    google_place_id text NOT NULL,
+    kind text NOT NULL,
+    rank integer NOT NULL,
+    lat double precision,
+    lng double precision,
+    spot_at timestamptz,
+    added_by text NOT NULL,
+    added_at timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (trip_id, google_place_id)
+  );
+  CREATE TABLE trips.pick_vote (
+    trip_id integer NOT NULL,
+    google_place_id text NOT NULL,
+    voter text NOT NULL,
+    voter_name text NOT NULL,
+    vote text NOT NULL CHECK (vote IN ('yes', 'no', 'must')),
+    at timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (trip_id, google_place_id, voter),
+    FOREIGN KEY (trip_id, google_place_id)
+      REFERENCES trips.pick_place(trip_id, google_place_id) ON DELETE CASCADE
+  );
+  `,
 ];
 
 /** Brings the trips schema up to date. Safe to call from several processes. */

@@ -755,6 +755,85 @@
         "failed": "That did not work. Try again, and reload the page if it keeps failing.",
         "noPosition": "This site may not read your position.",
         "noPlace": "This place is gone; someone deleted it. Nothing was saved."
+      },
+      "pick": {
+        "title": "Swipe",
+        "open": "Swipe places",
+        "steps": "Steps",
+        "tab": {
+          "area": "Area",
+          "swipe": "Swipe",
+          "matches": "Matches"
+        },
+        "step": "Step {n} / 3",
+        "areaTitle": "Where to look",
+        "areaNote": "Tap the map to drop the pin, pick how far around it and what kinds of places. Google sends back what is there, and you both swipe.",
+        "radius": "Around the pin",
+        "kinds": "Kinds of places",
+        "kind": {
+          "sight": "Sights",
+          "food": "Food",
+          "shop": "Shops",
+          "green": "Green",
+          "museum": "Museums",
+          "view": "Views"
+        },
+        "foundHere": "Found here",
+        "notSeen": "Not swiped",
+        "atMost": "Ask at most",
+        "search": "Find places here",
+        "searching": "Asking Google…",
+        "cost": "{n, plural, one {One search} other {# searches}} at Google, about 20 places each.",
+        "left": "{n} of {total} left",
+        "allDone": "All swiped",
+        "matchCount": "{n, plural, =0 {No matches yet} one {One match} other {# matches}}",
+        "allDoneNote": "You have swiped every place found so far. Move the pin for more, or look at what you both want.",
+        "movePin": "Move the pin",
+        "seeMatches": "See matches",
+        "undo": "Take back",
+        "vote": {
+          "yes": "Yes",
+          "no": "No",
+          "must": "Must"
+        },
+        "keys": "← no · ↑ must · → yes · Z takes back.",
+        "hidden": "{name} sees your answer only after giving theirs, and the other way round.",
+        "loading": "Loading…",
+        "fromPin": "{d} {dir} of the pin",
+        "openMaps": "Open in Google Maps",
+        "match": "Match",
+        "theyMust": "a must for them",
+        "around": "Around {name}",
+        "anArea": "An area",
+        "bothWant": "{n, plural, =0 {Nothing you both want yet} one {One place you both want} other {# places you both want}}",
+        "youWant": "{n, plural, =0 {Nothing liked yet} one {One place you like} other {# places you like}}",
+        "filter": {
+          "both": "Both",
+          "liked": "Liked",
+          "mine": "Only me",
+          "only": "Only {name}",
+          "wait": "Not seen yet"
+        },
+        "noneYet": "Nothing here yet.",
+        "places": "{n, plural, one {# place} other {# places}}",
+        "time": {
+          "hours": "a few hours",
+          "half": "half a day",
+          "day": "a day"
+        },
+        "roughDays": "Rough days, by area",
+        "roughNote": "Only grouped by where things are. Opening times and trains come later.",
+        "dayN": "Day {n}",
+        "problem": {
+          "signedOut": "You are signed out. Sign in again to keep swiping.",
+          "badInput": "That did not go through. Reload the page and try again.",
+          "noTrip": "This trip is gone.",
+          "noPlace": "That place is no longer in the deck. Reload the page.",
+          "noKey": "Searching needs the Google Maps key on the server.",
+          "searchFailed": "Google did not answer. Check the connection and try again.",
+          "nothingFound": "Google found nothing of these kinds here. Try a bigger circle or other kinds."
+        },
+        "apart": "On their own"
       }
     }
   }
