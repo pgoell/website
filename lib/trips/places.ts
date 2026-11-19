@@ -108,6 +108,22 @@ export const isMapsLink = (url?: string | null): url is string =>
   !!url && GOOGLE_MAPS.test(url);
 
 /**
+ * Directions to a point in Google Maps: on a phone it opens the Google Maps
+ * app, which navigates live. Google picks the way of travel last used there.
+ */
+export function directionsLink(p: {
+  lat: number;
+  lng: number;
+  googlePlaceId?: string | null;
+}) {
+  const id =
+    p.googlePlaceId && p.googlePlaceId !== NO_GOOGLE
+      ? `&destination_place_id=${encodeURIComponent(p.googlePlaceId)}`
+      : "";
+  return `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}${id}`;
+}
+
+/**
  * A link that opens the place itself in Google Maps, with its photos and
  * reviews. A search for bare coordinates only drops a nameless pin.
  */

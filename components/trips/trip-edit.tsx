@@ -22,6 +22,7 @@ import { cx } from "@/components/viewfinder/cx";
 import {
   blank,
   dayRoute,
+  directionsLink,
   groupByStop,
   type PlaceInput,
   pin,
@@ -404,7 +405,19 @@ export function TripEditor({
         </section>
       )}
       {detailStop && hotels.length === 0 && (
-        <p className={s.formTitle}>{detailStop.name}</p>
+        <>
+          <p className={s.formTitle}>{detailStop.name}</p>
+          <div className={s.row}>
+            <a
+              className={s.btn}
+              href={directionsLink(detailStop)}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {t("edit.directions")}
+            </a>
+          </div>
+        </>
       )}
       {hotels.map((b) => (
         <BookingCard
