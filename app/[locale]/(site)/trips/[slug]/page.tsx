@@ -47,7 +47,6 @@ export default async function TripRoute({ params, searchParams }: Props) {
         locale={locale}
         userName={user.name}
         mapsKey={process.env.GOOGLE_MAPS_KEY}
-        satellite={!!process.env.ARCGIS_API_KEY}
         openIdeas={(await searchParams).tab === "ideas"}
       />
     );
@@ -55,6 +54,8 @@ export default async function TripRoute({ params, searchParams }: Props) {
   // A visitor: the open trip as `shownTrip` trims it, nothing more.
   const trip = await getTrip(slug);
   // not in the open feed: maybe a private trip, which only the browser may ask for
-  if (!trip) return <PrivateTripPage slug={slug} locale={locale} />;
-  return <TripPage trip={trip} locale={locale} />;
+  const mapsKey = process.env.GOOGLE_MAPS_KEY;
+  if (!trip)
+    return <PrivateTripPage slug={slug} locale={locale} mapsKey={mapsKey} />;
+  return <TripPage trip={trip} locale={locale} mapsKey={mapsKey} />;
 }

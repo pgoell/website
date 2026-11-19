@@ -515,8 +515,8 @@
       {
         "title": "5. Storage in your browser",
         "text": [
-          "Some pages keep data in your browser's local storage (localStorage): the colour theme you chose, the game state and keyboard setting of Wordle, the keyboard setting of the Wordle solver, the game state of Kniffel, the state and statistics of the Pomodoro timer, and the Night or Day look of the trip pages.",
-          "For people signed in to the trip pages, the browser also keeps a copy of the trip pages they open, their scripts and styles, and the map parts they have seen, so a trip still opens without a network (a service worker with its cache storage). The copy holds what a signed-in person sees, bookings included, stays on the device and is never sent anywhere. It stays until you clear the site's data in your browser.",
+          "Some pages keep data in your browser's local storage (localStorage): the colour theme you chose, the game state and keyboard setting of Wordle, the keyboard setting of the Wordle solver, the game state of Kniffel, the state and statistics of the Pomodoro timer, the Night or Day look of the trip pages, and whether you said yes to loading the trip map from Google Maps (\"trips.googleMaps\").",
+          "For people signed in to the trip pages, the browser also keeps a copy of the trip pages they open, their scripts and styles, so a trip still opens without a network (a service worker with its cache storage). The copy holds what a signed-in person sees, bookings included, stays on the device and is never sent anywhere. It stays until you clear the site's data in your browser.",
           "This data stays on your device and never goes to the server. The feature you open needs it to work (§ 25(2) no. 2 TDDDG). You can delete it at any time in your browser settings."
         ]
       },
@@ -537,11 +537,11 @@
       {
         "title": "8. Fonts and external content",
         "text": [
-          "For visitors, the website loads no fonts, scripts or images from other servers. References to other websites, such as GitHub, LinkedIn and X, are plain links. The other site learns of you only when you click the link.",
+          "For visitors, the website loads no fonts, scripts or images from other servers, with one exception: the map on a trip page, which comes from Google Maps and loads only after you press \"Load the map\" (see below). References to other websites, such as GitHub, LinkedIn and X, are plain links. The other site learns of you only when you click the link.",
           "For people signed in to the trip pages, a few things do reach other servers. They are part of what the trip pages do for invited people (Art. 6(1)(b) GDPR):",
-          "Google Maps: when you open a place, its place card and place search load from Google Maps (Google Ireland Limited, with Google LLC, USA, certified under the EU-US Data Privacy Framework). Google then sees your IP address and which place you look at. The website keeps only Google's ID for the place. If you are not signed in, your browser never contacts Google Maps.",
-          "Routes: if you draw a route along roads, the server sends the route's points to the public router at router.project-osrm.org to find the roads. The request comes from the server, not from your browser, so the router does not learn who you are.",
-          "Satellite images: if you switch the map to satellite images, the server fetches them from Esri (Environmental Systems Research Institute, USA) and passes them on. Esri sees which part of the map is asked for, from the server, not from your browser.",
+          "Google Maps: the map on the trip pages, the satellite images, the place cards and the place search load from Google Maps (Google Ireland Limited, with Google LLC, USA, certified under the EU-US Data Privacy Framework). Google then sees your IP address, which part of the map you look at and which place you open. The website keeps only Google's ID for a place.",
+          "Visitors who are not signed in are asked first: the trip map loads only after you press \"Load the map\", which is your consent (Art. 6(1)(a) GDPR, § 25(1) TDDDG). Your browser remembers the yes in its local storage, so you are not asked again. You can withdraw it at any time by clearing the site's data in your browser. Without it the trip plan works as before, just without the map.",
+          "Routes: if you draw a route along roads, the server sends the route's points to Google's Routes API (Google, as above) to find the roads and their driving times. The request comes from the server, not from your browser, so Google does not learn who you are from it.",
           "Links: if you save a link to a place, the server opens that page once to read its title and location. The other site sees a request from the server, not from you.",
           "Your position: \"Near me\" and the map's location button read your position only while they are switched on. The position stays in your browser and never reaches the server."
         ]
@@ -605,6 +605,10 @@
       "map": "Map of the trip",
       "wholeTrip": "Whole trip",
       "noMap": "The map cannot load here. The plan still works.",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "mapConsent": "The map comes from Google Maps. Loading it sends your IP address to Google (Google Ireland and Google LLC, USA). The plan works without it.",
+      "loadMap": "Load the map",
       "language": "The notes of a trip are in English.",
       "overview": "Overview",
       "stat": {
@@ -695,6 +699,8 @@
         "near": "Near me",
         "finding": "Finding you",
         "satellite": "Satellite images",
+        "locate": "Show where I am",
+        "directions": "Directions",
         "filter": "Filter, for example kyoto sunrise or coffee",
         "noPin": "No pin yet",
         "noPlaces": "No places yet. Add one here, or confirm an idea.",
@@ -755,6 +761,85 @@
         "failed": "That did not work. Try again, and reload the page if it keeps failing.",
         "noPosition": "This site may not read your position.",
         "noPlace": "This place is gone; someone deleted it. Nothing was saved."
+      },
+      "pick": {
+        "title": "Swipe",
+        "open": "Swipe places",
+        "steps": "Steps",
+        "tab": {
+          "area": "Area",
+          "swipe": "Swipe",
+          "matches": "Matches"
+        },
+        "step": "Step {n} / 3",
+        "areaTitle": "Where to look",
+        "areaNote": "Tap the map to drop the pin, pick how far around it and what kinds of places. Google sends back what is there, and you both swipe.",
+        "radius": "Around the pin",
+        "kinds": "Kinds of places",
+        "kind": {
+          "sight": "Sights",
+          "food": "Food",
+          "shop": "Shops",
+          "green": "Green",
+          "museum": "Museums",
+          "view": "Views"
+        },
+        "foundHere": "Found here",
+        "notSeen": "Not swiped",
+        "atMost": "Ask at most",
+        "search": "Find places here",
+        "searching": "Asking Google…",
+        "cost": "{n, plural, one {One search} other {# searches}} at Google, about 20 places each.",
+        "left": "{n} of {total} left",
+        "allDone": "All swiped",
+        "matchCount": "{n, plural, =0 {No matches yet} one {One match} other {# matches}}",
+        "allDoneNote": "You have swiped every place found so far. Move the pin for more, or look at what you both want.",
+        "movePin": "Move the pin",
+        "seeMatches": "See matches",
+        "undo": "Take back",
+        "vote": {
+          "yes": "Yes",
+          "no": "No",
+          "must": "Must"
+        },
+        "keys": "← no · ↑ must · → yes · Z takes back.",
+        "hidden": "{name} sees your answer only after giving theirs, and the other way round.",
+        "loading": "Loading…",
+        "fromPin": "{d} {dir} of the pin",
+        "openMaps": "Open in Google Maps",
+        "match": "Match",
+        "theyMust": "a must for them",
+        "around": "Around {name}",
+        "anArea": "An area",
+        "bothWant": "{n, plural, =0 {Nothing you both want yet} one {One place you both want} other {# places you both want}}",
+        "youWant": "{n, plural, =0 {Nothing liked yet} one {One place you like} other {# places you like}}",
+        "filter": {
+          "both": "Both",
+          "liked": "Liked",
+          "mine": "Only me",
+          "only": "Only {name}",
+          "wait": "Not seen yet"
+        },
+        "noneYet": "Nothing here yet.",
+        "places": "{n, plural, one {# place} other {# places}}",
+        "time": {
+          "hours": "a few hours",
+          "half": "half a day",
+          "day": "a day"
+        },
+        "roughDays": "Rough days, by area",
+        "roughNote": "Only grouped by where things are. Opening times and trains come later.",
+        "dayN": "Day {n}",
+        "problem": {
+          "signedOut": "You are signed out. Sign in again to keep swiping.",
+          "badInput": "That did not go through. Reload the page and try again.",
+          "noTrip": "This trip is gone.",
+          "noPlace": "That place is no longer in the deck. Reload the page.",
+          "noKey": "Searching needs the Google Maps key on the server.",
+          "searchFailed": "Google did not answer. Check the connection and try again.",
+          "nothingFound": "Google found nothing of these kinds here. Try a bigger circle or other kinds."
+        },
+        "apart": "On their own"
       }
     }
   }

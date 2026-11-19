@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
   type CSSProperties,
@@ -21,6 +22,7 @@ import { cx } from "@/components/viewfinder/cx";
 import {
   blank,
   dayRoute,
+  directionsLink,
   groupByStop,
   type PlaceInput,
   pin,
@@ -37,7 +39,7 @@ import {
   PlaceForm,
 } from "./edit-parts";
 import { RouteBar, RouteMenu } from "./route-edit";
-import { type RouteOnMap, TripMap } from "./trip-map";
+import { mapWords, type RouteOnMap, TripMap } from "./trip-map";
 import { Overview, Strip, TripBar, two } from "./trip-view";
 import s from "./trips.module.css";
 import { useRouteEdit } from "./use-route-edit";
@@ -61,16 +63,13 @@ export function TripEditor({
   locale,
   userName,
   mapsKey,
-  satellite = false,
   openIdeas = false,
 }: {
   trip: StoredTrip;
   locale: string;
   userName: string;
-  /** Browser key for Google's place card. Without it the card is left out. */
+  /** Browser key for Google Maps: the map, the place card and the search. */
   mapsKey?: string;
-  /** The server has a key for satellite images, so the map offers them. */
-  satellite?: boolean;
   /** Open on the Ideas tab: where a link shared from the phone lands. */
   openIdeas?: boolean;
 }) {
@@ -406,7 +405,19 @@ export function TripEditor({
         </section>
       )}
       {detailStop && hotels.length === 0 && (
-        <p className={s.formTitle}>{detailStop.name}</p>
+        <>
+          <p className={s.formTitle}>{detailStop.name}</p>
+          <div className={s.row}>
+            <a
+              className={s.btn}
+              href={directionsLink(detailStop)}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {t("edit.directions")}
+            </a>
+          </div>
+        </>
       )}
       {hotels.map((b) => (
         <BookingCard
@@ -456,6 +467,9 @@ export function TripEditor({
           );
         }}
       />
+      <Link href={`/${locale}/trips/${trip.slug}/swipe`} className={s.btn}>
+        {t("pick.open")} →
+      </Link>
       {e.count("idea") === 0 && <p className={s.small}>{t("edit.noIdeas")}</p>}
       {e.count("idea") > 0 && <div className={s.inline}>{nearButton}</div>}
       {e.count("idea") > FILTER_FROM && filterBox}
@@ -504,18 +518,17 @@ export function TripEditor({
           closeUp={focus.close}
           pad={pad}
           mark={v.mark}
-          label={t("map")}
-          broken={t("noMap")}
+          words={mapWords(t)}
+          mapsKey={mapsKey}
           editing={{
             numbered: route !== null,
             picking: picking !== null || adding !== null,
-            satellite: satellite
-              ? {
-                  on: fromAbove,
-                  label: t("edit.satellite"),
-                  onToggle: () => setFromAbove((on) => !on),
-                }
-              : undefined,
+            satellite: {
+              on: fromAbove,
+              label: t("edit.satellite"),
+              onToggle: () => setFromAbove((on) => !on),
+            },
+            locate: t("edit.locate"),
             edit,
             menu:
               drawing && drawing.selected !== null && !drawing.dragging ? (

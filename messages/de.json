@@ -515,8 +515,8 @@
       {
         "title": "5. Speicher in Ihrem Browser",
         "text": [
-          "Einige Seiten legen Daten im lokalen Speicher Ihres Browsers (localStorage) ab: das gewählte Farbschema, Spielstand und Tastatur-Einstellung von Wordle, die Tastatur-Einstellung des Wordle-Lösers, den Spielstand von Kniffel, Stand und Statistik des Pomodoro-Timers sowie den Nacht- oder Tag-Look der Reiseseiten.",
-          "Für Personen, die auf den Reiseseiten angemeldet sind, speichert der Browser außerdem eine Kopie der geöffneten Reiseseiten, ihrer Skripte und Stile sowie der gesehenen Kartenteile, damit eine Reise auch ohne Netz öffnet (ein Service Worker mit seinem Cache-Speicher). Die Kopie enthält, was eine angemeldete Person sieht, auch Buchungen, bleibt auf dem Gerät und wird nirgendwohin gesendet. Sie bleibt, bis Sie die Daten der Website in Ihrem Browser löschen.",
+          "Einige Seiten legen Daten im lokalen Speicher Ihres Browsers (localStorage) ab: das gewählte Farbschema, Spielstand und Tastatur-Einstellung von Wordle, die Tastatur-Einstellung des Wordle-Lösers, den Spielstand von Kniffel, Stand und Statistik des Pomodoro-Timers den Nacht- oder Tag-Look der Reiseseiten sowie, ob Sie dem Laden der Reisekarte von Google Maps zugestimmt haben (\"trips.googleMaps\").",
+          "Für Personen, die auf den Reiseseiten angemeldet sind, speichert der Browser außerdem eine Kopie der geöffneten Reiseseiten, ihrer Skripte und Stile, damit eine Reise auch ohne Netz öffnet (ein Service Worker mit seinem Cache-Speicher). Die Kopie enthält, was eine angemeldete Person sieht, auch Buchungen, bleibt auf dem Gerät und wird nirgendwohin gesendet. Sie bleibt, bis Sie die Daten der Website in Ihrem Browser löschen.",
           "Diese Daten bleiben auf Ihrem Gerät und gehen nie an den Server. Sie sind nötig, damit die Funktion arbeitet, die Sie aufrufen (§ 25 Abs. 2 Nr. 2 TDDDG). Sie können sie jederzeit in den Einstellungen Ihres Browsers löschen."
         ]
       },
@@ -537,11 +537,11 @@
       {
         "title": "8. Schriften und externe Inhalte",
         "text": [
-          "Für Besucher lädt die Website keine Schriften, Skripte oder Bilder von fremden Servern. Verweise auf andere Websites, zum Beispiel GitHub, LinkedIn und X, sind einfache Links. Die andere Seite erfährt erst von Ihnen, wenn Sie den Link anklicken.",
+          "Für Besucher lädt die Website keine Schriften, Skripte oder Bilder von fremden Servern, mit einer Ausnahme: der Karte auf einer Reiseseite, die von Google Maps kommt und erst lädt, wenn Sie auf \"Karte laden\" tippen (siehe unten). Verweise auf andere Websites, zum Beispiel GitHub, LinkedIn und X, sind einfache Links. Die andere Seite erfährt erst von Ihnen, wenn Sie den Link anklicken.",
           "Für Personen, die auf den Reiseseiten angemeldet sind, erreichen einige Dinge fremde Server. Sie gehören zu dem, was die Reiseseiten für eingeladene Personen leisten (Art. 6 Abs. 1 lit. b DSGVO):",
-          "Google Maps: Wenn Sie einen Ort öffnen, laden seine Ortskarte und die Ortssuche von Google Maps (Google Ireland Limited, mit Google LLC, USA, zertifiziert nach dem EU-US Data Privacy Framework). Google sieht dabei Ihre IP-Adresse und welchen Ort Sie ansehen. Die Website speichert nur Googles Kennung für den Ort. Wenn Sie nicht angemeldet sind, nimmt Ihr Browser nie Kontakt zu Google Maps auf.",
-          "Routen: Wenn Sie eine Route entlang von Straßen zeichnen, schickt der Server die Punkte der Route an den öffentlichen Routenplaner unter router.project-osrm.org, um die Straßen zu finden. Die Anfrage kommt vom Server, nicht von Ihrem Browser; der Routenplaner erfährt also nicht, wer Sie sind.",
-          "Satellitenbilder: Wenn Sie die Karte auf Satellitenbilder umschalten, holt der Server sie von Esri (Environmental Systems Research Institute, USA) und reicht sie weiter. Esri sieht, welcher Kartenausschnitt angefragt wird, und zwar vom Server, nicht von Ihrem Browser.",
+          "Google Maps: Die Karte auf den Reiseseiten, die Satellitenbilder, die Ortskarten und die Ortssuche laden von Google Maps (Google Ireland Limited, mit Google LLC, USA, zertifiziert nach dem EU-US Data Privacy Framework). Google sieht dabei Ihre IP-Adresse, welchen Kartenausschnitt Sie ansehen und welchen Ort Sie öffnen. Die Website speichert nur Googles Kennung für einen Ort.",
+          "Besucher, die nicht angemeldet sind, werden vorher gefragt: Die Reisekarte lädt erst, wenn Sie auf \"Karte laden\" tippen; darin liegt Ihre Einwilligung (Art. 6 Abs. 1 lit. a DSGVO, § 25 Abs. 1 TDDDG). Ihr Browser merkt sich das Ja im lokalen Speicher, damit Sie nicht erneut gefragt werden. Sie können die Einwilligung jederzeit widerrufen, indem Sie die Daten der Website in Ihrem Browser löschen. Ohne sie funktioniert der Reiseplan wie bisher, nur ohne Karte.",
+          "Routen: Wenn Sie eine Route entlang von Straßen zeichnen, schickt der Server die Punkte der Route an die Routes API von Google (Google, wie oben), um die Straßen und ihre Fahrzeiten zu finden. Die Anfrage kommt vom Server, nicht von Ihrem Browser; Google erfährt daraus also nicht, wer Sie sind.",
           "Links: Wenn Sie einen Link zu einem Ort speichern, öffnet der Server diese Seite einmal, um Titel und Lage zu lesen. Die andere Seite sieht eine Anfrage des Servers, nicht von Ihnen.",
           "Ihr Standort: „In der Nähe“ und der Standort-Knopf der Karte lesen Ihren Standort nur, solange sie eingeschaltet sind. Der Standort bleibt in Ihrem Browser und erreicht nie den Server."
         ]
@@ -605,6 +605,10 @@
       "map": "Karte der Reise",
       "wholeTrip": "Ganze Reise",
       "noMap": "Die Karte lädt hier nicht. Der Plan funktioniert trotzdem.",
+      "zoomIn": "Hineinzoomen",
+      "zoomOut": "Herauszoomen",
+      "mapConsent": "Die Karte kommt von Google Maps. Beim Laden geht deine IP-Adresse an Google (Google Ireland und Google LLC, USA). Der Plan funktioniert auch ohne sie.",
+      "loadMap": "Karte laden",
       "language": "Die Notizen einer Reise sind auf Englisch.",
       "overview": "Überblick",
       "stat": {
@@ -695,6 +699,8 @@
         "near": "In der Nähe",
         "finding": "Suche dich",
         "satellite": "Satellitenbilder",
+        "locate": "Zeigen, wo ich bin",
+        "directions": "Navigieren",
         "filter": "Filtern, zum Beispiel kyoto sonnenaufgang oder kaffee",
         "noPin": "Noch ohne Pin",
         "noPlaces": "Noch keine Orte. Füge hier einen hinzu oder bestätige eine Idee.",
@@ -755,6 +761,85 @@
         "failed": "Das hat nicht geklappt. Versuch es noch mal und lade die Seite neu, wenn es weiter scheitert.",
         "noPosition": "Diese Website darf deinen Standort nicht lesen.",
         "noPlace": "Diesen Ort gibt es nicht mehr; jemand hat ihn gelöscht. Nichts wurde gespeichert."
+      },
+      "pick": {
+        "title": "Swipen",
+        "open": "Orte swipen",
+        "steps": "Schritte",
+        "tab": {
+          "area": "Gegend",
+          "swipe": "Swipen",
+          "matches": "Matches"
+        },
+        "step": "Schritt {n} / 3",
+        "areaTitle": "Wo suchen",
+        "areaNote": "Tippe auf die Karte, um die Nadel zu setzen, und wähle, wie weit drumherum und welche Arten von Orten. Google schickt, was dort ist, und ihr swipt beide.",
+        "radius": "Um die Nadel",
+        "kinds": "Arten von Orten",
+        "kind": {
+          "sight": "Sehenswert",
+          "food": "Essen",
+          "shop": "Läden",
+          "green": "Grün",
+          "museum": "Museen",
+          "view": "Aussicht"
+        },
+        "foundHere": "Hier gefunden",
+        "notSeen": "Nicht geswipt",
+        "atMost": "Höchstens",
+        "search": "Orte hier finden",
+        "searching": "Frage Google…",
+        "cost": "{n, plural, one {Eine Suche} other {# Suchen}} bei Google, je etwa 20 Orte.",
+        "left": "{n} von {total} übrig",
+        "allDone": "Alles geswipt",
+        "matchCount": "{n, plural, =0 {Noch keine Matches} one {Ein Match} other {# Matches}}",
+        "allDoneNote": "Du hast alle bisher gefundenen Orte geswipt. Setz die Nadel woanders hin oder schau, was ihr beide wollt.",
+        "movePin": "Nadel versetzen",
+        "seeMatches": "Matches ansehen",
+        "undo": "Zurücknehmen",
+        "vote": {
+          "yes": "Ja",
+          "no": "Nein",
+          "must": "Muss"
+        },
+        "keys": "← nein · ↑ muss · → ja · Z nimmt zurück.",
+        "hidden": "{name} sieht deine Antwort erst nach der eigenen, und umgekehrt.",
+        "loading": "Lädt…",
+        "fromPin": "{d} {dir} der Nadel",
+        "openMaps": "In Google Maps öffnen",
+        "match": "Match",
+        "theyMust": "auch als Muss markiert",
+        "around": "Rund um {name}",
+        "anArea": "Eine Gegend",
+        "bothWant": "{n, plural, =0 {Noch nichts, was ihr beide wollt} one {Ein Ort, den ihr beide wollt} other {# Orte, die ihr beide wollt}}",
+        "youWant": "{n, plural, =0 {Noch nichts gemocht} one {Ein Ort, den du magst} other {# Orte, die du magst}}",
+        "filter": {
+          "both": "Beide",
+          "liked": "Gemocht",
+          "mine": "Nur ich",
+          "only": "Nur {name}",
+          "wait": "Noch nicht gesehen"
+        },
+        "noneYet": "Hier ist noch nichts.",
+        "places": "{n, plural, one {# Ort} other {# Orte}}",
+        "time": {
+          "hours": "ein paar Stunden",
+          "half": "ein halber Tag",
+          "day": "ein Tag"
+        },
+        "roughDays": "Grobe Tage, nach Gegend",
+        "roughNote": "Nur danach gruppiert, wo die Orte liegen. Öffnungszeiten und Züge kommen später.",
+        "dayN": "Tag {n}",
+        "problem": {
+          "signedOut": "Du bist abgemeldet. Melde dich wieder an, um weiterzuswipen.",
+          "badInput": "Das hat nicht geklappt. Lade die Seite neu und versuch es noch einmal.",
+          "noTrip": "Diese Reise gibt es nicht mehr.",
+          "noPlace": "Dieser Ort ist nicht mehr im Stapel. Lade die Seite neu.",
+          "noKey": "Für die Suche braucht der Server den Google-Maps-Schlüssel.",
+          "searchFailed": "Google hat nicht geantwortet. Prüf die Verbindung und versuch es noch einmal.",
+          "nothingFound": "Google hat hier nichts dieser Arten gefunden. Versuch einen größeren Kreis oder andere Arten."
+        },
+        "apart": "Für sich"
       }
     }
   }

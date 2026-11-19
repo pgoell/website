@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { cx } from "@/components/viewfinder/cx";
 import {
   dayRoute,
+  directionsLink,
   isMapsLink,
   mapsLink,
   NO_GOOGLE,
@@ -156,6 +157,20 @@ export function PlaceCard({
         >
           {t("edit.googleMaps")}
         </a>
+        {p.lat !== null && p.lng !== null && (
+          <a
+            className={s.btn}
+            href={directionsLink({
+              lat: p.lat,
+              lng: p.lng,
+              googlePlaceId: p.googlePlaceId,
+            })}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {t("edit.directions")}
+          </a>
+        )}
         <button
           type="button"
           className={cx(sure ? s.btnMain : s.btn, rare)}
@@ -390,6 +405,14 @@ export function BookingCard({
             rel="noreferrer"
           >
             {t("edit.googleMaps")}
+          </a>
+          <a
+            className={s.btn}
+            href={directionsLink(stop)}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {t("edit.directions")}
           </a>
         </div>
       )}

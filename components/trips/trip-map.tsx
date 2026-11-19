@@ -1,15 +1,5 @@
 "use client";
 
-import type {
-  FilterSpecification,
-  GeoJSONSource,
-  Map as MapLibreMap,
-  MapMouseEvent,
-  MapTouchEvent,
-  Point,
-  StyleSpecification,
-} from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
 import {
   type CSSProperties,
   type ReactNode,
@@ -20,7 +10,6 @@ import {
 import type { Look } from "@/lib/trips/look";
 import { arc } from "@/lib/trips/plan";
 import { lengthOf, type Stretch } from "@/lib/trips/route";
-import { SATELLITE_DEEPEST } from "@/lib/trips/tiles";
 import type {
   LngLat,
   PlaceStatus,
@@ -28,96 +17,28 @@ import type {
   TripPlace,
   TripStop,
 } from "@/lib/trips/types";
-import night from "./map-style.json";
-import paper from "./map-style-day.json";
+import {
+  cameraFor,
+  type HtmlLayer,
+  htmlLayer,
+  INKS,
+  loadMaps,
+  MAP_STYLES,
+  mapOptions,
+  moveTo,
+  label as nameLabel,
+  type Pad,
+  type Pin,
+  path,
+  polyline,
+  SATELLITE_STYLE,
+  square,
+  toSegment,
+} from "./gmap";
 import s from "./trips.module.css";
-
-/** The colours drawn over the map, for the dark screen and for paper. */
-const INKS = {
-  night: {
-    route: "#5cf07c",
-    picked: "#f08a00",
-    place: "#2ec4b6",
-    ink: "#f3f4f1",
-    ground: "#050606",
-    warn: "#ff5a4d",
-  },
-  day: {
-    route: "#177a3a",
-    picked: "#c25a00",
-    place: "#0f7f76",
-    ink: "#151716",
-    ground: "#f6f4ec",
-    warn: "#c2281c",
-  },
-};
-type Pad = { top: number; right: number; bottom: number; left: number };
-const CREDIT =
-  '<a href="https://openfreemap.org" target="_blank" rel="noreferrer">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank" rel="noreferrer">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>';
-
-/** The map style, with tiles and fonts asked from this site, not from OpenFreeMap. */
-function style(look: Look): StyleSpecification {
-  const origin = window.location.origin;
-  return {
-    ...((look === "day" ? paper : night) as unknown as StyleSpecification),
-    glyphs: `${origin}/api/map/fonts/{fontstack}/{range}.pbf`,
-    sources: {
-      openmaptiles: {
-        type: "vector",
-        tiles: [`${origin}/api/map/tiles/{z}/{x}/{y}`],
-        maxzoom: 14,
-        attribution: CREDIT,
-      },
-    },
-  };
-}
-
-/** A square marker, drawn here so the map needs no sprite. */
-function square(size: number, fill: string, stroke: string) {
-  const c = document.createElement("canvas");
-  c.width = c.height = size * 2;
-  const g = c.getContext("2d") as CanvasRenderingContext2D;
-  g.fillStyle = stroke;
-  g.fillRect(0, 0, c.width, c.height);
-  g.fillStyle = fill;
-  g.fillRect(4, 4, c.width - 8, c.height - 8);
-  return g.getImageData(0, 0, c.width, c.height);
-}
-
-const lines = (paths: LngLat[][]): GeoJSON.Feature => ({
-  type: "Feature",
-  properties: {},
-  geometry: { type: "MultiLineString", coordinates: paths },
-});
 
 /** A place as the map of someone signed in knows it. */
 type MapPlace = TripPlace & { id?: number; status?: PlaceStatus };
-
-/**
- * The places with a pin. Numbered, each carries its place in the list,
- * counting the pinless too. A visitor's places carry their name only.
- */
-const placePoints = (
-  places: MapPlace[],
-  numbered: boolean,
-): GeoJSON.FeatureCollection => ({
-  type: "FeatureCollection",
-  features: places.flatMap((p, i): GeoJSON.Feature[] =>
-    p.lat === null || p.lng === null
-      ? []
-      : [
-          {
-            type: "Feature",
-            properties: {
-              name: p.name,
-              ...(p.id !== undefined && { id: p.id, status: p.status }),
-              ...(numbered && { n: String(i + 1) }),
-            },
-            geometry: { type: "Point", coordinates: [p.lng, p.lat] },
-          },
-        ],
-  ),
-});
 
 /** A leg's line while it is bent: what the map draws and what it reports. */
 export type RouteOnMap = {
@@ -146,8 +67,10 @@ export type MapEditing = {
   edit: RouteOnMap | null;
   /** What to show at the picked point of that line. */
   menu: ReactNode;
-  /** Satellite images in place of the drawn map. Left out when the server has none. */
+  /** Google's satellite images in place of the drawn map. */
   satellite?: { on: boolean; label: string; onToggle: () => void };
+  /** The label of the button that shows where you are. */
+  locate?: string;
   onPick: (lng: number, lat: number) => void;
   onSelectPlace: (id: number) => void;
   onSelectStop: (position: number) => void;
@@ -155,16 +78,57 @@ export type MapEditing = {
   onMiss: () => void;
 };
 
-/** How far around a tap or a press a point or the line still counts as hit. */
-const SATELLITE_CREDIT =
-  "Esri, Maxar, Earthstar Geographics, and the GIS User Community";
-const REACH = { mouse: 9, touch: 20 };
+/** What the map says around itself, in the page's language. */
+export type MapWords = {
+  label: string;
+  /** What to say when the map cannot start. */
+  broken: string;
+  zoomIn: string;
+  zoomOut: string;
+  /** For a visitor: what to say before Google's map loads, and the button. */
+  consent: string;
+  load: string;
+};
+
+/** The map's words from the trips messages. */
+export const mapWords = (t: (key: string) => string): MapWords => ({
+  label: t("map"),
+  broken: t("noMap"),
+  zoomIn: t("zoomIn"),
+  zoomOut: t("zoomOut"),
+  consent: t("mapConsent"),
+  load: t("loadMap"),
+});
+
+/** A visitor loads Google's map only after saying yes; the yes is kept here. */
+export const CONSENT_KEY = "trips.googleMaps";
+function consented() {
+  try {
+    return localStorage.getItem(CONSENT_KEY) === "yes";
+  } catch {
+    return false;
+  }
+}
+
+/** How far around a press a point or the line still counts as hit, in pixels. */
+const REACH = { mouse: 10, touch: 22 };
+const LINE_REACH = { mouse: 9, touch: 16 };
 /** An end of a line this near a stop, in metres, counts as on it. */
 const ON_STOP = 100;
+/** Names of places show from this zoom on. */
+const NAMES_FROM = 11;
+
+type LineName =
+  | "flights"
+  | "groundGlow"
+  | "ground"
+  | "pickedGlow"
+  | "picked"
+  | "stroke";
 
 /**
- * A read-only map of one trip: its line, its stops and its places. The map
- * fills its box and is the page there, so one finger and the wheel move it.
+ * A map of one trip on Google Maps: its line, its stops and its places. The
+ * map fills its box and is the page there, so one finger and the wheel move it.
  * A new look needs a new map: give the component a key that holds the look.
  */
 export function TripMap({
@@ -174,8 +138,8 @@ export function TripMap({
   focus,
   pad,
   mark,
-  label,
-  broken,
+  words,
+  mapsKey,
   closeUp = false,
   editing,
 }: {
@@ -189,19 +153,26 @@ export function TripMap({
   pad: Pad;
   /** The stop to ring and to name. The other stops show their number only. */
   mark: TripStop | null;
-  label: string;
-  /** What to say when the map cannot start. */
-  broken: string;
+  words: MapWords;
+  /** The browser key for Google Maps. */
+  mapsKey: string | undefined;
   /** One point in `focus` is a place: come close, not just near. */
   closeUp?: boolean;
   /** Only for someone signed in. Without it the map is read-only. */
   editing?: MapEditing;
 }) {
   const container = useRef<HTMLDivElement>(null);
-  const map = useRef<MapLibreMap | null>(null);
-  const lib = useRef<typeof import("maplibre-gl") | null>(null);
+  const map = useRef<google.maps.Map | null>(null);
+  const base = useRef<HtmlLayer | null>(null);
+  const top = useRef<HtmlLayer | null>(null);
+  const lines = useRef<Lines | null>(null);
+  const editLines = useRef<google.maps.Polyline[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [allowed, setAllowed] = useState(!!editing);
+  const [near, setNear] = useState(false);
+  const [me, setMe] = useState<LngLat | null>(null);
+  const [ghost, setGhost] = useState<LngLat | null>(null);
   // Where the picked point of a bent line lies on the screen, for its menu.
   const [menuAt, setMenuAt] = useState<{
     x: number;
@@ -213,413 +184,246 @@ export function TripMap({
   // Its handlers read the latest editing props from here.
   const live = useRef(editing);
   live.current = editing;
-  const satButton = useRef<HTMLButtonElement | null>(null);
+  const ink = INKS[look];
+  const editable = editing !== undefined;
+
+  // A visitor who said yes before is not asked again.
+  useEffect(() => {
+    if (!editable && consented()) setAllowed(true);
+  }, [editable]);
 
   useEffect(() => {
+    if (!allowed) return;
     let gone = false;
-    let m: MapLibreMap | undefined;
     let stopEditing: (() => void) | undefined;
-    import("maplibre-gl").then((gl) => {
-      if (gone || !container.current) return;
-      lib.current = gl;
-      const { trip, focus, pad, look, editable } = first.current;
-      const {
-        route,
-        picked: hot,
-        place,
-        ink,
-        ground: paperTone,
-        warn,
-      } = INKS[look];
-      const bounds = new gl.LngLatBounds();
-      for (const p of focus) bounds.extend(p);
-      try {
-        m = new gl.Map({
-          container: container.current,
-          style: style(look),
-          bounds,
-          fitBoundsOptions: { padding: pad, maxZoom: 12 },
-          attributionControl: { compact: true },
-        });
-      } catch {
-        // No WebGL. The plan beside the map still works.
-        setFailed(true);
-        return;
-      }
-      const made = m;
-      map.current = made;
-      made.addControl(new gl.NavigationControl({ showCompass: false }));
-      if (editable) {
-        made.addControl(
-          new gl.GeolocateControl({
-            positionOptions: { enableHighAccuracy: true },
-            trackUserLocation: true,
-          }),
+    loadMaps(mapsKey).then(
+      () => {
+        const el = container.current;
+        if (gone || !el) return;
+        const { trip, focus, pad, look, editable } = first.current;
+        const c = INKS[look];
+        const cam = cameraFor(
+          focus,
+          { width: el.clientWidth, height: el.clientHeight },
+          pad,
+          13,
         );
-      }
-
-      if (editable && live.current?.satellite) {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = s.satButton ?? "";
-        button.textContent = "SAT";
-        button.onclick = () => live.current?.satellite?.onToggle();
-        const box = document.createElement("div");
-        box.className = "maplibregl-ctrl maplibregl-ctrl-group";
-        box.append(button);
-        made.addControl({ onAdd: () => box, onRemove: () => box.remove() });
-        satButton.current = button;
-      }
-
-      made.on("load", () => {
-        if (editable && live.current?.satellite) {
-          made.addSource("satellite", {
-            type: "raster",
-            tiles: [`${window.location.origin}/api/map/satellite/{z}/{x}/{y}`],
-            tileSize: 256,
-            maxzoom: SATELLITE_DEEPEST,
-            attribution: SATELLITE_CREDIT,
-          });
-          // Under everything but the ground colour. Hidden until asked for,
-          // so no tile is fetched before that.
-          made.addLayer(
-            {
-              id: "satellite",
-              type: "raster",
-              source: "satellite",
-              layout: { visibility: "none" },
-            },
-            made.getStyle().layers.find((l) => l.type !== "background")?.id,
+        const m = new google.maps.Map(el, {
+          ...mapOptions(look),
+          center: cam?.center ?? { lat: 35.68, lng: 139.76 },
+          zoom: cam?.zoom ?? 5,
+        });
+        map.current = m;
+        const made = new Lines(m, {
+          flights: { color: c.ink, width: 1.4, opacity: 0.6, dash: [2, 5] },
+          groundGlow: { color: c.route, width: 9, opacity: 0.16, z: 1 },
+          ground: { color: c.route, width: 2.5, z: 2 },
+          pickedGlow: { color: c.picked, width: 9, opacity: 0.2, z: 3 },
+          picked: { color: c.picked, width: 2.5, z: 4 },
+          stroke: { color: c.ink, width: 4, z: 20 },
+        });
+        lines.current = made;
+        made.set(
+          "flights",
+          trip.legs
+            .filter((l) => l.mode === "flight")
+            .map((l) => arc(l.path[0] as LngLat, l.path.at(-1) as LngLat)),
+        );
+        base.current = htmlLayer(m);
+        top.current = htmlLayer(m);
+        const onZoom = () => setNear((m.getZoom() ?? 0) >= NAMES_FROM);
+        m.addListener("zoom_changed", onZoom);
+        onZoom();
+        if (editable) {
+          stopEditing = listen(
+            m,
+            el,
+            top.current,
+            () => live.current,
+            setGhost,
+            (line) => made.set("stroke", line.length ? [line] : []),
           );
         }
-        // On a narrow map the credit starts folded behind its button.
-        if (window.innerWidth <= 760) {
-          container.current
-            ?.querySelector(".maplibregl-ctrl-attrib")
-            ?.classList.remove("maplibregl-compact-show");
-        }
-        made.addImage("stop", square(24, paperTone, route), { pixelRatio: 2 });
-        made.addImage("place", square(13, place, paperTone), { pixelRatio: 2 });
-        if (editable) {
-          for (const [name, size, fill, stroke] of [
-            ["place-n", 21, place, paperTone],
-            ["idea", 13, paperTone, hot],
-            ["idea-n", 21, paperTone, hot],
-            ["end", 22, hot, paperTone],
-            ["end-stop", 24, paperTone, hot],
-          ] as const) {
-            made.addImage(name, square(size, fill, stroke), { pixelRatio: 2 });
-          }
-        }
-        const flights = trip.legs.filter((l) => l.mode === "flight");
-        const ground = trip.legs.filter((l) => l.mode === "ground");
-        made.addSource("flights", {
-          type: "geojson",
-          data: lines(
-            flights.map((l) =>
-              arc(l.path[0] as LngLat, l.path.at(-1) as LngLat),
-            ),
-          ),
-        });
-        made.addSource("ground", {
-          type: "geojson",
-          data: lines(ground.map((l) => l.path)),
-        });
-        made.addSource("picked", { type: "geojson", data: lines([]) });
-        made.addSource("mark", {
-          type: "geojson",
-          data: { type: "FeatureCollection", features: [] },
-        });
-        made.addSource("stops", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: trip.stops.map((p) => ({
-              type: "Feature",
-              properties: { label: String(p.position), name: p.name },
-              geometry: { type: "Point", coordinates: [p.lng, p.lat] },
-            })),
-          },
-        });
-        made.addSource("places", {
-          type: "geojson",
-          data: placePoints(trip.places, false),
-        });
-
-        const glow = (id: string, source: string, color: string) =>
-          made.addLayer({
-            id,
-            type: "line",
-            source,
-            layout: { "line-join": "round", "line-cap": "round" },
-            paint: {
-              "line-color": color,
-              "line-width": 7,
-              "line-blur": 8,
-              "line-opacity": 0.16,
-            },
-          });
-        const line = (id: string, source: string, color: string) =>
-          made.addLayer({
-            id,
-            type: "line",
-            source,
-            layout: { "line-join": "round", "line-cap": "round" },
-            paint: { "line-color": color, "line-width": 2.5 },
-          });
-        made.addLayer({
-          id: "flights",
-          type: "line",
-          source: "flights",
-          paint: {
-            "line-color": ink,
-            "line-width": 1.2,
-            "line-dasharray": [3, 3],
-            "line-opacity": 0.6,
-          },
-        });
-        glow("ground-glow", "ground", route);
-        line("ground", "ground", route);
-        glow("picked-glow", "picked", hot);
-        line("picked", "picked", hot);
-        made.addLayer({
-          id: "mark-glow",
-          type: "circle",
-          source: "mark",
-          paint: {
-            "circle-radius": 30,
-            "circle-color": hot,
-            "circle-opacity": 0.16,
-            "circle-blur": 0.6,
-          },
-        });
-        made.addLayer({
-          id: "mark",
-          type: "circle",
-          source: "mark",
-          paint: {
-            "circle-radius": 19,
-            "circle-color": "rgba(0,0,0,0)",
-            "circle-stroke-color": hot,
-            "circle-stroke-width": 2,
-          },
-        });
-        made.addLayer({
-          id: "places",
-          type: "symbol",
-          source: "places",
-          layout: editable
-            ? {
-                "icon-image": [
-                  "concat",
-                  ["match", ["get", "status"], "idea", "idea", "place"],
-                  ["case", ["has", "n"], "-n", ""],
-                ],
-                "icon-allow-overlap": true,
-                "text-field": ["coalesce", ["get", "n"], ""],
-                "text-font": ["Noto Sans Bold"],
-                "text-size": 11,
-                "text-allow-overlap": true,
-              }
-            : { "icon-image": "place", "icon-allow-overlap": true },
-          ...(editable && {
-            paint: {
-              "text-color": [
-                "match",
-                ["get", "status"],
-                "idea",
-                hot,
-                paperTone,
-              ],
-            },
-          }),
-        });
-        made.addLayer({
-          id: "place-names",
-          type: "symbol",
-          source: "places",
-          minzoom: 10,
-          layout: {
-            "text-field": ["get", "name"],
-            "text-font": ["Noto Sans Regular"],
-            "text-size": 11,
-            "text-transform": "uppercase",
-            "text-letter-spacing": 0.08,
-            "text-offset": [0, 1.2],
-            "text-anchor": "top",
-          },
-          paint: {
-            "text-color": ink,
-            "text-halo-color": paperTone,
-            "text-halo-width": 1.5,
-          },
-        });
-        made.addLayer({
-          id: "stops",
-          type: "symbol",
-          source: "stops",
-          layout: {
-            "icon-image": "stop",
-            "icon-allow-overlap": true,
-            "text-field": ["get", "label"],
-            "text-font": ["Noto Sans Bold"],
-            "text-size": 12,
-            "text-allow-overlap": true,
-          },
-          paint: { "text-color": route },
-        });
-        made.addLayer({
-          id: "stop-names",
-          type: "symbol",
-          source: "stops",
-          // Only the marked stop is named, so the map stays calm.
-          filter: ["==", ["get", "label"], ""],
-          layout: {
-            "text-field": ["get", "name"],
-            "text-font": ["Noto Sans Bold"],
-            "text-size": 12,
-            "text-transform": "uppercase",
-            "text-letter-spacing": 0.14,
-            "text-variable-anchor": ["left", "right", "top", "bottom"],
-            "text-radial-offset": 1.5,
-            "text-optional": true,
-          },
-          paint: {
-            "text-color": route,
-            "text-halo-color": paperTone,
-            "text-halo-width": 2,
-          },
-        });
-        if (editable) addEditLayers(made, { hot, ink, paperTone, warn });
         setLoaded(true);
-      });
-      if (editable) {
-        stopEditing = listen(made, () => live.current);
-      }
-    });
+      },
+      () => setFailed(true),
+    );
     return () => {
       gone = true;
       stopEditing?.();
-      m?.remove();
+      base.current?.remove();
+      top.current?.remove();
+      lines.current?.remove();
+      for (const l of editLines.current) l.setMap(null);
       map.current = null;
     };
-  }, []);
+  }, [allowed, mapsKey]);
 
+  // The trip's ground legs, and the day's lines over them.
   useEffect(() => {
-    if (!loaded) return;
-    map.current?.getSource<GeoJSONSource>("picked")?.setData(lines(picked));
+    const l = lines.current;
+    if (!loaded || !l) return;
+    const ground = trip.legs
+      .filter((x) => x.mode === "ground")
+      .map((x) => x.path);
+    l.set("ground", ground);
+    l.set("groundGlow", ground);
+  }, [loaded, trip.legs]);
+  useEffect(() => {
+    const l = lines.current;
+    if (!loaded || !l) return;
+    l.set("picked", picked);
+    l.set("pickedGlow", picked);
   }, [loaded, picked]);
 
+  // Stops, places, the ring of the marked stop and where you are.
+  const numbered = editing?.numbered ?? false;
   useEffect(() => {
-    const m = map.current;
-    if (!loaded || !m) return;
-    m.getSource<GeoJSONSource>("mark")?.setData({
-      type: "FeatureCollection",
-      features: mark
-        ? [
-            {
-              type: "Feature",
-              properties: {},
-              geometry: { type: "Point", coordinates: [mark.lng, mark.lat] },
-            },
-          ]
-        : [],
+    const layer = base.current;
+    if (!loaded || !layer) return;
+    const now = () => live.current;
+    const pins: Pin[] = [];
+    if (mark) {
+      const ring = document.createElement("div");
+      Object.assign(ring.style, {
+        width: "38px",
+        height: "38px",
+        borderRadius: "50%",
+        border: `2px solid ${ink.picked}`,
+        boxShadow: `0 0 18px 6px ${ink.picked}33`,
+        boxSizing: "border-box",
+      });
+      pins.push({ at: [mark.lng, mark.lat], el: ring, z: 2 });
+      // Only the marked stop is named, so the map stays calm.
+      pins.push({
+        at: [mark.lng, mark.lat],
+        el: nameLabel(mark.name, ink.route, ink.ground, 12),
+        anchor: "left",
+        offset: [24, 0],
+        z: 6,
+      });
+    }
+    (trip.places as MapPlace[]).forEach((p, i) => {
+      if (p.lat === null || p.lng === null) return;
+      const at: LngLat = [p.lng, p.lat];
+      const idea = editable && p.status === "idea";
+      const n = editable && numbered ? String(i + 1) : "";
+      const size = n ? 21 : 13;
+      const el = idea
+        ? square(size, ink.ground, ink.picked, n, ink.picked)
+        : square(size, ink.place, ink.ground, n, ink.ground);
+      const id = p.id;
+      pins.push(
+        editable && id !== undefined
+          ? {
+              at,
+              el: hitArea(el, () =>
+                tapPin(now, at, () => now()?.onSelectPlace(id)),
+              ),
+              hit: true,
+              z: 3,
+            }
+          : { at, el, z: 3 },
+      );
+      if (near) {
+        pins.push({
+          at,
+          el: nameLabel(p.name, ink.ink, ink.ground),
+          anchor: "top",
+          offset: [0, size / 2 + 4],
+          z: 3,
+        });
+      }
     });
-    m.setFilter("stop-names", [
-      "==",
-      ["get", "label"],
-      mark ? String(mark.position) : "",
-    ]);
-  }, [loaded, mark]);
+    for (const st of trip.stops) {
+      const el = square(24, ink.ground, ink.route, String(st.position));
+      const at: LngLat = [st.lng, st.lat];
+      pins.push(
+        editable
+          ? {
+              at,
+              el: hitArea(el, () =>
+                tapPin(now, at, () => now()?.onSelectStop(st.position)),
+              ),
+              hit: true,
+              z: 5,
+            }
+          : { at, el, z: 5 },
+      );
+    }
+    if (me) {
+      const dot = document.createElement("div");
+      Object.assign(dot.style, {
+        width: "14px",
+        height: "14px",
+        boxSizing: "border-box",
+        borderRadius: "50%",
+        background: "#3b82f6",
+        border: "2px solid #fff",
+        boxShadow: "0 0 0 6px rgba(59,130,246,0.25)",
+      });
+      pins.push({ at: me, el: dot, z: 7 });
+    }
+    layer.set(pins);
+  }, [
+    loaded,
+    trip.places,
+    trip.stops,
+    mark,
+    numbered,
+    editable,
+    near,
+    me,
+    ink,
+  ]);
 
   useEffect(() => {
     const m = map.current;
-    const gl = lib.current;
-    if (!loaded || !m || !gl || focus.length === 0) return;
-    const bounds = new gl.LngLatBounds();
-    for (const p of focus) bounds.extend(p);
+    const el = container.current;
+    if (!loaded || !m || !el || focus.length === 0) return;
     // One point is a stop in open country: stay far enough out to see where
     // it lies. A place shown on its own is looked at close up.
-    const cam = m.cameraForBounds(bounds, {
-      padding: pad,
-      maxZoom: focus.length === 1 && !closeUp ? 9.5 : closeUp ? 15 : 14,
-    });
-    if (!cam?.center || cam.zoom === undefined) return;
-    const to = { center: cam.center, zoom: cam.zoom, pitch: 0 };
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      m.jumpTo(to);
-    } else {
-      m.flyTo(to);
-    }
+    const cam = cameraFor(
+      focus,
+      { width: el.clientWidth, height: el.clientHeight },
+      pad,
+      focus.length === 1 && !closeUp ? 10.5 : closeUp ? 16 : 15,
+    );
+    if (cam) moveTo(m, cam);
   }, [loaded, focus, pad, closeUp]);
 
   // ---------- only for someone signed in ----------
-
-  // The places change as they are added, filtered and pinned.
-  const numbered = editing?.numbered ?? false;
-  const editable = editing !== undefined;
-  useEffect(() => {
-    if (!loaded || !editable) return;
-    map.current
-      ?.getSource<GeoJSONSource>("places")
-      ?.setData(placePoints(trip.places, numbered));
-  }, [loaded, editable, trip.places, numbered]);
-
-  // A leg drawn anew changes its line.
-  useEffect(() => {
-    if (!loaded || !editable) return;
-    map.current
-      ?.getSource<GeoJSONSource>("ground")
-      ?.setData(
-        lines(trip.legs.filter((l) => l.mode === "ground").map((l) => l.path)),
-      );
-  }, [loaded, editable, trip.legs]);
 
   // The line being bent. The day's own line and the other legs step back.
   const edit = editing?.edit ?? null;
   const bending = edit !== null;
   useEffect(() => {
-    const m = map.current;
-    if (!loaded || !m || !editable) return;
-    for (const id of ["picked", "picked-glow"]) {
-      m.setLayoutProperty(id, "visibility", bending ? "none" : "visible");
-    }
-    m.setPaintProperty("ground", "line-opacity", bending ? 0.3 : 1);
-    m.setPaintProperty("ground-glow", "line-opacity", bending ? 0.05 : 0.16);
-    if (!bending) m.getCanvas().style.cursor = "";
+    const l = lines.current;
+    if (!loaded || !l || !editable) return;
+    l.style("picked", { visible: !bending });
+    l.style("pickedGlow", { visible: !bending });
+    l.style("ground", { strokeOpacity: bending ? 0.3 : 1 });
+    l.style("groundGlow", { strokeOpacity: bending ? 0.05 : 0.16 });
   }, [loaded, editable, bending]);
 
   const picking = editing?.picking ?? false;
   useEffect(() => {
     const m = map.current;
     if (!loaded || !m || !editable) return;
-    m.getCanvas().style.cursor = picking ? "crosshair" : "";
+    m.setOptions({ draggableCursor: picking ? "crosshair" : null });
   }, [loaded, editable, picking]);
 
-  // Satellite images take the place of the drawn land, water and roads. The
-  // names stay, and so does everything of the trip.
+  // Satellite images take the place of the drawn map, with the names of
+  // places and roads on them. Everything of the trip stays.
   const satOn = editing?.satellite?.on ?? false;
-  const satLabel = editing?.satellite?.label;
   useEffect(() => {
-    const button = satButton.current;
-    if (button && satLabel) {
-      button.setAttribute("aria-pressed", String(satOn));
-      button.setAttribute("aria-label", satLabel);
-      button.title = satLabel;
-    }
     const m = map.current;
-    if (!loaded || !m?.getLayer("satellite")) return;
-    for (const l of m.getStyle().layers) {
-      if (l.id === "satellite")
-        m.setLayoutProperty(l.id, "visibility", satOn ? "visible" : "none");
-      else if (
-        "source" in l &&
-        l.source === "openmaptiles" &&
-        l.type !== "symbol"
-      )
-        m.setLayoutProperty(l.id, "visibility", satOn ? "none" : "visible");
-    }
-  }, [loaded, satOn, satLabel]);
+    if (!loaded || !m) return;
+    m.setOptions({
+      mapTypeId: satOn ? "hybrid" : "roadmap",
+      styles: satOn ? SATELLITE_STYLE : MAP_STYLES[look],
+    });
+  }, [loaded, satOn, look]);
 
   const stretches = edit?.stretches;
   const points = edit?.points;
@@ -629,73 +433,213 @@ export function TripMap({
   useEffect(() => {
     const m = map.current;
     if (!loaded || !m || !editable) return;
-    m.getSource<GeoJSONSource>("edit")?.setData({
-      type: "FeatureCollection",
-      features: (stretches ?? []).map((x, i) => ({
-        type: "Feature",
-        properties: { kind: x.kind, index: i + 1 },
-        geometry: { type: "LineString", coordinates: x.line },
-      })),
-    });
-    m.getSource<GeoJSONSource>("edit-points")?.setData({
-      type: "FeatureCollection",
-      features: (points ?? []).map((p, i, all) => {
-        const end = i === 0 ? "A" : i === all.length - 1 ? "B" : "";
-        const stop = end
-          ? stops.find((x) => lengthOf([p, [x.lng, x.lat]]) < ON_STOP)
-          : undefined;
-        return {
-          type: "Feature",
-          properties: {
-            index: i,
-            selected: i === selected,
-            end: stop ? String(stop.position) : end,
-            stop: stop !== undefined,
-          },
-          geometry: { type: "Point", coordinates: p },
-        };
-      }),
-    });
-  }, [loaded, editable, stretches, points, selected, stops]);
+    for (const l of editLines.current) l.setMap(null);
+    const made: google.maps.Polyline[] = [];
+    const draw = (line: LngLat[], o: Parameters<typeof polyline>[1]) => {
+      const p = polyline(m, { z: 10, ...o });
+      p.setPath(path(line));
+      made.push(p);
+    };
+    if (before?.length)
+      draw(before, { color: ink.ink, width: 2, opacity: 0.5, dash: [1, 6] });
+    for (const x of stretches ?? []) {
+      if (x.kind === "road") {
+        draw(x.line, { color: ink.picked, width: 12, opacity: 0.3 });
+        draw(x.line, { color: ink.picked, width: 3.5, z: 11 });
+      } else if (x.kind === "free") {
+        draw(x.line, { color: ink.ink, width: 3, z: 11 });
+      } else if (x.kind === "straight") {
+        draw(x.line, { color: ink.ink, width: 2.5, dash: [2, 4], z: 11 });
+      } else if (x.kind === "wait") {
+        // A road still looked up: where it will run is not known yet.
+        draw(x.line, {
+          color: ink.picked,
+          width: 2,
+          opacity: 0.8,
+          dash: [1, 4],
+          z: 11,
+        });
+      } else {
+        draw(x.line, { color: ink.warn, width: 3, dash: [2, 3], z: 11 });
+      }
+    }
+    editLines.current = made;
+  }, [loaded, editable, stretches, before, ink]);
+
+  // The points of the line being bent, and where a press would bend it.
   useEffect(() => {
-    if (!loaded || !editable) return;
-    map.current
-      ?.getSource<GeoJSONSource>("edit-before")
-      ?.setData(lines(before ? [before] : []));
-  }, [loaded, editable, before]);
+    const layer = top.current;
+    if (!loaded || !layer || !editable) return;
+    const pins: Pin[] = (points ?? []).map((p, i, all): Pin => {
+      const end = i === 0 ? "A" : i === all.length - 1 ? "B" : "";
+      if (!end) {
+        const on = i === selected;
+        const d = document.createElement("div");
+        Object.assign(d.style, {
+          width: `${on ? 18 : 12}px`,
+          height: `${on ? 18 : 12}px`,
+          borderRadius: "50%",
+          background: ink.ink,
+          border: `${on ? 4 : 3}px solid ${ink.picked}`,
+          boxSizing: "border-box",
+        });
+        return { at: p, el: d, z: 12 };
+      }
+      const stop = stops.find((x) => lengthOf([p, [x.lng, x.lat]]) < ON_STOP);
+      // An end on a stop is that stop's own box and number, in orange.
+      const el = stop
+        ? square(24, ink.ground, ink.picked, String(stop.position), ink.picked)
+        : square(22, ink.picked, ink.ground, end, ink.ground);
+      return { at: p, el, z: 13 };
+    });
+    if (ghost) {
+      const g = document.createElement("div");
+      Object.assign(g.style, {
+        width: "12px",
+        height: "12px",
+        boxSizing: "border-box",
+        borderRadius: "50%",
+        background: ink.picked,
+        opacity: "0.6",
+        border: `1.5px solid ${ink.ink}`,
+      });
+      pins.push({ at: ghost, el: g, z: 11 });
+    }
+    layer.set(pins);
+  }, [loaded, editable, points, selected, stops, ghost, ink]);
 
   // The menu of the picked point follows the map.
   const menuPoint = selected === null ? undefined : points?.[selected];
   useEffect(() => {
-    const m = map.current;
-    if (!loaded || !m || !menuPoint) {
+    const layer = top.current;
+    const el = container.current;
+    if (!loaded || !layer || !el || !menuPoint) {
       setMenuAt(null);
       return;
     }
     const place = () => {
-      const { x, y } = m.project(menuPoint);
-      setMenuAt({ x, y, width: m.getContainer().clientWidth });
+      const p = layer.toPixel(menuPoint);
+      if (p) setMenuAt({ x: p.x, y: p.y, width: el.clientWidth });
     };
     place();
-    m.on("move", place);
+    const stop = layer.watch(place);
     return () => {
-      m.off("move", place);
+      stop();
     };
   }, [loaded, menuPoint]);
 
-  if (failed) return <p className={s.noMap}>{broken}</p>;
-  if (!editing) {
+  // Where you are, while the button is on.
+  const [locating, setLocating] = useState(false);
+  useEffect(() => {
+    if (!locating || !navigator.geolocation) return;
+    let firstFix = true;
+    const id = navigator.geolocation.watchPosition(
+      (p) => {
+        const at: LngLat = [p.coords.longitude, p.coords.latitude];
+        setMe(at);
+        const m = map.current;
+        if (firstFix && m) {
+          firstFix = false;
+          moveTo(m, {
+            center: { lat: at[1], lng: at[0] },
+            zoom: Math.max(m.getZoom() ?? 0, 15),
+          });
+        }
+      },
+      () => setLocating(false),
+      { enableHighAccuracy: true },
+    );
+    return () => {
+      navigator.geolocation.clearWatch(id);
+      setMe(null);
+    };
+  }, [locating]);
+
+  if (failed) return <p className={s.noMap}>{words.broken}</p>;
+  if (!allowed) {
     return (
-      <div ref={container} className={s.map} role="img" aria-label={label} />
+      <div className={s.consent}>
+        <p>{words.consent}</p>
+        <button
+          type="button"
+          onClick={() => {
+            try {
+              localStorage.setItem(CONSENT_KEY, "yes");
+            } catch {}
+            setAllowed(true);
+          }}
+        >
+          {words.load}
+        </button>
+      </div>
     );
   }
+  const zoomBy = (d: number) => {
+    const m = map.current;
+    if (m)
+      moveTo(m, {
+        center: m.getCenter()?.toJSON() ?? { lat: 0, lng: 0 },
+        zoom: Math.round((m.getZoom() ?? 0) + d),
+      });
+  };
   const left = menuAt
     ? Math.min(Math.max(menuAt.x, 136), menuAt.width - 136)
     : 0;
   return (
     <>
-      <div ref={container} className={s.map} role="img" aria-label={label} />
-      {editing.menu && menuAt && (
+      <div
+        ref={container}
+        className={s.map}
+        role="img"
+        aria-label={words.label}
+      />
+      {loaded && (
+        <div className={s.mapButtons}>
+          <button
+            type="button"
+            aria-label={words.zoomIn}
+            title={words.zoomIn}
+            onClick={() => zoomBy(1)}
+          >
+            +
+          </button>
+          <button
+            type="button"
+            aria-label={words.zoomOut}
+            title={words.zoomOut}
+            onClick={() => zoomBy(-1)}
+          >
+            −
+          </button>
+          {editing?.locate && (
+            <button
+              type="button"
+              aria-label={editing.locate}
+              title={editing.locate}
+              aria-pressed={locating}
+              onClick={() => setLocating((on) => !on)}
+            >
+              <svg viewBox="0 0 16 16" className={s.mapIco} aria-hidden="true">
+                <circle cx="8" cy="8" r="4.5" />
+                <path d="M8 1v2.5M8 12.5V15M1 8h2.5M12.5 8H15" />
+              </svg>
+            </button>
+          )}
+          {editing?.satellite && (
+            <button
+              type="button"
+              className={s.satButton}
+              aria-label={editing.satellite.label}
+              title={editing.satellite.label}
+              aria-pressed={satOn}
+              onClick={editing.satellite.onToggle}
+            >
+              SAT
+            </button>
+          )}
+        </div>
+      )}
+      {editing?.menu && menuAt && (
         <div
           className={s.routeMenu}
           data-below={menuAt.y < 230 || undefined}
@@ -714,270 +658,225 @@ export function TripMap({
   );
 }
 
-/** The layers of a line being bent. It lies over everything, so its ends show on a stop. */
-function addEditLayers(
-  m: MapLibreMap,
-  c: { hot: string; ink: string; paperTone: string; warn: string },
-) {
-  for (const id of ["edit", "edit-points", "edit-before", "edit-mark"]) {
-    m.addSource(id, { type: "geojson", data: lines([]) });
+/**
+ * The map's lines by name. A google.maps.Polyline draws one line, so each
+ * name holds as many as it has lines, all in the same style.
+ */
+class Lines {
+  private all = new Map<LineName, google.maps.Polyline[]>();
+  private looks = new Map<LineName, Parameters<typeof polyline>[1]>();
+  private extra = new Map<LineName, google.maps.PolylineOptions>();
+  constructor(
+    private m: google.maps.Map,
+    looks: Record<LineName, Parameters<typeof polyline>[1]>,
+  ) {
+    for (const [k, v] of Object.entries(looks))
+      this.looks.set(k as LineName, v);
   }
-  const kind = (k: string): FilterSpecification => ["==", ["get", "kind"], k];
-  const round = { "line-join": "round", "line-cap": "round" } as const;
-  m.addLayer({
-    id: "edit-before",
-    type: "line",
-    source: "edit-before",
-    layout: round,
-    paint: {
-      "line-color": c.ink,
-      "line-width": 2,
-      "line-opacity": 0.5,
-      "line-dasharray": [0.2, 2.2],
-    },
-  });
-  m.addLayer({
-    id: "edit-glow",
-    type: "line",
-    source: "edit",
-    filter: kind("road"),
-    layout: round,
-    paint: {
-      "line-color": c.hot,
-      "line-width": 12,
-      "line-blur": 9,
-      "line-opacity": 0.4,
-    },
-  });
-  m.addLayer({
-    id: "edit-road",
-    type: "line",
-    source: "edit",
-    filter: kind("road"),
-    layout: round,
-    paint: { "line-color": c.hot, "line-width": 3.5 },
-  });
-  m.addLayer({
-    id: "edit-free",
-    type: "line",
-    source: "edit",
-    filter: kind("free"),
-    layout: round,
-    paint: { "line-color": c.ink, "line-width": 3 },
-  });
-  m.addLayer({
-    id: "edit-straight",
-    type: "line",
-    source: "edit",
-    filter: kind("straight"),
-    paint: {
-      "line-color": c.ink,
-      "line-width": 2.5,
-      "line-dasharray": [2, 2],
-    },
-  });
-  // A road still looked up: where it will run is not known yet.
-  m.addLayer({
-    id: "edit-wait",
-    type: "line",
-    source: "edit",
-    filter: kind("wait"),
-    paint: {
-      "line-color": c.hot,
-      "line-width": 2,
-      "line-opacity": 0.8,
-      "line-dasharray": [1, 2],
-    },
-  });
-  m.addLayer({
-    id: "edit-none",
-    type: "line",
-    source: "edit",
-    filter: kind("none"),
-    paint: {
-      "line-color": c.warn,
-      "line-width": 3,
-      "line-dasharray": [1.5, 1.5],
-    },
-  });
-  // Wider than the line, so a finger can take hold of it.
-  m.addLayer({
-    id: "edit-hit",
-    type: "line",
-    source: "edit",
-    layout: round,
-    paint: { "line-color": c.hot, "line-width": 26, "line-opacity": 0.01 },
-  });
-  // The line drawn by hand as it grows, and where a press would bend.
-  m.addLayer({
-    id: "edit-stroke",
-    type: "line",
-    source: "edit-mark",
-    filter: ["!=", ["geometry-type"], "Point"],
-    layout: round,
-    paint: { "line-color": c.ink, "line-width": 4 },
-  });
-  m.addLayer({
-    id: "edit-ghost",
-    type: "circle",
-    source: "edit-mark",
-    filter: ["==", ["geometry-type"], "Point"],
-    paint: {
-      "circle-radius": 6,
-      "circle-color": c.hot,
-      "circle-opacity": 0.6,
-      "circle-stroke-width": 1.5,
-      "circle-stroke-color": c.ink,
-    },
-  });
-  m.addLayer({
-    id: "edit-points",
-    type: "circle",
-    source: "edit-points",
-    filter: ["==", ["get", "end"], ""],
-    paint: {
-      "circle-radius": ["case", ["get", "selected"], 9, 6],
-      "circle-color": c.ink,
-      "circle-stroke-width": ["case", ["get", "selected"], 4, 3],
-      "circle-stroke-color": c.hot,
-    },
-  });
-  m.addLayer({
-    id: "edit-ends",
-    type: "symbol",
-    source: "edit-points",
-    filter: ["!=", ["get", "end"], ""],
-    layout: {
-      // An end on a stop is that stop's own box and number, in orange.
-      "icon-image": ["case", ["get", "stop"], "end-stop", "end"],
-      "icon-allow-overlap": true,
-      "text-field": ["get", "end"],
-      "text-font": ["Noto Sans Bold"],
-      "text-size": 12,
-      "text-allow-overlap": true,
-    },
-    paint: { "text-color": ["case", ["get", "stop"], c.hot, c.paperTone] },
-  });
+  set(name: LineName, paths: LngLat[][]) {
+    for (const p of this.all.get(name) ?? []) p.setMap(null);
+    const o = this.looks.get(name);
+    if (!o) return;
+    const extra = this.extra.get(name) ?? {};
+    this.all.set(
+      name,
+      paths.map((line) => {
+        const p = polyline(this.m, o);
+        p.setOptions({ ...extra, path: path(line) });
+        return p;
+      }),
+    );
+  }
+  style(name: LineName, o: google.maps.PolylineOptions) {
+    // A dashed line has no stroke of its own; its opacity lives in its icons.
+    this.extra.set(name, { ...this.extra.get(name), ...o });
+    for (const p of this.all.get(name) ?? []) p.setOptions(o);
+  }
+  remove() {
+    for (const ps of this.all.values()) for (const p of ps) p.setMap(null);
+    this.all.clear();
+  }
 }
 
-/**
- * Taps and drags on the map of someone signed in. Bending a leg's line: a
- * press on a point or on the line takes hold of it, and the map stays where
- * it is until the release. Returns what stops listening.
- */
-function listen(m: MapLibreMap, now: () => MapEditing | undefined) {
-  const around = (p: Point, by: number) =>
-    [
-      [p.x - by, p.y - by],
-      [p.x + by, p.y + by],
-    ] as [[number, number], [number, number]];
-  const under = (p: Point, by: number, layers: string[]) =>
-    m.getLayer("edit-hit")
-      ? m.queryRenderedFeatures(around(p, by), { layers })[0]
-      : undefined;
-  const mark = (data: GeoJSON.Feature | null) =>
-    m.getSource<GeoJSONSource>("edit-mark")?.setData(data ?? lines([]));
-  const POINTS = ["edit-points", "edit-ends"];
-  let held: { i: number; from: Point; moved: boolean; fresh: boolean } | null =
-    null;
-  let stroke: { line: LngLat[]; last: Point } | null = null;
-  let touched = 0;
-  const far = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
+/** A marker with a wider invisible ring around it, so a finger can hit it. */
+function hitArea(el: HTMLElement, onTap: () => void) {
+  const box = document.createElement("div");
+  Object.assign(box.style, { padding: "8px", cursor: "pointer" });
+  box.append(el);
+  box.addEventListener("click", (e) => {
+    e.stopPropagation();
+    onTap();
+  });
+  return box;
+}
 
-  const press = (e: MapMouseEvent | MapTouchEvent) => {
+/** A tap on a pin: picking sets a pin there, bending a line ignores it. */
+function tapPin(
+  now: () => MapEditing | undefined,
+  at: LngLat,
+  select: () => void,
+) {
+  const editing = now();
+  if (!editing || editing.edit) return;
+  if (editing.picking) editing.onPick(at[0], at[1]);
+  else select();
+}
+
+type Pt = { x: number; y: number };
+
+/**
+ * Presses and drags on the map of someone signed in, for bending a leg's
+ * line. A press on a point or on the line takes hold of it, and Google never
+ * hears of it, so the map stays where it is until the release. Taps for
+ * picking and missing come from Google's own click. Returns what stops it.
+ */
+function listen(
+  m: google.maps.Map,
+  box: HTMLDivElement,
+  layer: HtmlLayer,
+  now: () => MapEditing | undefined,
+  setGhost: (at: LngLat | null) => void,
+  showStroke: (line: LngLat[]) => void,
+) {
+  let held: { i: number; from: Pt; moved: boolean; fresh: boolean } | null =
+    null;
+  let stroke: { line: LngLat[]; last: Pt } | null = null;
+  let capturing = false;
+  let quietUntil = 0;
+  const fingers = new Set<number>();
+  const local = (e: { clientX: number; clientY: number }): Pt => {
+    const r = box.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  };
+  const inside = (e: Event) => box.contains(e.target as Node);
+  const far = (a: Pt, b: Pt) => Math.hypot(a.x - b.x, a.y - b.y);
+
+  const pointNear = (edit: RouteOnMap, p: Pt, reach: number) => {
+    let best: number | null = null;
+    let most = reach;
+    edit.points.forEach((at, i) => {
+      const q = layer.toPixel(at);
+      if (!q) return;
+      const d = far(p, q);
+      if (d <= most) {
+        most = d;
+        best = i;
+      }
+    });
+    return best;
+  };
+  const lineNear = (edit: RouteOnMap, p: Pt, reach: number) => {
+    let best: number | null = null;
+    let most = reach;
+    edit.stretches.forEach((x, i) => {
+      const px = x.line.map((at) => layer.toPixel(at));
+      for (let k = 1; k < px.length; k++) {
+        const a = px[k - 1];
+        const b = px[k];
+        if (!a || !b) continue;
+        const d = toSegment(p, a, b);
+        if (d <= most) {
+          most = d;
+          best = i + 1;
+        }
+      }
+    });
+    return best;
+  };
+
+  const swallow = (e: Event) => {
+    e.stopPropagation();
+    if (e.cancelable) e.preventDefault();
+  };
+  const down = (e: PointerEvent) => {
+    if (!inside(e)) return;
     const edit = now()?.edit;
     if (!edit) return;
-    const touch = "points" in e;
-    // A tap is followed by the mouse events browsers make up for it.
-    if (touch) touched = Date.now();
-    else if (Date.now() - touched < 800) return;
+    const touch = e.pointerType !== "mouse";
+    fingers.add(e.pointerId);
     // Two fingers move the map, as ever.
-    if (touch && e.points.length > 1) {
+    if (fingers.size > 1) {
       if (held?.fresh || held?.moved) edit.onDrop();
       held = null;
       stroke = null;
-      mark(null);
+      capturing = false;
+      showStroke([]);
       return;
     }
-    if (!touch && e.originalEvent.button !== 0) return;
-    const at: LngLat = [e.lngLat.lng, e.lngLat.lat];
-    const reach = touch ? REACH.touch : REACH.mouse;
+    if (!touch && e.button !== 0) return;
+    const p = local(e);
+    const at = layer.toLngLat(p.x, p.y);
+    if (!at) return;
     if (edit.byHand) {
-      e.preventDefault();
-      stroke = { line: [at], last: e.point };
+      swallow(e);
+      capturing = true;
+      stroke = { line: [at], last: p };
       return;
     }
-    const point = under(e.point, reach, POINTS);
-    if (point) {
-      e.preventDefault();
-      held = {
-        i: point.properties.index,
-        from: e.point,
-        moved: false,
-        fresh: false,
-      };
+    const point = pointNear(edit, p, touch ? REACH.touch : REACH.mouse);
+    if (point !== null) {
+      swallow(e);
+      capturing = true;
+      held = { i: point, from: p, moved: false, fresh: false };
       return;
     }
-    const line = under(e.point, touch ? 6 : 3, ["edit-hit"]);
-    if (line) {
-      e.preventDefault();
-      mark(null);
-      edit.onInsert(line.properties.index, at);
-      held = {
-        i: line.properties.index,
-        from: e.point,
-        moved: false,
-        fresh: true,
-      };
+    const line = lineNear(edit, p, touch ? LINE_REACH.touch : LINE_REACH.mouse);
+    if (line !== null) {
+      swallow(e);
+      capturing = true;
+      setGhost(null);
+      edit.onInsert(line, at);
+      held = { i: line, from: p, moved: false, fresh: true };
     }
   };
-  const drag = (e: MapMouseEvent | MapTouchEvent) => {
+  const move = (e: PointerEvent) => {
+    if (capturing) swallow(e);
     const edit = now()?.edit;
     if (!edit) return;
-    const at: LngLat = [e.lngLat.lng, e.lngLat.lat];
+    const p = local(e);
     if (stroke) {
-      if (far(e.point, stroke.last) < 4) return;
+      if (far(p, stroke.last) < 4) return;
+      const at = layer.toLngLat(p.x, p.y);
+      if (!at) return;
       stroke.line.push(at);
-      stroke.last = e.point;
-      mark({
-        type: "Feature",
-        properties: {},
-        geometry: { type: "LineString", coordinates: stroke.line },
-      });
+      stroke.last = p;
+      showStroke(stroke.line);
       return;
     }
     if (held) {
-      if (!held.moved && far(e.point, held.from) < 5) return;
+      if (!held.moved && far(p, held.from) < 5) return;
       held.moved = true;
-      edit.onMove(held.i, at);
+      const at = layer.toLngLat(p.x, p.y);
+      if (at) edit.onMove(held.i, at);
       return;
     }
-    if ("points" in e) return;
+    if (e.pointerType !== "mouse" || !inside(e)) return;
     // The mouse over the line: show that a press here bends it.
-    const canvas = m.getCanvas();
     if (edit.byHand) {
-      canvas.style.cursor = "crosshair";
-    } else if (under(e.point, REACH.mouse, POINTS)) {
-      canvas.style.cursor = "grab";
-      mark(null);
-    } else if (under(e.point, 3, ["edit-hit"])) {
-      canvas.style.cursor = "grab";
-      mark({
-        type: "Feature",
-        properties: {},
-        geometry: { type: "Point", coordinates: at },
-      });
+      m.setOptions({ draggableCursor: "crosshair" });
+      setGhost(null);
+    } else if (pointNear(edit, p, REACH.mouse) !== null) {
+      m.setOptions({ draggableCursor: "grab" });
+      setGhost(null);
+    } else if (lineNear(edit, p, LINE_REACH.mouse) !== null) {
+      m.setOptions({ draggableCursor: "grab" });
+      setGhost(layer.toLngLat(p.x, p.y));
     } else {
-      canvas.style.cursor = "";
-      mark(null);
+      m.setOptions({ draggableCursor: null });
+      setGhost(null);
     }
   };
-  const release = () => {
+  const up = (e: PointerEvent) => {
+    fingers.delete(e.pointerId);
+    if (!capturing) return;
+    swallow(e);
+    capturing = false;
+    quietUntil = Date.now() + 400;
     const edit = now()?.edit;
     if (stroke) {
       edit?.onStroke(stroke.line);
       stroke = null;
-      mark(null);
+      showStroke([]);
     }
     if (held) {
       if (held.moved || held.fresh) edit?.onDrop();
@@ -985,44 +884,49 @@ function listen(m: MapLibreMap, now: () => MapEditing | undefined) {
       held = null;
     }
   };
-  m.on("mousedown", press);
-  m.on("touchstart", press);
-  m.on("mousemove", drag);
-  m.on("touchmove", drag);
-  // The release may come outside the map.
-  window.addEventListener("mouseup", release);
-  window.addEventListener("touchend", release);
-  window.addEventListener("touchcancel", release);
+  // Google listens to mouse and touch events as well as pointer events:
+  // while a point is held, and just after, none of them reach it.
+  const hush = (e: Event) => {
+    if (capturing || (Date.now() < quietUntil && inside(e))) swallow(e);
+  };
+  const opts = { capture: true, passive: false } as const;
+  window.addEventListener("pointerdown", down, opts);
+  window.addEventListener("pointermove", move, opts);
+  window.addEventListener("pointerup", up, opts);
+  window.addEventListener("pointercancel", up, opts);
+  const hushed = [
+    "mousedown",
+    "mousemove",
+    "mouseup",
+    "touchstart",
+    "touchmove",
+    "touchend",
+    "click",
+  ] as const;
+  for (const t of hushed) window.addEventListener(t, hush, opts);
 
-  m.on("click", (e) => {
+  const click = m.addListener("click", (e: google.maps.MapMouseEvent) => {
     const editing = now();
-    if (!editing) return;
+    if (!editing || !e.latLng) return;
     const { edit, picking } = editing;
     if (edit) {
       // A tap beside the line closes the menu of a point.
-      if (!under(e.point, REACH.touch, POINTS)) edit.onSelect(null);
+      edit.onSelect(null);
       return;
     }
     if (picking) {
-      editing.onPick(e.lngLat.lng, e.lngLat.lat);
+      editing.onPick(e.latLng.lng(), e.latLng.lat());
       return;
     }
-    // A finger is wider than a pin, so look a little around the tap.
-    const hit = m.getLayer("places")
-      ? m.queryRenderedFeatures(around(e.point, 8), {
-          layers: ["places", "stops"],
-        })[0]
-      : undefined;
-    if (!hit) editing.onMiss();
-    else if (hit.layer.id === "stops")
-      editing.onSelectStop(Number(hit.properties.label));
-    else if (hit.properties.id !== undefined)
-      editing.onSelectPlace(hit.properties.id);
+    editing.onMiss();
   });
 
   return () => {
-    window.removeEventListener("mouseup", release);
-    window.removeEventListener("touchend", release);
-    window.removeEventListener("touchcancel", release);
+    click.remove();
+    window.removeEventListener("pointerdown", down, opts);
+    window.removeEventListener("pointermove", move, opts);
+    window.removeEventListener("pointerup", up, opts);
+    window.removeEventListener("pointercancel", up, opts);
+    for (const t of hushed) window.removeEventListener(t, hush, opts);
   };
 }
