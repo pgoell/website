@@ -31,6 +31,7 @@ import {
   type Pin,
   path,
   polyline,
+  SATELLITE_STYLE,
   square,
   toSegment,
 } from "./gmap";
@@ -412,15 +413,15 @@ export function TripMap({
     m.setOptions({ draggableCursor: picking ? "crosshair" : null });
   }, [loaded, editable, picking]);
 
-  // Satellite images take the place of the drawn map, with Google's own
-  // labels on them. Everything of the trip stays.
+  // Satellite images take the place of the drawn map, with the names of
+  // places and roads on them. Everything of the trip stays.
   const satOn = editing?.satellite?.on ?? false;
   useEffect(() => {
     const m = map.current;
     if (!loaded || !m) return;
     m.setOptions({
       mapTypeId: satOn ? "hybrid" : "roadmap",
-      styles: satOn ? null : MAP_STYLES[look],
+      styles: satOn ? SATELLITE_STYLE : MAP_STYLES[look],
     });
   }, [loaded, satOn, look]);
 

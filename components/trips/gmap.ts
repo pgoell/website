@@ -60,7 +60,11 @@ const el = (
   stylers: Style["stylers"],
 ): Style => ({ featureType, elementType, stylers });
 
-/** Night: the dark camera screen. Water deep blue, motorways amber, little else. */
+/**
+ * Night: the dark camera screen. Water deep blue, roads in quiet greys with
+ * expressways a dim warm tone, so our green route and orange places stay the
+ * brightest lines. No road shields, junction signs or transit labels.
+ */
 const NIGHT: Style[] = [
   el("all", "geometry", [{ color: "#090b0c" }]),
   el("all", "labels.text.fill", [{ color: "#8e918d" }]),
@@ -76,19 +80,21 @@ const NIGHT: Style[] = [
   el("road", "geometry", [{ color: "#262c2f" }]),
   el("road", "labels", [{ visibility: "simplified" }]),
   el("road.local", "labels", [{ visibility: "off" }]),
+  el("road", "labels.icon", [{ visibility: "off" }]),
   el("road.arterial", "geometry", [{ color: "#353d41" }]),
-  el("road.highway", "geometry", [{ color: "#8a5a12" }]),
-  el("road.highway", "labels.text.fill", [{ color: "#b07a25" }]),
-  el("road.highway.controlled_access", "geometry", [{ color: "#8a5a12" }]),
+  el("road.highway", "geometry", [{ color: "#3a3830" }]),
+  el("road.highway", "labels.text.fill", [{ color: "#9a8f78" }]),
+  el("road.highway.controlled_access", "geometry", [{ color: "#4f4530" }]),
   el("transit.line", "geometry", [{ color: "#3a4145" }]),
   el("transit.station", "all", [{ visibility: "off" }]),
+  el("transit", "labels", [{ visibility: "off" }]),
   el("administrative", "geometry.stroke", [{ color: "#4a4c4a" }]),
   el("administrative.locality", "labels.text.fill", [{ color: "#c8cac6" }]),
   el("administrative.neighborhood", "labels.text.fill", [{ color: "#6e716d" }]),
   el("administrative.country", "labels.text.fill", [{ color: "#9a9c98" }]),
 ];
 
-/** Day: paper and ink. */
+/** Day: paper and ink, with the same quiet roads as Night. */
 const DAY: Style[] = [
   el("all", "geometry", [{ color: "#eeede5" }]),
   el("all", "labels.text.fill", [{ color: "#6a6c64" }]),
@@ -104,12 +110,14 @@ const DAY: Style[] = [
   el("road", "geometry", [{ color: "#d8dbd4" }]),
   el("road", "labels", [{ visibility: "simplified" }]),
   el("road.local", "labels", [{ visibility: "off" }]),
+  el("road", "labels.icon", [{ visibility: "off" }]),
   el("road.arterial", "geometry", [{ color: "#c8ccc6" }]),
-  el("road.highway", "geometry", [{ color: "#eaba73" }]),
-  el("road.highway", "labels.text.fill", [{ color: "#b98a3f" }]),
-  el("road.highway.controlled_access", "geometry", [{ color: "#eaba73" }]),
+  el("road.highway", "geometry", [{ color: "#dcd8c8" }]),
+  el("road.highway", "labels.text.fill", [{ color: "#8a7f68" }]),
+  el("road.highway.controlled_access", "geometry", [{ color: "#e6d2a8" }]),
   el("transit.line", "geometry", [{ color: "#babeba" }]),
   el("transit.station", "all", [{ visibility: "off" }]),
+  el("transit", "labels", [{ visibility: "off" }]),
   el("administrative", "geometry.stroke", [{ color: "#b5b7b0" }]),
   el("administrative.locality", "labels.text.fill", [{ color: "#2c2e28" }]),
   el("administrative.neighborhood", "labels.text.fill", [{ color: "#8a8c84" }]),
@@ -117,6 +125,17 @@ const DAY: Style[] = [
 ];
 
 export const MAP_STYLES: Record<Look, Style[]> = { night: NIGHT, day: DAY };
+
+/**
+ * Satellite: Google's photos with only place and road names on them, no shop
+ * pins, road shields or station labels, so our stops and places stand out.
+ */
+export const SATELLITE_STYLE: Style[] = [
+  el("poi", "all", [{ visibility: "off" }]),
+  el("transit", "all", [{ visibility: "off" }]),
+  el("road", "labels.icon", [{ visibility: "off" }]),
+  el("road.local", "labels", [{ visibility: "off" }]),
+];
 
 export const toLatLng = ([lng, lat]: LngLat) => ({ lat, lng });
 export const path = (line: LngLat[]) => line.map(toLatLng);
