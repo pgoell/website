@@ -72,31 +72,11 @@
   color: var(--dim);
   font: 500 12px / 1.5 var(--mono);
 }
-.shell :global(.maplibregl-map) {
+.shell :global(.gm-style) {
   font-family: var(--semi);
-  background: var(--ground);
 }
-.shell :global(.maplibregl-ctrl-top-right) {
-  top: 88px;
-  right: 470px;
-}
-.shell :global(.maplibregl-ctrl-group:not(:empty)) {
-  background: var(--glass);
-  border: 1px solid var(--edge);
-  border-radius: 0;
-  box-shadow: none;
-}
-.shell :global(.maplibregl-ctrl.maplibregl-ctrl-attrib) {
-  background: var(--glass);
-  color: var(--dim);
-  font-size: 10px;
-}
-.shell :global(.maplibregl-ctrl-attrib a) {
-  color: var(--dim);
-}
-.shell[data-look="night"] :global(.maplibregl-ctrl-icon),
-.shell[data-look="night"] :global(.maplibregl-ctrl-attrib-button) {
-  filter: invert(1);
+.shell :global(.gm-style-cc) {
+  opacity: 0.7;
 }
 
 /* ---------- top left: the way back, the name, the look ---------- */
@@ -725,10 +705,6 @@
   }
   .shell[data-tab="matches"] .mapBox {
     flex-basis: 42%;
-  }
-  .shell :global(.maplibregl-ctrl-top-right) {
-    top: 0;
-    right: 0;
   }
   .panel {
     position: relative;

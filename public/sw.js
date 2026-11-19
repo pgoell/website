@@ -1,16 +1,20 @@
 // Offline copy of the trip pages, for the Trips phone app. Read-only: nothing
-// here queues a write. It keeps only trip pages, their scripts and styles, and
-// the map; the home page, blog and games go to the network as usual.
+// here queues a write. It keeps only trip pages, their scripts and styles; the
+// map comes from Google and is not kept. The home page, blog and games go to
+// the network as usual.
 const PAGES = "trip-pages";
 const ASSETS = "trip-assets";
-const MAP = "trip-map";
-const MAP_FILES = 500;
 const STALL_MS = 5000;
 const TRIPS = /^\/(?:(?:en|de)\/)?trips(?:\/|$)/;
 
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) =>
-  event.waitUntil(self.clients.claim()),
+  event.waitUntil(
+    // The map parts kept before the map moved to Google go.
+    caches
+      .delete("trip-map")
+      .then(() => self.clients.claim()),
+  ),
 );
 
 // A trip page sends its path on load and after every change to the trip.
@@ -24,9 +28,7 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
   if (request.method !== "GET" || url.origin !== location.origin) return;
-  if (url.pathname.startsWith("/api/map/")) {
-    event.respondWith(mapFile(event));
-  } else if (url.pathname.startsWith("/_next/static/")) {
+  if (url.pathname.startsWith("/_next/static/")) {
     event.respondWith(asset(request));
   } else if (request.mode === "navigate" && TRIPS.test(url.pathname)) {
     event.respondWith(page(request));
@@ -71,22 +73,4 @@ async function savedPage(request) {
 // File names carry a hash of their content, so a saved copy is never stale.
 async function asset(request) {
   return (await caches.match(request, { cacheName: ASSETS })) ?? fetch(request);
-}
-
-// Map style, glyphs and tiles: network first, so what was seen online can still draw offline.
-async function mapFile(event) {
-  const cache = await caches.open(MAP);
-  try {
-    const res = await fetch(event.request);
-    if (res.ok) event.waitUntil(keep(cache, event.request, res.clone()));
-    return res;
-  } catch {
-    return (await cache.match(event.request)) ?? Response.error();
-  }
-}
-
-async function keep(cache, request, res) {
-  await cache.put(request, res);
-  const keys = await cache.keys();
-  for (const key of keys.slice(0, -MAP_FILES)) await cache.delete(key);
 }

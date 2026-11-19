@@ -228,6 +228,7 @@ export function PickView({
           pad={pad}
           label={tt("map")}
           broken={tt("noMap")}
+          mapsKey={mapsKey}
           onPick={p.tab === "area" ? p.setPin : undefined}
           onSelect={p.setSelected}
         />

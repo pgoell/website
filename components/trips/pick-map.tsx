@@ -1,12 +1,23 @@
 "use client";
 
-import type { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
 import type { Look } from "@/lib/trips/look";
 import type { LngLat } from "@/lib/trips/types";
+import {
+  cameraFor,
+  type HtmlLayer,
+  htmlLayer,
+  INKS,
+  loadMaps,
+  mapOptions,
+  moveTo,
+  label as nameLabel,
+  type Pin,
+  path,
+  polyline,
+  square,
+} from "./gmap";
 import s from "./pick.module.css";
-import { INKS, square, style } from "./trip-map";
 
 type LatLng = { lat: number; lng: number };
 export type Dot = LatLng & { id: string; seen: "new" | "yes" | "no" };
@@ -28,45 +39,46 @@ function circle(c: LatLng, m: number): LngLat[] {
   });
 }
 
-const fc = (features: GeoJSON.Feature[]): GeoJSON.FeatureCollection => ({
-  type: "FeatureCollection",
-  features,
-});
-const point = (
-  p: LatLng,
-  properties: Record<string, unknown>,
-): GeoJSON.Feature => ({
-  type: "Feature",
-  properties,
-  geometry: { type: "Point", coordinates: [p.lng, p.lat] },
-});
-const ring = (
-  pts: LngLat[],
-  properties: Record<string, unknown> = {},
-): GeoJSON.Feature => ({
-  type: "Feature",
-  properties,
-  geometry: { type: "Polygon", coordinates: [pts] },
-});
-
-/** The map pin, drawn here so the map needs no sprite. */
-function pinImage(fill: string, hole: string) {
-  const c = document.createElement("canvas");
-  c.width = 44;
-  c.height = 60;
-  const g = c.getContext("2d") as CanvasRenderingContext2D;
-  g.fillStyle = fill;
-  g.beginPath();
-  g.arc(22, 22, 20, Math.PI, 0);
-  g.bezierCurveTo(42, 36, 30, 46, 22, 60);
-  g.bezierCurveTo(14, 46, 2, 36, 2, 22);
-  g.fill();
-  g.fillStyle = hole;
-  g.beginPath();
-  g.arc(22, 22, 8, 0, 2 * Math.PI);
-  g.fill();
-  return g.getImageData(0, 0, c.width, c.height);
+/** The map pin, drawn here so it keeps the look of the screen. */
+function pinEl(fill: string, hole: string) {
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", "0 0 44 60");
+  svg.setAttribute("width", "22");
+  svg.setAttribute("height", "30");
+  const body = document.createElementNS(ns, "path");
+  body.setAttribute(
+    "d",
+    "M2 22 A20 20 0 0 1 42 22 C42 36 30 46 22 60 C14 46 2 36 2 22 Z",
+  );
+  body.setAttribute("fill", fill);
+  const dot = document.createElementNS(ns, "circle");
+  dot.setAttribute("cx", "22");
+  dot.setAttribute("cy", "22");
+  dot.setAttribute("r", "8");
+  dot.setAttribute("fill", hole);
+  svg.append(body, dot);
+  const box = document.createElement("div");
+  box.append(svg);
+  box.style.lineHeight = "0";
+  return box;
 }
+
+function dot(size: number, fill: string, stroke?: string, opacity = 1) {
+  const d = document.createElement("div");
+  Object.assign(d.style, {
+    width: `${size}px`,
+    height: `${size}px`,
+    boxSizing: "border-box",
+    borderRadius: "50%",
+    background: fill,
+    border: stroke ? `1.5px solid ${stroke}` : "0",
+    opacity: String(opacity),
+  });
+  return d;
+}
+
+const toLngLat = (p: LatLng): LngLat => [p.lng, p.lat];
 
 /**
  * The swipe page's map: the pin and its circle, the places found, the card on
@@ -86,6 +98,7 @@ export function PickMap({
   pad,
   label,
   broken,
+  mapsKey,
   onPick,
   onSelect,
 }: {
@@ -103,343 +116,189 @@ export function PickMap({
   pad: { top: number; right: number; bottom: number; left: number };
   label: string;
   broken: string;
+  mapsKey: string | undefined;
   onPick?: (p: LatLng) => void;
   onSelect?: (id: string) => void;
 }) {
-  const box = useRef<HTMLElement>(null);
-  const map = useRef<MapLibreMap | null>(null);
+  const box = useRef<HTMLDivElement>(null);
+  const map = useRef<google.maps.Map | null>(null);
+  const layer = useRef<HtmlLayer | null>(null);
+  const shapes = useRef<(google.maps.Polygon | google.maps.Polyline)[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   const first = useRef({ look, fit, pad });
   const live = useRef({ onPick, onSelect });
   live.current = { onPick, onSelect };
+  const ink = INKS[look];
 
   useEffect(() => {
     let gone = false;
-    let m: MapLibreMap | undefined;
-    import("maplibre-gl").then((gl) => {
-      if (gone || !box.current) return;
-      const { look, fit, pad } = first.current;
-      const ink = INKS[look];
-      const bounds = new gl.LngLatBounds();
-      for (const p of fit) bounds.extend([p.lng, p.lat]);
-      try {
-        m = new gl.Map({
-          container: box.current,
-          style: style(look),
-          bounds,
-          fitBoundsOptions: { padding: pad, maxZoom: 15 },
-          attributionControl: { compact: true },
+    loadMaps(mapsKey).then(
+      () => {
+        const el = box.current;
+        if (gone || !el) return;
+        const { look, fit, pad } = first.current;
+        const cam = cameraFor(
+          fit.map(toLngLat),
+          { width: el.clientWidth, height: el.clientHeight },
+          pad,
+          16,
+        );
+        const m = new google.maps.Map(el, {
+          ...mapOptions(look),
+          center: cam?.center ?? { lat: 35.68, lng: 139.76 },
+          zoom: cam?.zoom ?? 12,
         });
-      } catch {
-        setFailed(true);
-        return;
-      }
-      const made = m;
-      map.current = made;
-      made.addControl(new gl.NavigationControl({ showCompass: false }));
-      made.on("load", () => {
-        // On a narrow map the credit starts folded behind its button.
-        if (window.innerWidth <= 760) {
-          box.current
-            ?.querySelector(".maplibregl-ctrl-attrib")
-            ?.classList.remove("maplibregl-compact-show");
-        }
-        made.addImage("pin", pinImage(ink.picked, ink.ground), {
-          pixelRatio: 2,
-        });
-        made.addImage("match", square(22, ink.ground, ink.route), {
-          pixelRatio: 2,
-        });
-        made.addImage("match-must", square(22, ink.ground, ink.picked), {
-          pixelRatio: 2,
-        });
-        made.addImage("match-on", square(22, ink.route, ink.route), {
-          pixelRatio: 2,
-        });
-        made.addImage("yes", square(8, ink.route, ink.route), {
-          pixelRatio: 2,
-        });
-        for (const id of [
-          "circle",
-          "rings",
-          "dots",
-          "current",
-          "numbered",
-          "pin",
-        ]) {
-          made.addSource(id, { type: "geojson", data: fc([]) });
-        }
-        made.addLayer({
-          id: "circle-fill",
-          type: "fill",
-          source: "circle",
-          paint: { "fill-color": ink.picked, "fill-opacity": 0.08 },
-        });
-        made.addLayer({
-          id: "circle-line",
-          type: "line",
-          source: "circle",
-          paint: {
-            "line-color": ink.picked,
-            "line-width": 1.5,
-            "line-dasharray": [3, 3],
-          },
-        });
-        made.addLayer({
-          id: "rings-fill",
-          type: "fill",
-          source: "rings",
-          paint: { "fill-color": ink.route, "fill-opacity": 0.07 },
-        });
-        made.addLayer({
-          id: "rings-line",
-          type: "line",
-          source: "rings",
-          paint: {
-            "line-color": ink.route,
-            "line-opacity": 0.5,
-            "line-width": 1,
-            "line-dasharray": [1, 3],
-          },
-        });
-        made.addLayer({
-          id: "dots-new",
-          type: "circle",
-          source: "dots",
-          filter: ["==", ["get", "seen"], "new"],
-          paint: {
-            "circle-radius": 4.5,
-            "circle-color": ink.ground,
-            "circle-stroke-color": ink.ink,
-            "circle-stroke-width": 1.5,
-          },
-        });
-        made.addLayer({
-          id: "dots-seen",
-          type: "symbol",
-          source: "dots",
-          filter: ["==", ["get", "seen"], "yes"],
-          layout: { "icon-image": "yes", "icon-allow-overlap": true },
-        });
-        made.addLayer({
-          id: "dots-no",
-          type: "circle",
-          source: "dots",
-          filter: ["==", ["get", "seen"], "no"],
-          paint: {
-            "circle-radius": 2.5,
-            "circle-color": ink.ink,
-            "circle-opacity": 0.35,
-          },
-        });
-        made.addLayer({
-          id: "current-ring",
-          type: "circle",
-          source: "current",
-          paint: {
-            "circle-radius": 14,
-            "circle-color": "rgba(0,0,0,0)",
-            "circle-stroke-color": ink.picked,
-            "circle-stroke-width": 2,
-          },
-        });
-        made.addLayer({
-          id: "current-dot",
-          type: "circle",
-          source: "current",
-          paint: { "circle-radius": 5, "circle-color": ink.picked },
-        });
-        made.addLayer({
-          id: "current-name",
-          type: "symbol",
-          source: "current",
-          layout: {
-            "text-field": ["get", "name"],
-            "text-font": ["Noto Sans Bold"],
-            "text-size": 13,
-            "text-transform": "uppercase",
-            "text-letter-spacing": 0.08,
-            "text-anchor": "left",
-            "text-offset": [1.6, 0],
-          },
-          paint: {
-            "text-color": ink.picked,
-            "text-halo-color": ink.ground,
-            "text-halo-width": 1.5,
-          },
-        });
-        made.addLayer({
-          id: "ring-names",
-          type: "symbol",
-          source: "rings",
-          layout: {
-            "text-field": ["get", "label"],
-            "text-font": ["Noto Sans Bold"],
-            "text-size": 11,
-            "text-transform": "uppercase",
-            "text-letter-spacing": 0.1,
-            "symbol-placement": "point",
-          },
-          paint: {
-            "text-color": ink.route,
-            "text-halo-color": ink.ground,
-            "text-halo-width": 1.5,
-          },
-        });
-        made.addLayer({
-          id: "numbered",
-          type: "symbol",
-          source: "numbered",
-          layout: {
-            "icon-image": [
-              "case",
-              ["get", "on"],
-              "match-on",
-              ["get", "must"],
-              "match-must",
-              "match",
-            ],
-            "icon-allow-overlap": true,
-            "text-field": ["to-string", ["get", "n"]],
-            "text-font": ["Noto Sans Bold"],
-            "text-size": 11,
-            "text-allow-overlap": true,
-          },
-          paint: {
-            "text-color": [
-              "case",
-              ["get", "on"],
-              ink.ground,
-              ["get", "must"],
-              ink.picked,
-              ink.route,
-            ],
-          },
-        });
-        made.addLayer({
-          id: "numbered-name",
-          type: "symbol",
-          source: "numbered",
-          filter: ["get", "on"],
-          layout: {
-            "text-field": ["get", "name"],
-            "text-font": ["Noto Sans Bold"],
-            "text-size": 13,
-            "text-transform": "uppercase",
-            "text-letter-spacing": 0.08,
-            "text-anchor": "left",
-            "text-offset": [1.4, 0],
-          },
-          paint: {
-            "text-color": ink.route,
-            "text-halo-color": ink.ground,
-            "text-halo-width": 1.5,
-          },
-        });
-        made.addLayer({
-          id: "pin",
-          type: "symbol",
-          source: "pin",
-          layout: {
-            "icon-image": "pin",
-            "icon-anchor": "bottom",
-            "icon-allow-overlap": true,
-          },
-        });
-        made.on("click", (e) => {
-          const hit = made.queryRenderedFeatures(e.point, {
-            layers: ["numbered"],
-          })[0];
-          if (hit) return live.current.onSelect?.(String(hit.properties.id));
-          live.current.onPick?.({ lat: e.lngLat.lat, lng: e.lngLat.lng });
-        });
-        made.on("mouseenter", "numbered", () => {
-          made.getCanvas().style.cursor = "pointer";
-        });
-        made.on("mouseleave", "numbered", () => {
-          made.getCanvas().style.cursor = "";
+        map.current = m;
+        layer.current = htmlLayer(m);
+        m.addListener("click", (e: google.maps.MapMouseEvent) => {
+          if (e.latLng)
+            live.current.onPick?.({ lat: e.latLng.lat(), lng: e.latLng.lng() });
         });
         setLoaded(true);
-      });
-    });
+      },
+      () => setFailed(true),
+    );
     return () => {
       gone = true;
-      m?.remove();
+      layer.current?.remove();
+      for (const x of shapes.current) x.setMap(null);
       map.current = null;
     };
-  }, []);
+  }, [mapsKey]);
 
+  // The circle around the pin and the rings around the areas.
   useEffect(() => {
     const m = map.current;
     if (!m || !loaded) return;
-    const set = (id: string, data: GeoJSON.FeatureCollection) =>
-      (m.getSource(id) as GeoJSONSource | undefined)?.setData(data);
-    set("circle", fc(showCircle ? [ring(circle(pin, radius))] : []));
-    set("pin", fc(showCircle ? [point(pin, {})] : []));
-    set("dots", fc(dots.map((d) => point(d, { id: d.id, seen: d.seen }))));
-    set("current", fc(current ? [point(current, { name: current.name })] : []));
-    set(
-      "numbered",
-      fc(
-        numbered.map((p) =>
-          point(p, {
-            id: p.id,
-            n: p.n,
-            must: p.must,
-            on: p.id === selected,
-            name: p.name,
-          }),
-        ),
-      ),
-    );
-    set(
-      "rings",
-      fc(
-        rings.map((r) =>
-          ring(circle({ lng: r.center[0], lat: r.center[1] }, r.reach + 180), {
-            label: r.label,
-          }),
-        ),
-      ),
-    );
-    m.getCanvas().style.cursor = onPick ? "crosshair" : "";
-  }, [
-    loaded,
-    pin,
-    radius,
-    showCircle,
-    dots,
-    current,
-    numbered,
-    rings,
-    selected,
-    onPick,
-  ]);
+    for (const x of shapes.current) x.setMap(null);
+    const made: (google.maps.Polygon | google.maps.Polyline)[] = [];
+    const area = (
+      pts: LngLat[],
+      color: string,
+      fill: number,
+      line: { opacity: number; width: number; dash: [number, number] },
+    ) => {
+      made.push(
+        new google.maps.Polygon({
+          map: m,
+          paths: path(pts),
+          fillColor: color,
+          fillOpacity: fill,
+          strokeOpacity: 0,
+          clickable: false,
+        }),
+      );
+      const edge = polyline(m, { color, ...line });
+      edge.setPath(path(pts));
+      made.push(edge);
+    };
+    if (showCircle)
+      area(circle(pin, radius), ink.picked, 0.08, {
+        opacity: 1,
+        width: 1.5,
+        dash: [2, 4],
+      });
+    for (const r of rings)
+      area(
+        circle({ lng: r.center[0], lat: r.center[1] }, r.reach + 180),
+        ink.route,
+        0.07,
+        { opacity: 0.5, width: 1, dash: [1, 4] },
+      );
+    shapes.current = made;
+    m.setOptions({ draggableCursor: onPick ? "crosshair" : null });
+  }, [loaded, pin, radius, showCircle, rings, ink, onPick]);
+
+  // The pin, the places found, the card on top and the matches.
+  useEffect(() => {
+    const l = layer.current;
+    if (!l || !loaded) return;
+    const pins: Pin[] = [];
+    for (const d of dots) {
+      const el =
+        d.seen === "new"
+          ? dot(9, ink.ground, ink.ink)
+          : d.seen === "yes"
+            ? square(8, ink.route, ink.route)
+            : dot(5, ink.ink, undefined, 0.35);
+      pins.push({ at: toLngLat(d), el, z: 1 });
+    }
+    for (const r of rings) {
+      pins.push({
+        at: r.center,
+        el: nameLabel(r.label, ink.route, ink.ground),
+        z: 2,
+      });
+    }
+    if (current) {
+      const ring = dot(28, "transparent", ink.picked);
+      ring.style.borderWidth = "2px";
+      pins.push({ at: toLngLat(current), el: ring, z: 3 });
+      pins.push({ at: toLngLat(current), el: dot(10, ink.picked), z: 3 });
+      pins.push({
+        at: toLngLat(current),
+        el: nameLabel(current.name, ink.picked, ink.ground, 13),
+        anchor: "left",
+        offset: [20, 0],
+        z: 3,
+      });
+    }
+    for (const p of numbered) {
+      const on = p.id === selected;
+      const el = on
+        ? square(22, ink.route, ink.route, String(p.n), ink.ground)
+        : p.must
+          ? square(22, ink.ground, ink.picked, String(p.n), ink.picked)
+          : square(22, ink.ground, ink.route, String(p.n), ink.route);
+      const hit = document.createElement("div");
+      Object.assign(hit.style, { padding: "6px", cursor: "pointer" });
+      hit.append(el);
+      hit.addEventListener("click", (e) => {
+        e.stopPropagation();
+        live.current.onSelect?.(p.id);
+      });
+      pins.push({ at: toLngLat(p), el: hit, hit: true, z: on ? 5 : 4 });
+      if (on)
+        pins.push({
+          at: toLngLat(p),
+          el: nameLabel(p.name, ink.route, ink.ground, 13),
+          anchor: "left",
+          offset: [18, 0],
+          z: 5,
+        });
+    }
+    if (showCircle)
+      pins.push({
+        at: toLngLat(pin),
+        el: pinEl(ink.picked, ink.ground),
+        anchor: "bottom",
+        z: 6,
+      });
+    l.set(pins);
+  }, [loaded, pin, showCircle, dots, current, numbered, rings, selected, ink]);
 
   // A new set of points to show: the step changed, or the circle did.
   const last = useRef({ fit, pad });
   useEffect(() => {
     const m = map.current;
-    if (!m || !loaded || fit.length === 0) return;
+    const el = box.current;
+    if (!m || !el || !loaded || fit.length === 0) return;
     if (fit === last.current.fit && pad === last.current.pad) return;
     last.current = { fit, pad };
-    import("maplibre-gl").then((gl) => {
-      const b = new gl.LngLatBounds();
-      for (const p of fit) b.extend([p.lng, p.lat]);
-      m.fitBounds(b, { padding: pad, maxZoom: 15, duration: 600 });
-    });
+    const cam = cameraFor(
+      fit.map(toLngLat),
+      { width: el.clientWidth, height: el.clientHeight },
+      pad,
+      16,
+    );
+    if (cam) moveTo(m, cam);
   }, [loaded, fit, pad]);
 
-  // The map keeps its size to its box, which changes between the steps on a phone.
-  useEffect(() => {
-    const el = box.current;
-    if (!el) return;
-    const o = new ResizeObserver(() => map.current?.resize());
-    o.observe(el);
-    return () => o.disconnect();
-  }, []);
-
   if (failed) return <p className={s.noMap}>{broken}</p>;
-  return <section ref={box} className={s.map} aria-label={label} />;
+  return (
+    <section className={s.map} aria-label={label}>
+      <div ref={box} className={s.map} />
+    </section>
+  );
 }
