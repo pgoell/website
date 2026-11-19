@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { type HTMLAttributes, useEffect, useState } from "react";
+import { loadGoogle } from "./gmap";
 import s from "./trips.module.css";
 
 // Google's place card from the Places UI Kit, for one opened place. Each card
@@ -59,19 +60,9 @@ const BOX = s.google;
 
 let library: Promise<unknown> | undefined;
 
-/** Loads Google's script once per page. A failure stays a failure until reload. */
+/** Loads Google's places library once per page. A failure stays a failure until reload. */
 export function load(key: string) {
-  library ??= new Promise((resolve, reject) => {
-    const w = window as unknown as {
-      google: { maps: { importLibrary(name: string): Promise<unknown> } };
-      gmReady: () => void;
-    };
-    w.gmReady = () => resolve(w.google.maps.importLibrary("places"));
-    const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&v=weekly&loading=async&callback=gmReady`;
-    script.onerror = reject;
-    document.head.append(script);
-  });
+  library ??= loadGoogle(key).then(() => google.maps.importLibrary("places"));
   return library;
 }
 

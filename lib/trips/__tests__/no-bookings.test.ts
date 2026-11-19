@@ -17,7 +17,7 @@ const ROOTS = [
   "trips",
 ];
 // Built map styles (long numbers, no bookings) and this file (its own patterns).
-const SKIP = /map-style.*\.json$|no-bookings\.test\.ts$/;
+const SKIP = /no-bookings\.test\.ts$/;
 
 const SUSPECT: [string, RegExp][] = [
   ["a price", /[¥€£$]\s?\d/],
