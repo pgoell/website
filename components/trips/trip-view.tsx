@@ -14,7 +14,7 @@ import {
   zoneName,
 } from "@/lib/trips/plan";
 import type { Trip, TripLeg } from "@/lib/trips/types";
-import { TripMap } from "./trip-map";
+import { mapWords, TripMap } from "./trip-map";
 import s from "./trips.module.css";
 import { useTrip } from "./use-trip";
 
@@ -120,7 +120,15 @@ function DayCard({
  * One open trip. The map is the page; the days lie on it as a strip, and one
  * day at a time shows in a card. On a narrow screen the card is swiped.
  */
-export function TripView({ trip, locale }: { trip: Trip; locale: string }) {
+export function TripView({
+  trip,
+  locale,
+  mapsKey,
+}: {
+  trip: Trip;
+  locale: string;
+  mapsKey: string | undefined;
+}) {
   const t = useTranslations("site.trips");
   const v = useTrip(trip);
   const { days, chapters, picked, day } = v;
@@ -182,8 +190,8 @@ export function TripView({ trip, locale }: { trip: Trip; locale: string }) {
           focus={v.focus}
           pad={v.pad}
           mark={v.mark}
-          label={t("map")}
-          broken={t("noMap")}
+          words={mapWords(t)}
+          mapsKey={mapsKey}
         />
       </div>
 

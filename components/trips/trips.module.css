@@ -77,65 +77,86 @@
   letter-spacing: 0.04em;
 }
 
-/* the map's own buttons, in the look of the frame */
-.shell :global(.maplibregl-map) {
+/* Google's map under ours: its ground in our colour, its credit quiet */
+.shell :global(.gm-style) {
   font-family: var(--semi);
-  background: var(--ground);
 }
-.shell :global(.maplibregl-ctrl-top-right) {
+.shell :global(.gm-style-cc) {
+  opacity: 0.7;
+}
+
+/* the map's own buttons, in the look of the frame */
+.mapButtons {
+  position: absolute;
   top: 84px;
   right: 440px;
-}
-.shell :global(.maplibregl-ctrl-bottom-right) {
-  right: 42px;
-  bottom: 156px;
-}
-.shell :global(.maplibregl-ctrl-group:not(:empty)) {
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
   background: var(--glass);
   border: 1px solid var(--edge);
-  border-radius: 0;
-  box-shadow: none;
 }
-.shell :global(.maplibregl-ctrl-group) .satButton {
+.shell .mapButtons button {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  font: 600 16px / 1 var(--semi);
+  text-align: center;
+  color: var(--ink);
+}
+.shell .mapButtons button + button {
+  border-top: 1px solid var(--edge);
+}
+.shell .mapButtons button:hover {
+  background: rgba(240, 138, 0, 0.16);
+}
+.shell .mapButtons .satButton {
   font-family: var(--font-hud, inherit);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  text-align: center;
-  color: #151716;
 }
-.shell[data-look="night"] :global(.maplibregl-ctrl-group) .satButton {
-  color: #fff;
-}
-.shell :global(.maplibregl-ctrl-group) .satButton[aria-pressed="true"],
-.shell :global(.maplibregl-ctrl-group) .satButton[aria-pressed="true"]:hover {
+.shell .mapButtons button[aria-pressed="true"],
+.shell .mapButtons button[aria-pressed="true"]:hover {
   background: var(--sony);
   color: #000;
 }
-.shell :global(.maplibregl-ctrl-group button + button) {
-  border-top: 1px solid var(--edge);
+.mapIco {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
 }
-.shell :global(.maplibregl-ctrl-group button:not(:disabled):hover) {
-  background: rgba(240, 138, 0, 0.16);
-}
-.shell :global(.maplibregl-ctrl.maplibregl-ctrl-attrib) {
-  background: var(--glass);
+
+/* a visitor is asked before Google's map loads */
+.consent {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 14px;
+  padding: 0 calc(440px + 48px) 0 48px;
   color: var(--dim);
-  font-size: 10px;
+  font: 500 12px / 1.6 var(--mono);
   letter-spacing: 0.04em;
-  border-radius: 0;
 }
-.shell :global(.maplibregl-ctrl-attrib a) {
-  color: var(--dim);
+.consent p {
+  max-width: 46ch;
 }
-.shell :global(.maplibregl-ctrl-attrib-button) {
-  background-color: transparent;
-  border-radius: 0;
+.shell .consent button {
+  padding: 8px 14px;
+  border: 1px solid var(--sony);
+  color: var(--ink);
+  font: 700 11px / 1 var(--semi);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
-/* maplibre draws its icons dark: on the night screen they are turned over */
-.shell[data-look="night"] :global(.maplibregl-ctrl-icon),
-.shell[data-look="night"] :global(.maplibregl-ctrl-attrib-button) {
-  filter: invert(1);
+.shell .consent button:hover {
+  background: rgba(240, 138, 0, 0.16);
 }
 
 /* ---------- top left: the way back, the trip's name, the look ---------- */
@@ -492,12 +513,24 @@
     flex: 1;
     min-height: 0;
   }
-  .shell :global(.maplibregl-ctrl-top-right) {
+  /* a phone pinches: only the locate and satellite buttons stay */
+  .mapButtons {
+    top: 12px;
+    right: 12px;
+  }
+  .shell .mapButtons button:is(:nth-child(1), :nth-child(2)) {
     display: none;
   }
-  .shell :global(.maplibregl-ctrl-bottom-right) {
-    right: 0;
-    bottom: 0;
+  .shell .mapButtons button:nth-child(3) {
+    border-top: 0;
+  }
+  .mapButtons:not(:has(button:nth-child(3))) {
+    display: none;
+  }
+  .consent {
+    padding: 0 16px;
+    justify-content: flex-start;
+    padding-top: 120px;
   }
   .noMap {
     padding: 120px 16px 0;
@@ -1138,14 +1171,13 @@
     display: none;
   }
   /* Finding yourself stays a tap away; two fingers zoom. */
-  .shell[data-edit] :global(.maplibregl-ctrl-top-right) {
-    display: block;
+  .shell[data-edit] .mapButtons {
     top: 104px;
     right: 0;
   }
-  .shell[data-edit]
-    :global(.maplibregl-ctrl-top-right > .maplibregl-ctrl-group:first-child) {
-    display: none;
+  .shell .mapButtons button {
+    width: 44px;
+    height: 44px;
   }
   .shell[data-edit] .cardScroll {
     padding: 16px 16px 20px;
@@ -1221,9 +1253,6 @@
   }
   :where(.shell) .routeKeys .routeDone {
     flex: 1.3;
-  }
-  .shell[data-routing] :global(.maplibregl-ctrl-bottom-right) {
-    bottom: 138px;
   }
   :where(.shell) .routeWays button,
   :where(.shell) .routeRemove {
