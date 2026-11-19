@@ -30,3 +30,18 @@ describe("Google Routes", () => {
     expect(body.destination.location.latLng.longitude).toBe(135.7);
   });
 });
+
+describe("directions link", () => {
+  it("names the place when Google knows it", async () => {
+    const { directionsLink, NO_GOOGLE } = await import("../places");
+    expect(directionsLink({ lat: 35.71, lng: 139.79 })).toBe(
+      "https://www.google.com/maps/dir/?api=1&destination=35.71,139.79",
+    );
+    expect(
+      directionsLink({ lat: 35.71, lng: 139.79, googlePlaceId: "ChIJ x" }),
+    ).toContain("&destination_place_id=ChIJ%20x");
+    expect(
+      directionsLink({ lat: 1, lng: 2, googlePlaceId: NO_GOOGLE }),
+    ).not.toContain("place_id");
+  });
+});
